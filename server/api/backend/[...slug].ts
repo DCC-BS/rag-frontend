@@ -1,5 +1,10 @@
 import type { H3Event, EventHandlerRequest } from "h3";
 import { getServerSession, getToken } from "#auth";
+import { sendStream } from "h3";
+
+interface ErrorWithStatusCode extends Error {
+    statusCode?: number;
+}
 
 export default defineEventHandler(
     async (event: H3Event<EventHandlerRequest>) => {
@@ -21,16 +26,17 @@ export default defineEventHandler(
         const config = useRuntimeConfig(event);
         const targetBaseUrl = config.fastapiUrl;
 
-        const slug = event.context.params?.slug || "";
+        const slug = event.context.params?.slug ?? "";
         const targetUrl = `${targetBaseUrl}/${slug}`;
 
         try {
-            const response = await $fetch.raw(targetUrl, {
+            const body = ["POST", "PUT", "PATCH"].includes(event.method)
+                ? await readBody(event)
+                : undefined;
+
+            const response = await fetch(targetUrl, {
                 method: event.method,
-                query: getQuery(event),
-                body: ["POST", "PUT", "PATCH"].includes(event.method)
-                    ? await readBody(event).catch(() => undefined)
-                    : undefined,
+                body: JSON.stringify(body),
                 headers: {
                     Authorization: idToken || "",
                     "Content-Type":
@@ -39,37 +45,18 @@ export default defineEventHandler(
                     Accept: getRequestHeader(event, "accept") || "*/*",
                     "X-Access-Token": accessToken || "",
                 },
-                ignoreResponseError: true,
             });
 
-            // Forward status code, headers and body from FastAPI to frontend Client
-            setResponseStatus(event, response.status);
-
-            if (response.headers.has("content-type")) {
-                setResponseHeader(
-                    event,
-                    "content-type",
-                    response.headers.get("content-type") || "application/json",
-                );
-            }
-
-            if (response.headers.has("content-length")) {
-                setResponseHeader(
-                    event,
-                    "content-length",
-                    Number.parseInt(
-                        response.headers.get("content-length") || "0",
-                    ),
-                );
-            }
-
-            return response._data;
+            return new Response(response.body);
         } catch (error) {
             console.error(
                 `[Nuxt Server Proxy] Error fetching ${targetUrl}:`,
                 error,
             );
-            const err = error as Error;
+            const err = error as ErrorWithStatusCode;
+            if (typeof err.statusCode === "number") {
+                throw err;
+            }
             throw createError({
                 statusCode: 502,
                 statusMessage: "Bad Gateway",

@@ -3,6 +3,8 @@ export interface Message {
     isUser: boolean;
     avatar: string;
     content: string;
+    status?: string; // For streaming status updates
+    documents?: unknown[]; // For holding documents, though not displayed yet
 }
 
 export interface ChatMessage {
