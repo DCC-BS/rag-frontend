@@ -64,13 +64,14 @@ function parseStreamLine(line: string): StreamChunk[] {
 
 export async function sendMessage(
     message: string,
+    thread_id: string,
     onChunk: (chunk: StreamChunk) => void,
     onComplete: () => void,
     onError: (error: Error) => void,
 ): Promise<void> {
     const body: ChatMessage = {
         message: message,
-        thread_id: "none55", // This could be dynamic in a real application
+        thread_id: thread_id,
     };
 
     try {

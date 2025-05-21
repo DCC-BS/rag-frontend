@@ -4,6 +4,7 @@ import { sendMessage, type StreamChunk } from "@/composables/send_message";
 
 const { t } = useI18n();
 const { data: authData } = useAuth();
+const { thread_id, resetThreadId } = useThread();
 
 const userInput = ref("");
 const messages = ref<Message[]>([]);
@@ -44,6 +45,7 @@ const sendChat = async () => {
     try {
         await sendMessage(
             userMessageContent,
+            thread_id.value,
             (chunk: StreamChunk) => {
                 const currentAiMessage = messages.value[aiMessageIndex];
                 if (!currentAiMessage) return;
@@ -102,6 +104,12 @@ const sendChat = async () => {
         }
     }
 };
+
+const startNewChat = () => {
+    resetThreadId();
+    messages.value = [];
+    userInput.value = "";
+};
 </script>
 
 <template>
@@ -121,6 +129,7 @@ const sendChat = async () => {
                 size="lg"
             />
             <UButton @click="sendChat" size="lg">{{ t("chat.send") }}</UButton>
+            <UButton @click="startNewChat" size="lg">{{ t("chat.new") }}</UButton>
         </div>
     </div>
 </template>
