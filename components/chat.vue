@@ -14,7 +14,7 @@ const sendChat = async () => {
 
     const userAvatar =
         authData.value?.user?.image ?? "https://i.pravatar.cc/150?img=1";
-    const aiAvatar = "https://i.pravatar.cc/150?img=2";
+    const aiAvatar = "/img/ai.png";
 
     messages.value.push({
         id: `user-${Date.now()}`,

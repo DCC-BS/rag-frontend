@@ -22,7 +22,3 @@ const props = defineProps<{
     message: Message;
 }>();
 </script>
-
-<style>
-/* No specific styles needed here as we are using Tailwind/UnoCSS classes */
-</style>
