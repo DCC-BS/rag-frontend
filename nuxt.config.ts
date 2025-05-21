@@ -85,6 +85,10 @@ export default defineNuxtConfig({
             defaultProvider: "google",
             addDefaultCallbackUrl: true,
         },
+        sessionRefresh: {
+            enablePeriodically: true,
+            enableOnWindowFocus: true,
+        },
     },
     typescript: {
         shim: false, // Recommended for Nuxt 3
