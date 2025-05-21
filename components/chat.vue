@@ -105,7 +105,7 @@ const sendChat = async () => {
 </script>
 
 <template>
-    <div class="flex flex-col p-4 bg-gray-100 dark:bg-gray-900">
+    <div class="flex flex-col p-4">
         <h1 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">{{ t("chat.title") }}</h1>
         <div class="flex-1 mb-4 border rounded-lg p-4 bg-white dark:bg-gray-800 overflow-y-auto" ref="chatHistoryRef">
             <div v-for="message in messages" :key="message.id" class="mb-3">

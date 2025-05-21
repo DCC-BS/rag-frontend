@@ -11,7 +11,7 @@ export interface StreamChunk {
 
 function parseLine(line: string): StreamChunk[] {
     try {
-        const jsons = line.split("#MAGIC_SPLIT#");
+        const jsons = line.split("\0");
         const result: StreamChunk[] = [];
         for (const json of jsons) {
             if (json.length === 0) {
