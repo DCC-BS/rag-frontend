@@ -31,7 +31,7 @@ const sendChat = async () => {
         isUser: false,
         avatar: aiAvatar,
         content: "",
-        status: "Connecting...",
+        status: "...",
     });
 
     await nextTick();
@@ -109,17 +109,7 @@ const sendChat = async () => {
         <h1 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">{{ t("chat.title") }}</h1>
         <div class="flex-1 mb-4 border rounded-lg p-4 bg-white dark:bg-gray-800 overflow-y-auto" ref="chatHistoryRef">
             <div v-for="message in messages" :key="message.id" class="mb-3">
-                <div :class="['flex', message.isUser ? 'justify-end' : 'justify-start']">
-                    <img :src="message.avatar" alt="avatar" class="w-8 h-8 rounded-full mr-2 ml-2" :class="{'order-2': message.isUser}" />
-                    <div 
-                        :class="['max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl p-3 rounded-lg shadow', message.isUser ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100']"
-                    >
-                        <p class="text-sm">{{ message.content }}</p>
-                        <p v-if="message.status && !message.isUser" class="text-xs mt-1" :class="[message.isUser ? 'text-blue-200' : 'text-gray-500 dark:text-gray-400']">
-                            {{ message.status }}
-                        </p>
-                    </div>
-                </div>
+                <ChatMessage :message="message" />
             </div>
         </div>
         <div class="flex gap-2 p-2 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">

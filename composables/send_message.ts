@@ -44,7 +44,7 @@ function parseStreamLine(line: string): StreamChunk[] {
             if (type === "status") {
                 result.push({
                     type: "status",
-                    message: `${data.message}: ${data.decision}`,
+                    message: `${data.message}: ${data.decision ?? ""}`,
                 });
             }
 
