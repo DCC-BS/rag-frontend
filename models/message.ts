@@ -3,8 +3,8 @@ export interface Message {
     isUser: boolean;
     avatar: string;
     content: string;
-    status?: string; // For streaming status updates
-    documents?: unknown[]; // For holding documents, though not displayed yet
+    status?: string;
+    documents?: Document[] | null;
 }
 
 export interface ChatMessage {
@@ -12,7 +12,16 @@ export interface ChatMessage {
     thread_id: string;
 }
 
-export interface ChatResult {
-    message: string;
-    thread_id: string;
+export interface StreamChunk {
+    type: "status" | "documents" | "answer" | "interrupt";
+    message?: string;
+    decision?: string | null;
+    documents?: Document[] | null;
+    answer?: string | null;
+    metadata?: Record<string, string> | null;
+}
+
+export interface Document {
+    page_content: string;
+    metadata: Record<string, unknown>;
 }

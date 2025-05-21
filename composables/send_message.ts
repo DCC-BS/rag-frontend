@@ -1,13 +1,4 @@
-import type { ChatMessage } from "~/models/message";
-
-export interface StreamChunk {
-    type: "status" | "documents" | "answer" | "interrupt";
-    message?: string;
-    decision?: string | null;
-    documents?: unknown[] | null;
-    answer?: string | null;
-    metadata?: Record<string, unknown> | null;
-}
+import type { ChatMessage, StreamChunk, Document } from "~/models/message";
 
 function parseLine(line: string): StreamChunk[] {
     try {
@@ -34,10 +25,18 @@ function parseStreamLine(line: string): StreamChunk[] {
         for (const data of jsonData) {
             const type = data.type;
 
-            if (type === "interrupt" || type === "documents") {
+            if (type === "interrupt") {
                 result.push({
                     type: "status",
                     message: "Bla",
+                });
+            }
+
+            if (type === "documents") {
+                const documents = data.documents as Document[];
+                result.push({
+                    type: "documents",
+                    documents: documents,
                 });
             }
 
@@ -115,44 +114,4 @@ export async function sendMessage(
         // Ensure error passed to onError is an Error instance
         onError(new Error(errorMessage));
     }
-}
-
-// Helper function to find the end of a JSON object (handles nested structures)
-function findJsonEnd(str: string): number {
-    let braceCount = 0;
-    let inString = false;
-    let escapeNext = false;
-
-    for (let i = 0; i < str.length; i++) {
-        const char = str[i];
-
-        if (escapeNext) {
-            escapeNext = false;
-            continue;
-        }
-
-        if (char === "\\") {
-            escapeNext = true;
-            continue;
-        }
-
-        if (char === '"') {
-            inString = !inString;
-        }
-
-        if (inString) {
-            continue;
-        }
-
-        if (char === "{") {
-            braceCount++;
-        } else if (char === "}") {
-            braceCount--;
-            if (braceCount === 0) {
-                // Found the end of a top-level JSON object
-                return i;
-            }
-        }
-    }
-    return -1; // End of JSON object not found (or malformed)
 }

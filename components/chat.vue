@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Message } from "@/models/message";
-import { sendMessage, type StreamChunk } from "@/composables/send_message";
+import type { Message, StreamChunk } from "@/models/message";
+import { sendMessage } from "@/composables/send_message";
 
 const { t } = useI18n();
 const { data: authData } = useAuth();
@@ -69,8 +69,7 @@ const sendChat = async () => {
                         currentAiMessage.content += chunk.answer || "";
                     }
                 } else if (chunk.type === "documents") {
-                    // Ignored for now as per requirements
-                    // currentAiMessage.documents = chunk.documents;
+                    currentAiMessage.documents = chunk.documents;
                 }
             },
             () => {

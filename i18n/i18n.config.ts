@@ -9,6 +9,8 @@ export default defineI18nConfig(() => ({
                 send: "Send",
                 message: "Message",
                 new: "New Chat",
+                page: "Page",
+                sources: "Sources",
             },
             navigation: {
                 languages: "Languages",
@@ -22,6 +24,8 @@ export default defineI18nConfig(() => ({
                 send: "Senden",
                 message: "Nachricht",
                 new: "Neuer Chat",
+                page: "Seite",
+                sources: "Quellen",
             },
             navigation: {
                 languages: "Sprachen",
