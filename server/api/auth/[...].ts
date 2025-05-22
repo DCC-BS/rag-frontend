@@ -15,6 +15,7 @@ export default NuxtAuthHandler({
         AzureADProvider.default({
             clientId: useRuntimeConfig().azureAdClientId,
             clientSecret: useRuntimeConfig().azureAdClientSecret,
+            tenantId: useRuntimeConfig().azureAdTenantId,
             authorization: { params: { scope: "openid email profile" } },
         }),
     ],

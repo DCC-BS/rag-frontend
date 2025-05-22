@@ -53,6 +53,7 @@ export default defineNuxtConfig({
         authSecret: process.env.NUXT_AUTH_SECRET,
         googleClientId: process.env.NUXT_GOOGLE_CLIENT_ID,
         googleClientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
+        azureAdTenantId: process.env.AZURE_AD_TENANT_ID,
         azureAdClientId: process.env.AZURE_AD_CLIENT_ID,
         azureAdClientSecret: process.env.AZURE_AD_CLIENT_SECRET,
     },
@@ -82,7 +83,7 @@ export default defineNuxtConfig({
         originEnvKey: "AUTH_ORIGIN",
         provider: {
             type: "authjs",
-            defaultProvider: "google",
+            defaultProvider: "azureAd",
             addDefaultCallbackUrl: true,
         },
         sessionRefresh: {
