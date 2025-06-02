@@ -1,5 +1,5 @@
-import GoogleProvider from "next-auth/providers/google";
 import AzureADProvider from "next-auth/providers/azure-ad";
+import GoogleProvider from "next-auth/providers/google";
 import { NuxtAuthHandler } from "#auth";
 
 export default NuxtAuthHandler({

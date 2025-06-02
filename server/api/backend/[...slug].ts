@@ -1,6 +1,6 @@
-import type { H3Event, EventHandlerRequest } from "h3";
-import { getServerSession, getToken } from "#auth";
+import type { EventHandlerRequest, H3Event } from "h3";
 import { sendStream } from "h3";
+import { getServerSession, getToken } from "#auth";
 
 interface ErrorWithStatusCode extends Error {
     statusCode?: number;

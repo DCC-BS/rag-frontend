@@ -60,8 +60,8 @@
 
 <script lang="ts" setup>
 import type { Message } from "@/models/message";
-import Document from "./document.vue";
 import { ref } from "vue";
+import Document from "./document.vue";
 
 const { t } = useI18n();
 const props = defineProps<{

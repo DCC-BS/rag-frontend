@@ -1,4 +1,4 @@
-import type { ChatMessage, StreamChunk, Document } from "~/models/message";
+import type { ChatMessage, Document, StreamChunk } from "~/models/message";
 
 function parseLine(line: string): StreamChunk[] {
     try {
@@ -33,6 +33,7 @@ function parseStreamLine(line: string): StreamChunk[] {
             }
 
             if (type === "documents") {
+                console.log("documents", data);
                 const documents = data.documents as Document[];
                 result.push({
                     type: "documents",

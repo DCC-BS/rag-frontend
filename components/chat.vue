@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Message, StreamChunk } from "@/models/message";
 import { sendMessage } from "@/composables/send_message";
+import type { Message, StreamChunk } from "@/models/message";
 
 const { t } = useI18n();
 const { data: authData } = useAuth();
