@@ -16,14 +16,30 @@ const showExampleQuestions = computed(() => {
     return messages.value.length === 0 && userInput.value.trim() === "";
 });
 
-// Auto-scroll to bottom when new messages are added
 const scrollToBottom = () => {
-    nextTick(() => {
-        if (chatHistoryRef.value) {
-            chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight;
-        }
-    });
+    if (import.meta.client && chatHistoryRef.value) {
+        // Use setTimeout to ensure DOM is fully updated
+        setTimeout(() => {
+            const element = chatHistoryRef.value;
+            if (element) {
+                const { scrollHeight, clientHeight } = element;
+
+                // Only scroll if there's actually scrollable content
+                if (scrollHeight > clientHeight) {
+                    element.scrollTop = scrollHeight;
+                }
+            }
+        }, 10);
+    }
 };
+
+watch(
+    messages,
+    () => {
+        scrollToBottom();
+    },
+    { deep: true },
+);
 
 const sendChat = async () => {
     const userMessageContent = userInput.value.trim();
@@ -42,7 +58,6 @@ const sendChat = async () => {
     });
 
     userInput.value = "";
-    scrollToBottom();
 
     const aiMessageId = `ai-${Date.now()}`;
     messages.value.push({
@@ -52,8 +67,6 @@ const sendChat = async () => {
         content: "",
         status: "Thinking...",
     });
-
-    scrollToBottom();
 
     const aiMessageIndex = messages.value.findIndex(
         (msg) => msg.id === aiMessageId,
@@ -86,7 +99,6 @@ const sendChat = async () => {
                     } else {
                         currentAiMessage.content += chunk.answer || "";
                     }
-                    scrollToBottom();
                 } else if (chunk.type === "documents") {
                     currentAiMessage.documents = chunk.documents;
                 }
@@ -151,9 +163,9 @@ const handleKeydown = (event: KeyboardEvent) => {
 <template>
     <div class="flex flex-col h-full bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
         <!-- Chat Area -->
-        <div class="flex-1 overflow-hidden flex flex-col">
+        <div class="flex flex-col" style="height: calc(100vh - 200px);">
             <div 
-                class="flex-1 overflow-y-auto scroll-smooth px-4 py-6 pb-60" 
+                class="flex-1 overflow-y-auto px-4 py-6 pb-20" 
                 ref="chatHistoryRef"
             >
                 <div class="max-w-4xl mx-auto">
