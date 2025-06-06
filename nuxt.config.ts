@@ -87,7 +87,7 @@ export default defineNuxtConfig({
             addDefaultCallbackUrl: true,
         },
         sessionRefresh: {
-            // enablePeriodically: true,
+            enablePeriodically: 900,
             enableOnWindowFocus: true,
         },
     },
