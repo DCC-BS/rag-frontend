@@ -3,5 +3,6 @@
         <FeedbackControl />
         <NavigationMenu />
         <NuxtPage />
+        <DataBsFooter />
     </UApp>
 </template>

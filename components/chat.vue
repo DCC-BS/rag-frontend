@@ -8,11 +8,28 @@ const { thread_id, resetThreadId } = useThread();
 
 const userInput = ref("");
 const messages = ref<Message[]>([]);
+const isLoading = ref(false);
+const chatHistoryRef = ref<HTMLElement>();
+
+// Computed property to determine if example questions should be shown
+const showExampleQuestions = computed(() => {
+    return messages.value.length === 0 && userInput.value.trim() === "";
+});
+
+// Auto-scroll to bottom when new messages are added
+const scrollToBottom = () => {
+    nextTick(() => {
+        if (chatHistoryRef.value) {
+            chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight;
+        }
+    });
+};
 
 const sendChat = async () => {
     const userMessageContent = userInput.value.trim();
-    if (!userMessageContent) return;
+    if (!userMessageContent || isLoading.value) return;
 
+    isLoading.value = true;
     const userAvatar =
         authData.value?.user?.image ?? "https://i.pravatar.cc/150?img=1";
     const aiAvatar = "/img/ai.png";
@@ -25,6 +42,7 @@ const sendChat = async () => {
     });
 
     userInput.value = "";
+    scrollToBottom();
 
     const aiMessageId = `ai-${Date.now()}`;
     messages.value.push({
@@ -32,10 +50,10 @@ const sendChat = async () => {
         isUser: false,
         avatar: aiAvatar,
         content: "",
-        status: "...",
+        status: "Thinking...",
     });
 
-    await nextTick();
+    scrollToBottom();
 
     const aiMessageIndex = messages.value.findIndex(
         (msg) => msg.id === aiMessageId,
@@ -68,6 +86,7 @@ const sendChat = async () => {
                     } else {
                         currentAiMessage.content += chunk.answer || "";
                     }
+                    scrollToBottom();
                 } else if (chunk.type === "documents") {
                     currentAiMessage.documents = chunk.documents;
                 }
@@ -84,6 +103,7 @@ const sendChat = async () => {
                             "No response or stream ended.";
                     }
                 }
+                isLoading.value = false;
             },
             (error: Error) => {
                 console.error("Failed to initiate chat send:", error);
@@ -92,6 +112,7 @@ const sendChat = async () => {
                     currentAiMessage.content = "Failed to send message.";
                     currentAiMessage.status = "Error";
                 }
+                isLoading.value = false;
             },
         );
     } catch (error) {
@@ -101,34 +122,110 @@ const sendChat = async () => {
             currentAiMessage.content = "Failed to send message.";
             currentAiMessage.status = "Error";
         }
+        isLoading.value = false;
     }
 };
 
 const startNewChat = () => {
+    if (isLoading.value) return;
     resetThreadId();
     messages.value = [];
     userInput.value = "";
 };
+
+// Function to handle example question clicks
+const handleExampleQuestionClick = (question: string): void => {
+    userInput.value = question;
+    sendChat();
+};
+
+// Handle keyboard shortcuts
+const handleKeydown = (event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendChat();
+    }
+};
 </script>
 
 <template>
-    <div class="flex flex-col p-4">
-        <h1 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">{{ t("chat.title") }}</h1>
-        <div class="flex-1 mb-4 border rounded-lg p-4 bg-white dark:bg-gray-800 overflow-y-auto" ref="chatHistoryRef">
-            <div v-for="message in messages" :key="message.id" class="mb-3">
-                <ChatMessage :message="message" />
+    <div class="flex flex-col h-full bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <!-- Chat Area -->
+        <div class="flex-1 overflow-hidden flex flex-col">
+            <div 
+                class="flex-1 overflow-y-auto scroll-smooth px-4 py-6" 
+                ref="chatHistoryRef"
+            >
+                <div class="max-w-4xl mx-auto">
+                    <!-- Show example questions when no messages and no input -->
+                    <ExampleQuestions 
+                        v-if="showExampleQuestions" 
+                        @question-clicked="handleExampleQuestionClick"
+                    />
+                    
+                    <!-- Show chat messages -->
+                    <div v-for="message in messages" :key="message.id" class="mb-6">
+                        <ChatMessage :message="message" />
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="flex gap-2 p-2 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-            <UInput 
-                v-model="userInput" 
-                :placeholder="t('chat.message')" 
-                class="flex-1" 
-                @keyup.enter="sendChat"
-                size="lg"
-            />
-            <UButton @click="sendChat" size="lg">{{ t("chat.send") }}</UButton>
-            <UButton @click="startNewChat" size="lg">{{ t("chat.new") }}</UButton>
+
+        <!-- Input Area -->
+        <div class="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg">
+            <div class="max-w-4xl mx-auto p-6">
+                <!-- New Chat Button - positioned above input -->
+                <div class="flex justify-center mb-4">
+                    <UButton 
+                        @click="startNewChat" 
+                        variant="outline" 
+                        size="sm"
+                        :disabled="isLoading"
+                        class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                    >
+                        <UIcon name="i-heroicons-plus" class="w-4 h-4 mr-2" />
+                        {{ t('chat.newChat', 'New Chat') }}
+                    </UButton>
+                </div>
+                
+                <!-- Large Input Container -->
+                <div class="relative">
+                    <div class="relative bg-gray-50 dark:bg-gray-700 rounded-3xl border border-gray-200 dark:border-gray-600 focus-within:border-blue-500 dark:focus-within:border-blue-400 transition-colors duration-200">
+                        <UTextarea 
+                            v-model="userInput" 
+                            :placeholder="t('chat.message')" 
+                            class="resize-none bg-transparent border-0 focus:ring-0 text-base px-6 py-4 pr-16 w-full"
+                            :rows="1"
+                            :maxrows="8"
+                            autoresize
+                            @keydown="handleKeydown"
+                            :disabled="isLoading"
+                        />
+                        
+                        <!-- Send Button - Inside the textarea -->
+                        <div class="absolute right-3 bottom-3">
+                            <UButton 
+                                @click="sendChat" 
+                                size="sm"
+                                :loading="isLoading"
+                                :disabled="!userInput.trim() || isLoading"
+                                class="rounded-full w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                :class="{ 
+                                    'opacity-100': userInput.trim() && !isLoading,
+                                    'opacity-50': !userInput.trim() || isLoading 
+                                }"
+                            >
+                                <UIcon name="i-heroicons-paper-airplane" class="w-5 h-5" />
+                            </UButton>
+                        </div>
+                        
+                        <!-- Helper text -->
+                        <div class="absolute right-16 bottom-4 text-xs text-gray-400 dark:text-gray-500 hidden sm:block">
+                            {{ t("chat.pressEnterToSend") }}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
