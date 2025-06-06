@@ -1,163 +1,60 @@
 <script setup lang="ts">
-import { sendMessage } from "@/composables/send_message";
-import type { Message, StreamChunk } from "@/models/message";
+import type { Message } from "@/models/message";
 
+// Composables
 const { t } = useI18n();
-const { data: authData } = useAuth();
-const { thread_id, resetThreadId } = useThread();
+const { resetThreadId } = useThread();
+const {
+    messages,
+    isLoading,
+    showExampleQuestions,
+    sendChatMessage,
+    clearMessages,
+} = useChatMessages();
+const { chatHistoryRef, watchMessages } = useAutoScroll();
+const { userInput, hasContent, createKeydownHandler, clearInput, setInput } =
+    useChatInput();
 
-const userInput = ref("");
-const messages = ref<Message[]>([]);
-const isLoading = ref(false);
-const chatHistoryRef = ref<HTMLElement>();
+// Auto-scroll when messages change
+watchMessages(messages);
 
-// Computed property to determine if example questions should be shown
-const showExampleQuestions = computed(() => {
-    return messages.value.length === 0 && userInput.value.trim() === "";
+// Computed property to enhance showExampleQuestions with input state
+const showExampleQuestionsEnhanced = computed(() => {
+    return showExampleQuestions.value && !hasContent.value;
 });
 
-const scrollToBottom = () => {
-    if (import.meta.client && chatHistoryRef.value) {
-        // Use setTimeout to ensure DOM is fully updated
-        setTimeout(() => {
-            const element = chatHistoryRef.value;
-            if (element) {
-                const { scrollHeight, clientHeight } = element;
+/**
+ * Send a chat message
+ */
+async function sendChat(): Promise<void> {
+    const content = userInput.value.trim();
+    if (!content) return;
 
-                // Only scroll if there's actually scrollable content
-                if (scrollHeight > clientHeight) {
-                    element.scrollTop = scrollHeight;
-                }
-            }
-        }, 10);
-    }
-};
+    clearInput();
+    await sendChatMessage(content);
+}
 
-watch(
-    messages,
-    () => {
-        scrollToBottom();
-    },
-    { deep: true },
-);
-
-const sendChat = async () => {
-    const userMessageContent = userInput.value.trim();
-    if (!userMessageContent || isLoading.value) return;
-
-    isLoading.value = true;
-    const userAvatar =
-        authData.value?.user?.image ?? "https://i.pravatar.cc/150?img=1";
-    const aiAvatar = "/img/ai.png";
-
-    messages.value.push({
-        id: `user-${Date.now()}`,
-        isUser: true,
-        avatar: userAvatar,
-        content: userMessageContent,
-    });
-
-    userInput.value = "";
-
-    const aiMessageId = `ai-${Date.now()}`;
-    messages.value.push({
-        id: aiMessageId,
-        isUser: false,
-        avatar: aiAvatar,
-        content: "",
-        status: "Thinking...",
-    });
-
-    const aiMessageIndex = messages.value.findIndex(
-        (msg) => msg.id === aiMessageId,
-    );
-    if (aiMessageIndex === -1) return;
-
-    try {
-        await sendMessage(
-            userMessageContent,
-            thread_id.value,
-            (chunk: StreamChunk) => {
-                const currentAiMessage = messages.value[aiMessageIndex];
-                if (!currentAiMessage) return;
-
-                if (chunk.type === "status") {
-                    let statusText = chunk.message || "";
-                    if (chunk.decision) {
-                        statusText += ` (Decision: ${chunk.decision})`;
-                    }
-                    currentAiMessage.status = statusText;
-                    if (currentAiMessage.content === "") {
-                        currentAiMessage.content = "…";
-                    }
-                } else if (chunk.type === "answer") {
-                    if (
-                        currentAiMessage.content === "…" ||
-                        currentAiMessage.content === ""
-                    ) {
-                        currentAiMessage.content = chunk.answer || "";
-                    } else {
-                        currentAiMessage.content += chunk.answer || "";
-                    }
-                } else if (chunk.type === "documents") {
-                    currentAiMessage.documents = chunk.documents;
-                }
-            },
-            () => {
-                const currentAiMessage = messages.value[aiMessageIndex];
-                if (currentAiMessage) {
-                    currentAiMessage.status = undefined;
-                    if (
-                        currentAiMessage.content === "…" ||
-                        currentAiMessage.content === ""
-                    ) {
-                        currentAiMessage.content =
-                            "No response or stream ended.";
-                    }
-                }
-                isLoading.value = false;
-            },
-            (error: Error) => {
-                console.error("Failed to initiate chat send:", error);
-                const currentAiMessage = messages.value[aiMessageIndex];
-                if (currentAiMessage) {
-                    currentAiMessage.content = "Failed to send message.";
-                    currentAiMessage.status = "Error";
-                }
-                isLoading.value = false;
-            },
-        );
-    } catch (error) {
-        console.error("Failed to initiate chat send:", error);
-        const currentAiMessage = messages.value[aiMessageIndex];
-        if (currentAiMessage) {
-            currentAiMessage.content = "Failed to send message.";
-            currentAiMessage.status = "Error";
-        }
-        isLoading.value = false;
-    }
-};
-
-const startNewChat = () => {
+/**
+ * Start a new chat session
+ */
+function startNewChat(): void {
     if (isLoading.value) return;
+
     resetThreadId();
-    messages.value = [];
-    userInput.value = "";
-};
+    clearMessages();
+    clearInput();
+}
 
-// Function to handle example question clicks
-const handleExampleQuestionClick = (question: string): void => {
-    userInput.value = question;
+/**
+ * Handle example question clicks
+ */
+function handleExampleQuestionClick(question: string): void {
+    setInput(question);
     sendChat();
-};
+}
 
-// Handle keyboard shortcuts
-const handleKeydown = (event: KeyboardEvent) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendChat();
-    }
-};
+// Keyboard event handler
+const handleKeydown = createKeydownHandler(sendChat);
 </script>
 
 <template>
@@ -171,7 +68,7 @@ const handleKeydown = (event: KeyboardEvent) => {
                 <div class="max-w-4xl mx-auto">
                     <!-- Show example questions when no messages and no input -->
                     <ExampleQuestions 
-                        v-if="showExampleQuestions" 
+                        v-if="showExampleQuestionsEnhanced" 
                         @question-clicked="handleExampleQuestionClick"
                     />
                     
@@ -220,11 +117,11 @@ const handleKeydown = (event: KeyboardEvent) => {
                                 @click="sendChat" 
                                 size="sm"
                                 :loading="isLoading"
-                                :disabled="!userInput.trim() || isLoading"
+                                :disabled="!hasContent || isLoading"
                                 class="rounded-full w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                 :class="{ 
-                                    'opacity-100': userInput.trim() && !isLoading,
-                                    'opacity-50': !userInput.trim() || isLoading 
+                                    'opacity-100': hasContent && !isLoading,
+                                    'opacity-50': !hasContent || isLoading 
                                 }"
                             >
                                 <UIcon name="i-heroicons-paper-airplane" class="w-5 h-5" />
