@@ -153,7 +153,7 @@ const handleKeydown = (event: KeyboardEvent) => {
         <!-- Chat Area -->
         <div class="flex-1 overflow-hidden flex flex-col">
             <div 
-                class="flex-1 overflow-y-auto scroll-smooth px-4 py-6" 
+                class="flex-1 overflow-y-auto scroll-smooth px-4 py-6 pb-60" 
                 ref="chatHistoryRef"
             >
                 <div class="max-w-4xl mx-auto">
@@ -172,7 +172,7 @@ const handleKeydown = (event: KeyboardEvent) => {
         </div>
 
         <!-- Input Area -->
-        <div class="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg">
+        <div class="flex-shrink-0 fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-10">
             <div class="max-w-4xl mx-auto p-6">
                 <!-- New Chat Button - positioned above input -->
                 <div class="flex justify-center mb-4">
@@ -226,6 +226,7 @@ const handleKeydown = (event: KeyboardEvent) => {
                     </div>
                 </div>
             </div>
+            <DataBsFooter />
         </div>
     </div>
 </template>
