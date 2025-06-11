@@ -29,7 +29,7 @@
           
           <!-- Message text -->
           <div class="prose prose-sm max-w-none" :class="props.message.isUser ? 'prose-invert' : 'dark:prose-invert'">
-            <p class="mb-0 leading-relaxed whitespace-pre-wrap">{{ props.message.content }}</p>
+            <p class="mb-0 leading-relaxed">{{ props.message.content }}</p>
           </div>
           
           <!-- Status indicator -->
@@ -84,11 +84,6 @@
                   </div>
                 </div>
               </div>
-              <UIcon
-                name="i-heroicons-chevron-down"
-                class="w-5 h-5 transform transition-transform duration-200 text-gray-400"
-                :class="[open && 'rotate-180']"
-              />
             </UButton>
         </template>
         <template #item="{ item }">
