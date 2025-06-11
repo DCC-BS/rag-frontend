@@ -13,7 +13,14 @@ export interface ChatMessage {
 }
 
 export interface StreamChunk {
-    type: "status" | "documents" | "answer" | "interrupt";
+    type: "status" | "documents" | "answer" | "interrupt" | "clear";
+    sender?:
+        | "RetrieveAction"
+        | "GenerateAnswerAction"
+        | "GradeAnswerAction"
+        | "GradeHallucinationAction"
+        | "RouteQuestionAction"
+        | null;
     message?: string;
     decision?: string | null;
     documents?: Document[] | null;

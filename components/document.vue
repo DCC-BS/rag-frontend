@@ -8,11 +8,11 @@
             <UIcon name="i-heroicons-document-text" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </div>
           <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-            Source {{ props.index + 1 }}
+            {{ t("chat.source") }} {{ props.index + 1 }}
           </span>
         </div>
         <div class="text-xs text-gray-400 dark:text-gray-500">
-          Doc
+          {{ t("chat.document") }}
         </div>
       </div>
 
@@ -46,6 +46,7 @@
 
 <script lang="ts" setup>
 import type { Document } from "@/models/message";
+const { t } = useI18n();
 
 const props = defineProps<{
     document: Document;

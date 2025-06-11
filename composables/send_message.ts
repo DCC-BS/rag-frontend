@@ -42,10 +42,22 @@ function parseStreamLine(line: string): StreamChunk[] {
             }
 
             if (type === "status") {
-                result.push({
-                    type: "status",
-                    message: `${data.message}: ${data.decision ?? ""}`,
-                });
+                // Check if we need to clear text based on detector decisions
+                if (
+                    (data.sender === "GradeAnswerAction" ||
+                        data.sender === "GradeHallucinationAction") &&
+                    data.decision === "Yes"
+                ) {
+                    result.push({
+                        type: "clear",
+                        message: "Text cleared due to detector decision",
+                    });
+                } else {
+                    result.push({
+                        type: "status",
+                        message: `${data.message}: ${data.decision ?? ""}`,
+                    });
+                }
             }
 
             if (type === "answer") {
