@@ -1,5 +1,4 @@
 import AzureADProvider from "next-auth/providers/azure-ad";
-import GoogleProvider from "next-auth/providers/google";
 import { NuxtAuthHandler } from "#auth";
 
 // Interface for extended token with expiration info
@@ -12,54 +11,18 @@ interface ExtendedToken {
     error?: string;
 }
 
-// Function to refresh Google access token
-async function refreshGoogleAccessToken(
-    token: ExtendedToken,
-): Promise<ExtendedToken> {
-    try {
-        const url = "https://oauth2.googleapis.com/token";
-        const response = await fetch(url, {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-                client_id: useRuntimeConfig().googleClientId,
-                client_secret: useRuntimeConfig().googleClientSecret,
-                grant_type: "refresh_token",
-                refresh_token: token.refreshToken!,
-            }),
-            method: "POST",
-        });
-
-        const refreshedTokens = await response.json();
-
-        if (!response.ok) {
-            throw refreshedTokens;
-        }
-
-        return {
-            ...token,
-            accessToken: refreshedTokens.access_token,
-            idToken: refreshedTokens.id_token,
-            expiresAt: Math.floor(
-                Date.now() / 1000 + refreshedTokens.expires_in,
-            ),
-            refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
-        };
-    } catch (error) {
-        console.error("Error refreshing Google access token:", error);
-        return {
-            ...token,
-            error: "RefreshAccessTokenError",
-        };
-    }
-}
-
 // Function to refresh Azure AD access token
 async function refreshAzureAccessToken(
     token: ExtendedToken,
 ): Promise<ExtendedToken> {
     try {
+        if (!token.refreshToken) {
+            return {
+                ...token,
+                error: "RefreshAccessTokenError",
+            };
+        }
+
         const tenantId = useRuntimeConfig().azureAdTenantId;
         const url = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
 
@@ -71,7 +34,7 @@ async function refreshAzureAccessToken(
                 client_id: useRuntimeConfig().azureAdClientId,
                 client_secret: useRuntimeConfig().azureAdClientSecret,
                 grant_type: "refresh_token",
-                refresh_token: token.refreshToken!,
+                refresh_token: token.refreshToken,
                 scope: "openid email profile",
             }),
             method: "POST",
@@ -104,18 +67,6 @@ async function refreshAzureAccessToken(
 export default NuxtAuthHandler({
     secret: useRuntimeConfig().authSecret,
     providers: [
-        // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
-        GoogleProvider.default({
-            clientId: useRuntimeConfig().googleClientId,
-            clientSecret: useRuntimeConfig().googleClientSecret,
-            authorization: {
-                params: {
-                    scope: "openid email profile",
-                    access_type: "offline", // Request refresh token
-                    prompt: "consent", // Force consent to get refresh token
-                },
-            },
-        }),
         // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
         AzureADProvider.default({
             clientId: useRuntimeConfig().azureAdClientId,
@@ -156,9 +107,7 @@ export default NuxtAuthHandler({
             console.log("Token expired, attempting to refresh...");
 
             if (extendedToken.refreshToken) {
-                if (extendedToken.provider === "google") {
-                    return await refreshGoogleAccessToken(extendedToken);
-                } else if (extendedToken.provider === "azure-ad") {
+                if (extendedToken.provider === "azure-ad") {
                     return await refreshAzureAccessToken(extendedToken);
                 }
             }

@@ -51,8 +51,6 @@ export default defineNuxtConfig({
         },
         fastapiUrl: process.env.FASTAPI_URL,
         authSecret: process.env.NUXT_AUTH_SECRET,
-        googleClientId: process.env.NUXT_GOOGLE_CLIENT_ID,
-        googleClientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
         azureAdTenantId: process.env.AZURE_AD_TENANT_ID,
         azureAdClientId: process.env.AZURE_AD_CLIENT_ID,
         azureAdClientSecret: process.env.AZURE_AD_CLIENT_SECRET,
