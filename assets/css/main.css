@@ -2,3 +2,33 @@
 @import "@nuxt/ui";
 
 @source "../../node_modules/@dcc-bs/common-ui.bs.js/dist/runtime";
+
+/**
+ * Position the disclaimer in the bottom right corner
+ * next to the feedback button
+ */
+.disclaimer-wrapper {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 40;
+    /* Add some margin to account for feedback button spacing */
+    margin-right: 9rem;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .disclaimer-wrapper {
+        bottom: 0.75rem;
+        right: 0.75rem;
+        margin-right: 3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .disclaimer-wrapper {
+        bottom: 0.5rem;
+        right: 0.5rem;
+        margin-right: 2.5rem;
+    }
+}

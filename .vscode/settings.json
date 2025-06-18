@@ -19,5 +19,8 @@
     "tailwindCSS.classAttributes": ["class", "ui"],
     "tailwindCSS.experimental.classRegex": [
         ["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-    ]
+    ],
+    "[vue]": {
+        "editor.defaultFormatter": "Vue.volar"
+    }
 }

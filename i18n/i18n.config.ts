@@ -13,6 +13,10 @@ export default defineI18nConfig(() => ({
                 sources: "Sources",
                 exampleQuestions: {
                     title: "Try asking:",
+                    clickToAsk: "Click to ask",
+                    additionalHelp: "You can ask me about social security.",
+                    description:
+                        "Click on one of the following questions to start, or enter your own question.",
                     question1:
                         "What can be reimbursed as rent and ancillary costs for homeowners?",
                     category1: "Ancillary costs",
