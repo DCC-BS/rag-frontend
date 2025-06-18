@@ -18,8 +18,10 @@
         "@iconify-json/lucide": "latest",
         "@nuxt/ui": "^3.0.1",
         "@nuxtjs/i18n": "latest",
+        "@nuxtjs/mdc": "^0.17.0",
         "@sidebase/nuxt-auth": "0.10.1",
         "@types/uuid": "^10.0.0",
+        "better-sqlite3": "^11.10.0",
         "nuxt": "latest",
         "vue": "latest",
         "vue-router": "latest"
