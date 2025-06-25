@@ -1,10 +1,11 @@
 export interface Message {
-    id: string | number;
+    id: string;
     isUser: boolean;
     avatar: string;
     content: string;
     status?: string;
     documents?: Document[] | null;
+    timestamp?: Date;
 }
 
 export interface ChatMessage {

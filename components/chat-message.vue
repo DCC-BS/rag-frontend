@@ -23,7 +23,9 @@
 
           <!-- Message text -->
           <div class="prose prose-sm max-w-none" :class="props.message.isUser ? 'prose-invert' : 'dark:prose-invert'">
-            <MDC :value="props.message.content" />
+            <p>{{ props.message.content }}</p>
+            <!-- TODO: Fix MDC rendering -->
+            <!-- <MDC :key="props.message.id" :value="props.message.content" /> -->
           </div>
 
           <!-- Status indicator -->
@@ -43,7 +45,7 @@
         <!-- Timestamp (shown on hover) -->
         <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-1">
           <span class="text-xs text-gray-400 dark:text-gray-500">
-            {{ new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+            {{ props.message.timestamp?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '' }}
           </span>
         </div>
       </div>
@@ -85,15 +87,17 @@
 
 <script lang="ts" setup>
 import type { Message } from "@/models/message";
-import { ref } from "vue";
+import { computed } from "vue";
 import Document from "./document.vue";
 
-const { t } = useI18n();
 const props = defineProps<{
   message: Message;
 }>();
 
-const accordionItems = ref([
+const { t } = useI18n();
+
+// Make accordionItems computed per component instance
+const accordionItems = computed(() => [
   {
     label: t("chat.sources"),
     slot: "item",

@@ -5,6 +5,8 @@ alwaysApply: false
 ---
 ## Nuxt with TypeScript Copilot Instructions
 
+Instead of npm I am using bun. Therefore use bun for tool calls.
+
 1. **Use Composition API exclusively**
    Always use the Composition API style for components and composables.
 

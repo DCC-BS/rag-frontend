@@ -23,6 +23,7 @@ export const useChatMessages = () => {
             isUser: true,
             avatar: userAvatar,
             content,
+            timestamp: new Date(),
         });
     }
 
@@ -39,6 +40,7 @@ export const useChatMessages = () => {
             avatar: aiAvatar,
             content: "",
             status: "Thinking...",
+            timestamp: new Date(),
         });
 
         return messages.value.findIndex((msg) => msg.id === aiMessageId);
