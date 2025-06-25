@@ -9,8 +9,11 @@ export default defineI18nConfig(() => ({
                 send: "Send",
                 message: "Message",
                 new: "New Chat",
-                page: "Page",
+                page: "Page {page} of {num_pages}",
                 sources: "Sources",
+                document: "Document",
+                created_at: "Created at",
+                mime_type: "File type",
                 exampleQuestions: {
                     title: "Try asking:",
                     clickToAsk: "Click to ask",
@@ -42,8 +45,11 @@ export default defineI18nConfig(() => ({
                 send: "Senden",
                 message: "Nachricht",
                 new: "Neuer Chat",
-                page: "Seite",
                 sources: "Quellen",
+                document: "Dokument",
+                page: "Seite {page} von {num_pages}",
+                created_at: "Erstellt am",
+                mime_type: "Dateityp",
                 exampleQuestions: {
                     additionalHelp:
                         "Sie können mir alles zu Sozialversicherung fragen.",
