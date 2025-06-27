@@ -35,6 +35,8 @@ export default defineI18nConfig(() => ({
                 languages: "Languages",
                 signOut: "Sign Out",
                 title: "AI Chat Bot",
+                documents: "Documents",
+                home: "Home",
             },
         },
 
@@ -72,6 +74,8 @@ export default defineI18nConfig(() => ({
                 languages: "Sprachen",
                 signOut: "Abmelden",
                 title: "AI Chat Bot",
+                documents: "Dokumente",
+                home: "Home",
             },
         },
     },

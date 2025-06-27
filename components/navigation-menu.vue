@@ -32,6 +32,18 @@ const items = ref<NavigationMenuItem[]>([
     ],
     [
         {
+            label: t("navigation.home"),
+            icon: "i-heroicons-home",
+            to: "/",
+        },
+        {
+            label: t("navigation.documents"),
+            icon: "i-heroicons-document-duplicate",
+            to: "/documents",
+        }
+    ],
+    [
+        {
             label: t("navigation.languages"),
             icon: "i-heroicons-language",
             children: availableLocales.value.map((locale) => ({
