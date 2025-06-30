@@ -13,7 +13,7 @@
                         {{ fileName }}
                     </div>
                     <button class="p-1 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-full" @click="closeModal"
-                        aria-label="Close PDF viewer">
+                        :aria-label="t('documents.closeViewer')">
                         <UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
                     </button>
                 </div>
@@ -38,7 +38,7 @@
                                 class="spinner border-t-4 border-blue-500 border-solid rounded-full w-12 h-12 animate-spin">
                             </div>
                         </div>
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Loading PDF...</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ t('documents.loadingPdf') }}</span>
                     </div>
                 </div>
 
@@ -46,11 +46,12 @@
                 <div v-else class="flex items-center justify-center h-full w-full">
                     <div class="p-6 bg-red-50 dark:bg-red-900/20 rounded-md flex flex-col items-center text-center">
                         <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 text-red-500 mb-3" />
-                        <span class="text-sm text-red-600 dark:text-red-400 mb-2">Failed to load PDF</span>
+                        <span class="text-sm text-red-600 dark:text-red-400 mb-2">{{ t('documents.failedToLoadPdf')
+                        }}</span>
                         <span class="text-xs text-red-500 dark:text-red-300">{{ pdfError }}</span>
                         <button @click="retryLoad"
                             class="mt-3 px-3 py-1 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 rounded text-sm hover:bg-red-200 dark:hover:bg-red-700">
-                            Retry
+                            {{ t('documents.retry') }}
                         </button>
                     </div>
                 </div>
@@ -62,27 +63,27 @@
                         <!-- Zoom controls -->
                         <button
                             class="py-1 px-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                            :disabled="zoomLevel <= 50" @click="zoomOut" aria-label="Zoom out">
+                            :disabled="zoomLevel <= 50" @click="zoomOut" :aria-label="t('documents.zoomOut')">
                             <UIcon name="i-heroicons-minus" class="w-4 h-4" />
                         </button>
                         <span class="text-sm text-gray-700 dark:text-gray-300">{{ zoomLevel }}%</span>
                         <button
                             class="py-1 px-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                            :disabled="zoomLevel >= 300" @click="zoomIn" aria-label="Zoom in">
+                            :disabled="zoomLevel >= 300" @click="zoomIn" :aria-label="t('documents.zoomIn')">
                             <UIcon name="i-heroicons-plus" class="w-4 h-4" />
                         </button>
                         <button
                             class="py-1 px-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-600 ml-1"
-                            @click="resetZoom" aria-label="Reset zoom">
-                            Reset
+                            @click="resetZoom" :aria-label="t('documents.resetZoom')">
+                            {{ t('documents.resetZoom') }}
                         </button>
 
                         <!-- Download button -->
                         <button
                             class="py-1 px-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-600 ml-2 flex items-center gap-1"
-                            @click="downloadPdf" aria-label="Download PDF">
+                            @click="downloadPdf" :aria-label="t('documents.download')">
                             <UIcon name="i-heroicons-arrow-down-tray" class="w-4 h-4" />
-                            Download
+                            {{ t('documents.download') }}
                         </button>
                     </div>
 
@@ -90,14 +91,15 @@
                         <button
                             class="py-1 px-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             :disabled="currentPage <= 1" @click="goToPage(currentPage - 1)">
-                            Previous
+                            {{ t('documents.previous') }}
                         </button>
-                        <span class="mx-2 text-sm text-gray-700 dark:text-gray-300">Page {{ currentPage }} of {{
-                            totalPages }}</span>
+                        <span class="mx-2 text-sm text-gray-700 dark:text-gray-300">{{ t('documents.pageOf', {
+                            currentPage, totalPages
+                        }) }}</span>
                         <button
                             class="py-1 px-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             :disabled="currentPage >= totalPages" @click="goToPage(currentPage + 1)">
-                            Next
+                            {{ t('documents.next') }}
                         </button>
                     </div>
                 </div>
@@ -110,6 +112,7 @@
 import { defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import type { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
 
+const { t } = useI18n();
 // Import PDF component dynamically (client-side only)
 const PdfEmbed = defineAsyncComponent(() =>
     import('vue-pdf-embed').then((module) => module.default)

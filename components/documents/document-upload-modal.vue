@@ -7,10 +7,10 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        Upload New Document
+                        {{ t('documents.uploadTitle') }}
                     </h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        Add a new document to your collection
+                        {{ t('documents.uploadDescription') }}
                     </p>
                 </div>
             </div>
@@ -22,29 +22,29 @@
                 <!-- File Selection -->
                 <div>
                     <label for="file-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Select File *
+                        {{ t('documents.selectFile') }}
                     </label>
                     <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange"
                         :disabled="isLoading" class="w-full" />
                     <p v-if="selectedFile" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        File: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
+                        {{ t('documents.file') }}: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
                     </p>
                     <p v-else class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Choose a document to upload
+                        {{ t('documents.chooseFile') }}
                     </p>
                 </div>
 
                 <!-- Access Role Selection -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Access Role *
+                        {{ t('documents.accessRole') }}
                     </label>
-                    <USelect v-model="selectedAccessRole" :items="organizations" placeholder="Select an access role"
-                        :disabled="isLoading" />
+                    <USelect v-model="selectedAccessRole" :items="organizations"
+                        :placeholder="t('documents.selectAccessRole')" :disabled="isLoading" />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                         {{ (organizations.length || 0) > 0
-                            ? 'Choose from your available organizations'
-                            : 'No organizations available for access control' }}
+                            ? t('documents.availableOrganizations')
+                            : t('documents.noOrganizations') }}
                     </p>
                 </div>
             </form>
@@ -53,11 +53,11 @@
         <template #footer>
             <div class="flex justify-end gap-3">
                 <UButton color="neutral" variant="outline" :disabled="isLoading" @click="handleCancel">
-                    Cancel
+                    {{ t('documents.cancel') }}
                 </UButton>
                 <UButton color="primary" :loading="isLoading" :disabled="!selectedFile || !selectedAccessRole"
                     icon="i-heroicons-arrow-up-tray" @click="handleSubmit">
-                    {{ isLoading ? 'Uploading...' : 'Upload Document' }}
+                    {{ isLoading ? t('documents.uploading') : t('documents.uploadDocument') }}
                 </UButton>
             </div>
         </template>
@@ -100,7 +100,7 @@ const {
 
 // Authentication and token refresh
 const { handleTokenRefresh } = useTokenRefresh();
-
+const { t } = useI18n();
 // Toast notifications
 const toast = useToast();
 
@@ -123,8 +123,8 @@ watch(() => props.isOpen, async (newValue) => {
 async function handleSubmit(): Promise<void> {
     if (!selectedFile.value || !selectedAccessRole.value) {
         toast.add({
-            title: 'Validation Error',
-            description: 'Please select a file and access role before uploading.',
+            title: t('documents.validationError'),
+            description: t('documents.validationErrorDescription'),
             icon: 'i-heroicons-exclamation-triangle',
             color: 'error',
         });
@@ -139,8 +139,8 @@ async function handleSubmit(): Promise<void> {
         } catch (error) {
             console.error('Failed to refresh user data for upload:', error);
             toast.add({
-                title: 'Authentication Error',
-                description: 'Please refresh the page and try again.',
+                title: t('documents.authError'),
+                description: t('documents.authErrorDescription'),
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
             });
@@ -154,8 +154,8 @@ async function handleSubmit(): Promise<void> {
         if (success) {
             // Success toast
             toast.add({
-                title: 'Document Uploaded',
-                description: `"${selectedFile.value.name}" has been uploaded successfully.`,
+                title: t('documents.uploadSuccessTitle'),
+                description: t('documents.uploadSuccessDescription', { fileName: selectedFile.value.name }),
                 icon: 'i-heroicons-check-circle',
                 color: 'success',
             });
@@ -166,8 +166,8 @@ async function handleSubmit(): Promise<void> {
         } else if (uploadError.value) {
             // Error toast only if no specific error alert is shown
             toast.add({
-                title: 'Upload Failed',
-                description: uploadError.value || 'Failed to upload document. Please try again.',
+                title: t('documents.uploadFailed'),
+                description: uploadError.value || t('documents.uploadErrorDescription'),
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
             });
@@ -175,7 +175,7 @@ async function handleSubmit(): Promise<void> {
     } catch (error) {
         console.error('Upload submission error:', error);
         toast.add({
-            title: 'Upload Error',
+            title: t('documents.uploadErrorUnexpected'),
             description: 'An unexpected error occurred during upload.',
             icon: 'i-heroicons-exclamation-triangle',
             color: 'error',

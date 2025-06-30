@@ -15,7 +15,7 @@
       </div>
       <!-- Content -->
       <p class="text-xs text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed mb-3">
-        {{ props.document.page_content || 'No content available' }}
+        {{ props.document.page_content || t('documents.noContent') }}
       </p>
 
       <!-- Footer -->

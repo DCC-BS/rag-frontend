@@ -50,18 +50,18 @@
 
                     <!-- Actions -->
                     <div class="flex items-center gap-2 shrink-0" @click.stop>
-                        <UTooltip :text="isPdfFile() ? 'Click to view' : 'Click to download'">
+                        <UTooltip :text="isPdfFile() ? t('documents.clickToView') : t('documents.clickToDownload')">
                             <UButton :icon="isPdfFile() ? 'i-heroicons-eye' : 'i-heroicons-arrow-down-tray'"
                                 color="neutral" variant="ghost" size="sm" @click="handleDocumentClick" />
                         </UTooltip>
 
-                        <UTooltip :text="isUpdatingDocument ? 'Updating...' : 'Update document'">
+                        <UTooltip :text="isUpdatingDocument ? t('documents.updating') : t('documents.updateDocument')">
                             <UButton :icon="isUpdatingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-pencil-square'"
                                 :class="{ 'animate-spin': isUpdatingDocument }" color="warning" variant="ghost"
                                 size="sm" :disabled="isUpdatingDocument" @click="handleUpdateClick" />
                         </UTooltip>
 
-                        <UTooltip :text="isDeletingDocument ? 'Deleting...' : 'Delete document'">
+                        <UTooltip :text="isDeletingDocument ? t('documents.deleting') : t('documents.deleteDocument')">
                             <UButton :icon="isDeletingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-trash'"
                                 :class="{ 'animate-spin': isDeletingDocument }" color="error" variant="ghost" size="sm"
                                 :disabled="isDeletingDocument" @click="handleDeleteClick" />
@@ -76,7 +76,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Document ID
+                            {{ t('documents.documentId') }}
                         </p>
                         <p class="text-sm text-gray-900 dark:text-white font-mono">
                             #{{ props.document.id }}
@@ -84,10 +84,11 @@
                     </div>
                     <div>
                         <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Pages
+                            {{ t('documents.pages') }}
                         </p>
                         <p class="text-sm text-gray-900 dark:text-white">
-                            {{ props.document.num_pages }} {{ props.document.num_pages === 1 ? 'page' : 'pages' }}
+                            {{ props.document.num_pages }} {{ props.document.num_pages === 1 ? t('documents.page') :
+                                t('documents.pages') }}
                         </p>
                     </div>
                 </div>
@@ -95,7 +96,7 @@
                 <!-- Access roles -->
                 <div>
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                        Access Roles
+                        {{ t('documents.accessRoles') }}
                     </p>
                     <div class="flex flex-wrap gap-1">
                         <UBadge v-for="role in props.document.access_roles" :key="role" color="success" variant="soft"
@@ -108,7 +109,7 @@
                 <!-- Document path -->
                 <div>
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                        Document Path
+                        {{ t('documents.documentPath') }}
                     </p>
                     <UCard class="bg-gray-50 dark:bg-gray-800/50">
                         <p class="text-xs text-gray-600 dark:text-gray-400 font-mono break-all">
@@ -127,6 +128,8 @@
 <script lang="ts" setup>
 import type { UserDocument } from "~/models/message";
 import DocumentViewer from "~/components/documents/document-viewer.vue";
+
+const { t } = useI18n();
 
 const props = defineProps<{
     document: UserDocument;
@@ -205,8 +208,8 @@ async function handleUpdateClick(): Promise<void> {
         } catch (error) {
             console.error('Failed to refresh user data for update:', error);
             toast.add({
-                title: 'Authentication Error',
-                description: 'Please refresh the page and try again.',
+                title: t('documents.authError'),
+                description: t('documents.authErrorDescription'),
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
             });
@@ -232,11 +235,11 @@ function getLoadingIcon(): string {
  * Get loading text based on current operation
  */
 function getLoadingText(): string {
-    if (isDownloading.value) return 'Downloading...';
-    if (isLoadingViewer.value) return 'Loading document...';
-    if (props.isDeletingDocument) return 'Deleting...';
-    if (props.isUpdatingDocument) return 'Updating...';
-    return 'Processing...';
+    if (isDownloading.value) return t('documents.downloading');
+    if (isLoadingViewer.value) return t('documents.loadingDocument');
+    if (props.isDeletingDocument) return t('documents.deleting');
+    if (props.isUpdatingDocument) return t('documents.updating');
+    return t('documents.processing');
 }
 
 /**
@@ -266,8 +269,8 @@ async function handleDocumentClick(): Promise<void> {
             } else if (viewerError.value) {
                 // Show error toast for viewer failure
                 toast.add({
-                    title: 'Failed to Load Document',
-                    description: viewerError.value || `Unable to load "${props.document.file_name}". Please try again.`,
+                    title: t('documents.failedToLoad'),
+                    description: viewerError.value || t('documents.unableToLoad', { fileName: props.document.file_name }),
                     icon: 'i-heroicons-exclamation-triangle',
                     color: 'error',
                 });
@@ -279,16 +282,16 @@ async function handleDocumentClick(): Promise<void> {
             // Show success toast for download
             if (!downloadError.value) {
                 toast.add({
-                    title: 'Download Started',
-                    description: `"${props.document.file_name}" download initiated.`,
+                    title: t('documents.downloadStarted'),
+                    description: t('documents.downloadInitiated', { fileName: props.document.file_name }),
                     icon: 'i-heroicons-arrow-down-tray',
                     color: 'success',
                 });
             } else {
                 // Show error toast for download failure
                 toast.add({
-                    title: 'Download Failed',
-                    description: downloadError.value || `Failed to download "${props.document.file_name}". Please try again.`,
+                    title: t('documents.downloadFailed'),
+                    description: downloadError.value || t('documents.failedToDownload', { fileName: props.document.file_name }),
                     icon: 'i-heroicons-exclamation-triangle',
                     color: 'error',
                 });
@@ -300,8 +303,8 @@ async function handleDocumentClick(): Promise<void> {
         // Show generic error toast if no specific error was captured
         if (!downloadError.value && !viewerError.value) {
             toast.add({
-                title: 'Operation Failed',
-                description: `Failed to ${isPdfFile() ? 'load' : 'download'} "${props.document.file_name}". Please try again.`,
+                title: t('documents.operationFailed'),
+                description: t('documents.failedTo', { operation: isPdfFile() ? t('documents.load') : t('documents.download'), fileName: props.document.file_name }),
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
             });

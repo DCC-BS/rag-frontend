@@ -7,11 +7,14 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        Update Document
+                        {{ t('documents.updateTitle') }}
                     </h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-words overflow-wrap-anywhere">
-                        Replace the file and update access role for "<span class="font-mono break-all">{{ documentName
-                        }}</span>"
+                        <i18n-t keypath="documents.updateDescription" tag="span">
+                            <template #fileName>
+                                <span class="font-mono break-all">{{ documentName }}</span>
+                            </template>
+                        </i18n-t>
                     </p>
                 </div>
             </div>
@@ -23,26 +26,26 @@
                 <!-- File Selection -->
                 <div>
                     <label for="file-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Select New File *
+                        {{ t('documents.selectNewFile') }}
                     </label>
                     <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange"
                         :disabled="isLoading" class="w-full" />
                     <p v-if="selectedFile" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        File size: {{ formatFileSize(selectedFile.size) }}
+                        {{ t('documents.fileSize') }}: {{ formatFileSize(selectedFile.size) }}
                     </p>
                 </div>
 
                 <!-- Access Role Selection -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Access Role *
+                        {{ t('documents.accessRole') }}
                     </label>
-                    <USelect v-model="selectedAccessRole" :items="organizations" placeholder="Select an access role"
-                        :disabled="isLoading" />
+                    <USelect v-model="selectedAccessRole" :items="organizations"
+                        :placeholder="t('documents.selectAccessRole')" :disabled="isLoading" />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                         {{ (organizations.length || 0) > 0
-                            ? 'Choose from your available organizations'
-                            : 'No organizations available for access control' }}
+                            ? t('documents.availableOrganizations')
+                            : t('documents.noOrganizations') }}
                     </p>
                 </div>
             </form>
@@ -51,11 +54,11 @@
         <template #footer>
             <div class="flex justify-end gap-3">
                 <UButton color="neutral" variant="outline" :disabled="isLoading" @click="handleCancel">
-                    Cancel
+                    {{ t('documents.cancel') }}
                 </UButton>
                 <UButton color="warning" :loading="isLoading" :disabled="!selectedFile || !selectedAccessRole"
                     icon="i-heroicons-arrow-up-tray" @click="handleSubmit">
-                    {{ isLoading ? 'Updating...' : 'Update Document' }}
+                    {{ isLoading ? t('documents.updatingDoc') : t('documents.updateDocument') }}
                 </UButton>
             </div>
         </template>
@@ -100,6 +103,7 @@ if (!user.value) {
     fetchUser();
 }
 
+const { t } = useI18n();
 // Toast notifications
 const toast = useToast();
 
@@ -144,8 +148,8 @@ async function handleSubmit(): Promise<void> {
         if (success) {
             // Show success toast
             toast.add({
-                title: 'Document Updated Successfully',
-                description: `"${props.documentName}" has been updated. Changes will be reflected in the application within 15 minutes.`,
+                title: t('documents.updateSuccessTitle'),
+                description: t('documents.updateSuccessDescription', { fileName: props.documentName }),
                 icon: 'i-heroicons-check-circle',
                 color: 'success',
             });
@@ -158,8 +162,8 @@ async function handleSubmit(): Promise<void> {
 
         // Show error toast
         toast.add({
-            title: 'Update Failed',
-            description: updateError.value || 'Failed to update document. Please try again.',
+            title: t('documents.updateFailed'),
+            description: updateError.value || t('documents.updateFailedDescription'),
             icon: 'i-heroicons-exclamation-triangle',
             color: 'error',
         });
