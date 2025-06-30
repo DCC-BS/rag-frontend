@@ -1,5 +1,4 @@
-import { sendMessage } from "@/composables/send_message";
-import type { Message, StreamChunk } from "@/models/message";
+import type { Message, StreamChunk } from "~/models/message";
 
 /**
  * Composable for managing chat messages and sending functionality
@@ -43,7 +42,9 @@ export const useChatMessages = () => {
             timestamp: new Date(),
         });
 
-        return messages.value.findIndex((msg) => msg.id === aiMessageId);
+        return messages.value.findIndex(
+            (msg: Message) => msg.id === aiMessageId,
+        );
     }
 
     /**

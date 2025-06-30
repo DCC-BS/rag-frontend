@@ -50,16 +50,32 @@ async function makeBackendRequest(
     accessToken: string,
     event: H3Event<EventHandlerRequest>,
 ): Promise<Response> {
+    const isMultipart = body instanceof FormData;
+
+    // Prepare headers
+    const headers: Record<string, string> = {
+        Authorization: idToken || "",
+        Accept: getRequestHeader(event, "accept") || "*/*",
+        "X-Access-Token": accessToken || "",
+    };
+
+    // For multipart/form-data with FormData, let fetch set the Content-Type header
+    // as it needs to generate the boundary. For other requests, set it manually.
+    if (!isMultipart) {
+        const contentType = getRequestHeader(event, "content-type");
+        headers["Content-Type"] = contentType || "application/json";
+    }
+
     return await fetch(targetUrl, {
         method,
-        body: body ? JSON.stringify(body) : undefined,
-        headers: {
-            Authorization: idToken || "",
-            "Content-Type":
-                getRequestHeader(event, "content-type") || "application/json",
-            Accept: getRequestHeader(event, "accept") || "*/*",
-            "X-Access-Token": accessToken || "",
-        },
+        // For multipart requests, pass FormData object directly
+        // For others, JSON stringify
+        body: body
+            ? isMultipart
+                ? (body as FormData)
+                : JSON.stringify(body)
+            : undefined,
+        headers,
     });
 }
 
@@ -99,9 +115,36 @@ export default defineEventHandler(
         const slug = event.context.params?.slug ?? "";
         const targetUrl = `${targetBaseUrl}/${slug}`;
 
-        const body = ["POST", "PUT", "PATCH"].includes(event.method)
-            ? await readBody(event)
-            : undefined;
+        // Handle different body types based on content type
+        let body: unknown = undefined;
+        if (["POST", "PUT", "PATCH"].includes(event.method)) {
+            const contentType = getRequestHeader(event, "content-type");
+            if (contentType?.includes("multipart/form-data")) {
+                const multipartData = await readMultipartFormData(event);
+                if (multipartData) {
+                    const formData = new FormData();
+                    for (const part of multipartData) {
+                        if (part.name) {
+                            if (part.filename) {
+                                const blob = new Blob([part.data], {
+                                    type: part.type,
+                                });
+                                formData.append(part.name, blob, part.filename);
+                            } else {
+                                formData.append(
+                                    part.name,
+                                    part.data.toString(),
+                                );
+                            }
+                        }
+                    }
+                    body = formData;
+                }
+            } else {
+                // For other content types, read as usual
+                body = await readBody(event);
+            }
+        }
 
         try {
             // First attempt with current tokens
@@ -161,7 +204,22 @@ export default defineEventHandler(
                 });
             }
 
-            return new Response(response.body);
+            // For non-successful responses, throw an error to preserve status code
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw createError({
+                    statusCode: response.status,
+                    statusMessage: response.statusText,
+                    data: errorBody ? JSON.parse(errorBody) : undefined,
+                });
+            }
+
+            // Return successful response with proper status and headers
+            return new Response(response.body, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers,
+            });
         } catch (error) {
             console.error(
                 `[Nuxt Server Proxy] Error fetching ${targetUrl}:`,

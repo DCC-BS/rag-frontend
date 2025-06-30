@@ -37,6 +37,13 @@ export default defineNuxtConfig({
     ],
     devtools: { enabled: true },
     css: ["~/assets/css/main.css"],
+    // Configure components to scan nested directories
+    components: [
+        {
+            path: "~/components",
+            pathPrefix: false,
+        },
+    ],
     "feedback-control.bs.js": {
         repo: "Feedback",
         owner: "DCC-BS",
@@ -92,5 +99,13 @@ export default defineNuxtConfig({
     },
     typescript: {
         shim: false, // Recommended for Nuxt 3
+    },
+    // Configure auto-imports for nested directories
+    imports: {
+        dirs: [
+            "composables",
+            "composables/*/index.{ts,js,mjs,mts}",
+            "composables/**/*.{ts,js,mjs,mts}",
+        ],
     },
 });
