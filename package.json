@@ -24,6 +24,7 @@
         "better-sqlite3": "^11.10.0",
         "nuxt": "latest",
         "vue": "latest",
+        "vue-pdf-embed": "^2.1.2",
         "vue-router": "latest"
     },
     "devDependencies": {
