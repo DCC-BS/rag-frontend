@@ -27,124 +27,142 @@
                     </div>
                 </div>
 
-                <!-- Error State -->
-                <div v-else-if="error"
-                    class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-                    <div class="flex items-center gap-3 mb-3">
-                        <UIcon name="i-heroicons-exclamation-triangle" class="w-5 h-5 text-red-600 dark:text-red-400" />
-                        <h3 class="font-semibold text-red-800 dark:text-red-200">{{ t('documents.errorTitle') }}</h3>
-                    </div>
-                    <p class="text-red-700 dark:text-red-300 mb-4">{{ error }}</p>
-                    <button @click="fetchDocuments"
-                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
-                        {{ t('documents.tryAgain') }}
-                    </button>
-                </div>
+
 
                 <!-- Documents Content -->
-                <div v-else-if="documents">
-                    <!-- Search and Actions -->
-                    <div class="flex items-center justify-between gap-4 mb-6">
-                        <!-- Search Input -->
-                        <div class="w-full sm:w-auto">
-                            <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" size="lg"
-                                :placeholder="t('documents.searchPlaceholder')" :trailing="false"
-                                class="w-full sm:w-80">
-                                <template #trailing>
-                                    <UButton v-if="searchQuery" icon="i-heroicons-x-mark" color="neutral"
-                                        variant="ghost" size="xs" @click="clearSearch" />
-                                </template>
-                            </UInput>
+                <div v-else-if="documents || error">
+                    <!-- Show error message as toast and empty state when error occurs -->
+                    <div v-if="error && !documents">
+                        <div class="text-center py-12">
+                            <UIcon name="i-heroicons-exclamation-triangle"
+                                class="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                {{ t('documents.errorTitle') }}
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                                {{ t('documents.errorDescription') }}
+                            </p>
+                            <UButton :label="t('documents.tryAgain')" color="primary" variant="solid"
+                                icon="i-heroicons-arrow-path" @click="fetchDocuments" :loading="loading" />
                         </div>
+                    </div>
 
-                        <!-- Document Count Stats -->
-                        <div class="hidden lg:flex items-center gap-3">
-                            <UIcon name="i-heroicons-document-duplicate"
-                                class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                            <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                                <template
-                                    v-if="searchQuery && filteredDocuments.length !== documents.documents?.length">
-                                    {{ t('documents.searchMatch_plural', {
-                                        count: filteredDocuments.length, total:
-                                            documents.total_count ?? 0
-                                    }) }}
+                    <!-- Search and Actions -->
+                    <div v-else-if="documents" class="space-y-6">
+                        <div class="flex items-center justify-between gap-4 mb-6">
+                            <!-- Search Input -->
+                            <div class="w-full sm:w-auto">
+                                <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" size="lg"
+                                    :placeholder="t('documents.searchPlaceholder')" :trailing="false"
+                                    class="w-full sm:w-80">
+                                    <template #trailing>
+                                        <UButton v-if="searchQuery" icon="i-heroicons-x-mark" color="neutral"
+                                            variant="ghost" size="xs" @click="clearSearch" />
+                                    </template>
+                                </UInput>
+                            </div>
+
+                            <!-- Document Count Stats -->
+                            <div class="hidden lg:flex items-center gap-3">
+                                <UIcon name="i-heroicons-document-duplicate"
+                                    class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                                <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                                    <template
+                                        v-if="searchQuery && filteredDocuments.length !== documents.documents?.length">
+                                        {{ t('documents.searchMatch_plural', {
+                                            count: filteredDocuments.length, total:
+                                                documents.total_count ?? 0
+                                        }) }}
+                                    </template>
+                                    <template v-else-if="filteredDocuments.length > itemsPerPage">
+                                        Showing {{ paginatedDocuments.length }} of {{ filteredDocuments.length }}
+                                        documents
+                                        (Page {{ currentPage }} of {{ Math.ceil(filteredDocuments.length / itemsPerPage)
+                                        }})
+                                    </template>
+                                    <template v-else>
+                                        {{ t('documents.available', { count: documents.total_count ?? 0 }) }}
+                                    </template>
+                                </span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex items-center gap-2" v-if="paginatedDocuments.length > 0">
+                                <template v-if="selectedDocuments.length === 0">
+                                    <UButtonGroup size="md">
+                                        <UButton
+                                            :icon="allSelected ? 'i-heroicons-minus-circle' : 'i-heroicons-check-circle'"
+                                            :label="allSelected ? t('documents.deselectAll') : t('documents.selectAll')"
+                                            color="neutral" variant="outline" @click="toggleSelectAll(!allSelected)" />
+                                        <UButton :label="t('documents.addDocument')" icon="i-heroicons-plus"
+                                            color="primary" variant="solid" @click="showUploadModal = true" />
+                                        <UButton :label="t('documents.refresh')" icon="i-heroicons-arrow-path"
+                                            color="neutral" variant="outline" @click="refreshDocuments"
+                                            :loading="loading" />
+                                    </UButtonGroup>
                                 </template>
                                 <template v-else>
-                                    {{ t('documents.available', { count: documents.total_count ?? 0 }) }}
+                                    <UButtonGroup size="md">
+                                        <UButton :label="t('documents.selected', { count: selectedDocuments.length })"
+                                            color="neutral" disabled />
+                                        <UButton :label="t('documents.clearSelection')" color="neutral"
+                                            variant="outline" @click="clearSelection" />
+                                        <UButton
+                                            :label="t('documents.deleteSelected', { count: selectedDocuments.length })"
+                                            icon="i-heroicons-trash" color="error" variant="solid"
+                                            :loading="isDeletingDocuments" @click="showBulkDeleteConfirmation" />
+                                    </UButtonGroup>
                                 </template>
-                            </span>
+                            </div>
                         </div>
 
-                        <!-- Actions -->
-                        <div class="flex items-center gap-2" v-if="filteredDocuments.length > 0">
-                            <template v-if="selectedDocuments.length === 0">
-                                <UButtonGroup size="md">
-                                    <UButton
-                                        :icon="allSelected ? 'i-heroicons-minus-circle' : 'i-heroicons-check-circle'"
-                                        :label="allSelected ? t('documents.deselectAll') : t('documents.selectAll')"
-                                        color="neutral" variant="outline" @click="toggleSelectAll(!allSelected)" />
-                                    <UButton :label="t('documents.addDocument')" icon="i-heroicons-plus" color="primary"
-                                        variant="solid" @click="showUploadModal = true" />
-                                    <UButton :label="t('documents.refresh')" icon="i-heroicons-arrow-path"
-                                        color="neutral" variant="outline" @click="refreshDocuments"
-                                        :loading="loading" />
-                                </UButtonGroup>
-                            </template>
-                            <template v-else>
-                                <UButtonGroup size="md">
-                                    <UButton :label="t('documents.selected', { count: selectedDocuments.length })"
-                                        color="neutral" disabled />
-                                    <UButton :label="t('documents.clearSelection')" color="neutral" variant="outline"
-                                        @click="clearSelection" />
-                                    <UButton :label="t('documents.deleteSelected', { count: selectedDocuments.length })"
-                                        icon="i-heroicons-trash" color="error" variant="solid"
-                                        :loading="isDeletingDocuments" @click="showBulkDeleteConfirmation" />
-                                </UButtonGroup>
-                            </template>
+
+
+                        <!-- Empty State -->
+                        <div v-if="documents.documents && documents.documents.length === 0" class="text-center py-12">
+                            <UIcon name="i-heroicons-document-text" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                {{ t('documents.noDocumentsTitle') }}
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                                {{ t('documents.noDocumentsDescription') }}
+                            </p>
+                            <UButton color="primary" variant="solid" icon="i-heroicons-plus"
+                                @click="showUploadModal = true">
+                                {{ t('documents.uploadFirst') }}
+                            </UButton>
                         </div>
-                    </div>
 
-                    <!-- Deletion Error -->
-                    <UAlert v-if="deletionError" color="error" variant="subtle" :title="deletionError"
-                        icon="i-heroicons-exclamation-triangle" class="mb-6" />
+                        <!-- No Search Results -->
+                        <div v-else-if="searchQuery && filteredDocuments.length === 0" class="text-center py-12">
+                            <UIcon name="i-heroicons-magnifying-glass" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                {{ t('documents.noResultsTitle') }}
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                                {{ t('documents.noResultsDescription', { query: searchQuery }) }}
+                            </p>
+                            <UButton :label="t('documents.clearSearch')" color="primary" variant="solid"
+                                @click="clearSearch" />
+                        </div>
 
-                    <!-- Empty State -->
-                    <div v-if="documents.documents && documents.documents.length === 0" class="text-center py-12">
-                        <UIcon name="i-heroicons-document-text" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                            {{ t('documents.noDocumentsTitle') }}
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-6">
-                            {{ t('documents.noDocumentsDescription') }}
-                        </p>
-                        <UButton color="primary" variant="solid" icon="i-heroicons-plus"
-                            @click="showUploadModal = true">
-                            {{ t('documents.uploadFirst') }}
-                        </UButton>
-                    </div>
+                        <!-- Documents Grid -->
+                        <div v-else-if="filteredDocuments.length > 0" class="space-y-6">
+                            <div class="documents-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                                <UserDocument v-for="document in paginatedDocuments" :key="document.id"
+                                    :document="document" :isSelected="selectedDocuments.includes(document.id)"
+                                    :isDeletingDocument="deletingDocumentIds.includes(document.id)"
+                                    :isUpdatingDocument="updatingDocumentIds.includes(document.id)"
+                                    @update:selected="handleDocumentSelection" @delete="showSingleDeleteConfirmation"
+                                    @update="showUpdateModal" />
+                            </div>
 
-                    <!-- No Search Results -->
-                    <div v-else-if="searchQuery && filteredDocuments.length === 0" class="text-center py-12">
-                        <UIcon name="i-heroicons-magnifying-glass" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                            {{ t('documents.noResultsTitle') }}
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-6">
-                            {{ t('documents.noResultsDescription', { query: searchQuery }) }}
-                        </p>
-                        <UButton :label="t('documents.clearSearch')" color="primary" variant="solid"
-                            @click="clearSearch" />
-                    </div>
-
-                    <!-- Documents Grid -->
-                    <div v-else-if="filteredDocuments.length > 0"
-                        class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        <UserDocument v-for="document in filteredDocuments" :key="document.id" :document="document"
-                            :isSelected="selectedDocuments.includes(document.id)"
-                            :isDeletingDocument="deletingDocumentIds.includes(document.id)"
-                            :isUpdatingDocument="updatingDocumentIds.includes(document.id)"
-                            @update:selected="handleDocumentSelection" @delete="showSingleDeleteConfirmation"
-                            @update="showUpdateModal" />
+                            <!-- Pagination -->
+                            <div v-if="filteredDocuments.length > itemsPerPage" class="flex justify-center mt-8">
+                                <UPagination v-model:page="currentPage" :total="filteredDocuments.length"
+                                    :items-per-page="itemsPerPage" :sibling-count="1" show-edges />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -217,6 +235,10 @@ const toast = useToast();
 // Search functionality
 const searchQuery = ref<string>("");
 
+// Pagination functionality
+const currentPage = ref<number>(1);
+const itemsPerPage = ref<number>(12); // Number of documents per page
+
 // Selection functionality
 const selectedDocuments = ref<number[]>([]);
 const deletingDocumentIds = ref<number[]>([]);
@@ -265,12 +287,29 @@ const filteredDocuments = computed<UserDocument[]>(() => {
 });
 
 /**
- * Check if all documents are selected
+ * Computed property to get paginated documents
+ * Returns a slice of filtered documents based on current page and items per page
+ */
+const paginatedDocuments = computed<UserDocument[]>(() => {
+    const totalPages = Math.ceil(filteredDocuments.value.length / itemsPerPage.value);
+
+    // Reset to page 1 if current page is beyond available pages
+    if (currentPage.value > totalPages && totalPages > 0) {
+        currentPage.value = 1;
+    }
+
+    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+    const endIndex = startIndex + itemsPerPage.value;
+    return filteredDocuments.value.slice(startIndex, endIndex);
+});
+
+/**
+ * Check if all documents on current page are selected
  */
 const allSelected = computed<boolean>(() => {
     return (
-        filteredDocuments.value.length > 0 &&
-        filteredDocuments.value.every((doc) =>
+        paginatedDocuments.value.length > 0 &&
+        paginatedDocuments.value.every((doc) =>
             selectedDocuments.value.includes(doc.id),
         )
     );
@@ -304,11 +343,16 @@ function handleDocumentSelection(documentId: number, selected: boolean): void {
  */
 function toggleSelectAll(value: boolean | "indeterminate"): void {
     if (value === true) {
-        // Select all filtered documents
-        selectedDocuments.value = filteredDocuments.value.map((doc) => doc.id);
+        // Select all documents on current page
+        const currentPageDocumentIds = paginatedDocuments.value.map((doc) => doc.id);
+        const uniqueIds = [...new Set([...selectedDocuments.value, ...currentPageDocumentIds])];
+        selectedDocuments.value = uniqueIds;
     } else {
-        // Deselect all
-        selectedDocuments.value = [];
+        // Deselect all documents on current page
+        const currentPageDocumentIds = paginatedDocuments.value.map((doc) => doc.id);
+        selectedDocuments.value = selectedDocuments.value.filter(
+            (id) => !currentPageDocumentIds.includes(id)
+        );
     }
 }
 
@@ -324,7 +368,10 @@ function clearSelection(): void {
  */
 function clearSearch(): void {
     searchQuery.value = "";
+    currentPage.value = 1; // Reset to first page when clearing search
 }
+
+
 
 /**
  * Show update modal for a document
@@ -560,6 +607,56 @@ useHead({
     title: t("documents.title"),
     meta: [{ name: "description", content: t("documents.description") }],
 });
+
+// Watch for search query changes to reset pagination
+watch(searchQuery, () => {
+    currentPage.value = 1; // Reset to first page when search changes
+});
+
+// Watch for page changes to scroll to top of documents grid
+watch(currentPage, () => {
+    nextTick(() => {
+        const documentsGrid = document.querySelector('.documents-grid');
+        if (documentsGrid) {
+            documentsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+// Watch for errors and show toast notifications
+watch(error, (newError) => {
+    if (newError) {
+        toast.add({
+            title: t('documents.errorTitle'),
+            description: newError,
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            actions: [{
+                label: t('documents.tryAgain'),
+                icon: 'i-heroicons-arrow-path',
+                color: 'primary',
+                variant: 'outline',
+                onClick: () => {
+                    fetchDocuments();
+                }
+            }]
+        });
+    }
+});
+
+// Watch for deletion errors and show toast notifications
+watch(deletionError, (newError) => {
+    if (newError) {
+        toast.add({
+            title: t('documents.deleteErrorTitle'),
+            description: newError,
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error'
+        });
+    }
+});
+
+
 
 // Fetch documents on mount
 onMounted(() => {
