@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useDocumentForm } from '~/composables/documents/useDocumentForm';
+import { useDocumentForm } from "~/composables/documents/useDocumentForm";
 
 interface Props {
     isOpen: boolean;
@@ -78,12 +78,16 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-    'update:isOpen': [value: boolean];
-    'updated': [documentId: number];
+    "update:isOpen": [value: boolean];
+    updated: [documentId: number];
 }>();
 
 // Document update functionality
-const { updateDocument, loading: isLoading, error: updateError } = useDocumentUpdate();
+const {
+    updateDocument,
+    loading: isLoading,
+    error: updateError,
+} = useDocumentUpdate();
 
 // Shared document form logic
 const {
@@ -105,24 +109,35 @@ const { t } = useI18n();
 const toast = useToast();
 
 // Watch for modal open/close to reset form
-watch(() => props.isOpen, (newValue) => {
-    if (newValue) {
-        // Reset form when modal opens
-        resetForm();
-        selectedAccessRole.value = props.currentAccessRole || '';
-        updateError.value = undefined;
+watch(
+    () => props.isOpen,
+    (newValue) => {
+        if (newValue) {
+            // Reset form when modal opens
+            resetForm();
+            selectedAccessRole.value = props.currentAccessRole || "";
+            updateError.value = undefined;
 
-        // Session data is automatically managed by nuxt-auth
-    }
-});
+            // Session data is automatically managed by nuxt-auth
+        }
+    },
+);
 
 // Watch for session data changes to ensure access role is set when available
-watch(() => session.value?.user?.organizations, (organizations) => {
-    // If session data loads and we have a current access role, make sure it's still valid
-    if (organizations && props.currentAccessRole && organizations.includes(props.currentAccessRole)) {
-        selectedAccessRole.value = props.currentAccessRole;
-    }
-}, { immediate: true });
+watch(
+    () => session.value?.user?.organizations,
+    (organizations) => {
+        // If session data loads and we have a current access role, make sure it's still valid
+        if (
+            organizations &&
+            props.currentAccessRole &&
+            organizations.includes(props.currentAccessRole)
+        ) {
+            selectedAccessRole.value = props.currentAccessRole;
+        }
+    },
+    { immediate: true },
+);
 
 /**
  * Handle form submission
@@ -136,30 +151,33 @@ async function handleSubmit(): Promise<void> {
         const success = await updateDocument(
             props.documentId,
             selectedFile.value,
-            selectedAccessRole.value
+            selectedAccessRole.value,
         );
 
         if (success) {
             // Show success toast
             toast.add({
-                title: t('documents.updateSuccessTitle'),
-                description: t('documents.updateSuccessDescription', { fileName: props.documentName }),
-                icon: 'i-heroicons-check-circle',
-                color: 'success',
+                title: t("documents.updateSuccessTitle"),
+                description: t("documents.updateSuccessDescription", {
+                    fileName: props.documentName,
+                }),
+                icon: "i-heroicons-check-circle",
+                color: "success",
             });
 
-            emit('updated', props.documentId);
+            emit("updated", props.documentId);
             handleCancel();
         }
     } catch (error) {
-        console.error('Failed to update document:', error);
+        console.error("Failed to update document:", error);
 
         // Show error toast
         toast.add({
-            title: t('documents.updateFailed'),
-            description: updateError.value || t('documents.updateFailedDescription'),
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
+            title: t("documents.updateFailed"),
+            description:
+                updateError.value || t("documents.updateFailedDescription"),
+            icon: "i-heroicons-exclamation-triangle",
+            color: "error",
         });
     }
 }
@@ -168,7 +186,7 @@ async function handleSubmit(): Promise<void> {
  * Handle cancel/close
  */
 function handleCancel(): void {
-    emit('update:isOpen', false);
+    emit("update:isOpen", false);
 }
 </script>
 

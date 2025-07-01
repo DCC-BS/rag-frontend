@@ -109,13 +109,13 @@
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, onMounted, ref, watch } from 'vue';
-import type { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
+import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
+import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 
 const { t } = useI18n();
 // Import PDF component dynamically (client-side only)
 const PdfEmbed = defineAsyncComponent(() =>
-    import('vue-pdf-embed').then((module) => module.default)
+    import("vue-pdf-embed").then((module) => module.default),
 );
 
 interface DocumentViewerProps {
@@ -130,7 +130,7 @@ const props = withDefaults(defineProps<DocumentViewerProps>(), {
 });
 
 const emit = defineEmits<{
-    'update:isOpen': [value: boolean];
+    "update:isOpen": [value: boolean];
 }>();
 
 // Reactive state
@@ -157,17 +157,20 @@ function convertBlobToSource(blob: Blob): void {
             if (event.target?.result) {
                 pdfSource.value = event.target.result as string | ArrayBuffer;
             } else {
-                throw new Error('Failed to read file content');
+                throw new Error("Failed to read file content");
             }
         } catch (error) {
-            pdfError.value = error instanceof Error ? error.message : 'Unknown error occurred';
+            pdfError.value =
+                error instanceof Error
+                    ? error.message
+                    : "Unknown error occurred";
         } finally {
             isLoading.value = false;
         }
     };
 
     reader.onerror = () => {
-        pdfError.value = 'Failed to read PDF file';
+        pdfError.value = "Failed to read PDF file";
         isLoading.value = false;
     };
 
@@ -209,7 +212,8 @@ function handleDocumentLoaded(pdfDocument: PDFDocumentProxy): void {
  * Handle PDF loading errors
  */
 function handlePdfError(error: unknown): void {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to load PDF document';
+    const errorMessage =
+        error instanceof Error ? error.message : "Failed to load PDF document";
     pdfError.value = errorMessage;
 }
 
@@ -264,7 +268,7 @@ function downloadPdf(): void {
     const url = URL.createObjectURL(props.file);
 
     // Create a temporary anchor element
-    const downloadLink = document.createElement('a');
+    const downloadLink = document.createElement("a");
     downloadLink.href = url;
     downloadLink.download = props.fileName;
 
@@ -281,7 +285,7 @@ function downloadPdf(): void {
  * Close the PDF viewer modal
  */
 function closeModal(): void {
-    emit('update:isOpen', false);
+    emit("update:isOpen", false);
 }
 
 onMounted(() => {
@@ -292,7 +296,7 @@ onMounted(() => {
 
     // Add wheel event listener for zooming
     if (containerRef.value) {
-        containerRef.value.addEventListener('wheel', handleWheel, {
+        containerRef.value.addEventListener("wheel", handleWheel, {
             passive: false,
         });
     }
@@ -303,7 +307,7 @@ watch(
     () => props.page,
     (newPage) => {
         goToPage(newPage);
-    }
+    },
 );
 
 // Watch for changes to the file prop
@@ -315,7 +319,7 @@ watch(
         } else {
             pdfSource.value = undefined;
         }
-    }
+    },
 );
 
 // Watch for modal open state changes
@@ -336,7 +340,7 @@ watch(
                 convertBlobToSource(props.file);
             }
         }
-    }
+    },
 );
 </script>
 

@@ -20,7 +20,7 @@ const items = ref<NavigationMenuItem[]>([
             icon: "i-heroicons-arrow-right-on-rectangle",
             onClick: signOut,
             class: "text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors",
-        }
+        },
     ],
     [
         {
@@ -33,7 +33,7 @@ const items = ref<NavigationMenuItem[]>([
             label: t("navigation.documents"),
             icon: "i-heroicons-document-duplicate",
             to: "/documents",
-        }
+        },
     ],
     [
         {
@@ -43,8 +43,8 @@ const items = ref<NavigationMenuItem[]>([
                 label: locale.name,
                 to: switchLocalePath(locale.code),
             })),
-        }
-    ]
+        },
+    ],
 ]);
 </script>
 

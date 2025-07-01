@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useDocumentForm } from '~/composables/documents/useDocumentForm';
+import { useDocumentForm } from "~/composables/documents/useDocumentForm";
 
 interface Props {
     isOpen: boolean;
@@ -74,15 +74,19 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-    'update:isOpen': [value: boolean];
-    'uploaded': [];
+    "update:isOpen": [value: boolean];
+    uploaded: [];
 }>();
 
 // Document upload functionality
-const { uploadDocument, loading: isLoading, error: uploadError } = useDocumentUpload();
+const {
+    uploadDocument,
+    loading: isLoading,
+    error: uploadError,
+} = useDocumentUpload();
 
-const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
-const value = ref('Backlog')
+const items = ref(["Backlog", "Todo", "In Progress", "Done"]);
+const value = ref("Backlog");
 
 // Shared document form logic
 const {
@@ -94,7 +98,7 @@ const {
     refreshSession,
     handleFileChange,
     formatFileSize,
-    resetForm
+    resetForm,
 } = useDocumentForm();
 
 const { t } = useI18n();
@@ -104,12 +108,15 @@ const toast = useToast();
 // Session data is automatically managed by nuxt-auth
 
 // Watch for modal open/close to reset form and ensure authentication
-watch(() => props.isOpen, async (newValue) => {
-    if (newValue) {
-        resetForm();
-        uploadError.value = undefined;
-    }
-});
+watch(
+    () => props.isOpen,
+    async (newValue) => {
+        if (newValue) {
+            resetForm();
+            uploadError.value = undefined;
+        }
+    },
+);
 
 /**
  * Handle form submission
@@ -117,10 +124,10 @@ watch(() => props.isOpen, async (newValue) => {
 async function handleSubmit(): Promise<void> {
     if (!selectedFile.value || !selectedAccessRole.value) {
         toast.add({
-            title: t('documents.validationError'),
-            description: t('documents.validationErrorDescription'),
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
+            title: t("documents.validationError"),
+            description: t("documents.validationErrorDescription"),
+            icon: "i-heroicons-exclamation-triangle",
+            color: "error",
         });
         return;
     }
@@ -130,48 +137,54 @@ async function handleSubmit(): Promise<void> {
         try {
             await refreshSession();
         } catch (error) {
-            console.error('Failed to refresh session for upload:', error);
+            console.error("Failed to refresh session for upload:", error);
             toast.add({
-                title: t('documents.authError'),
-                description: t('documents.authErrorDescription'),
-                icon: 'i-heroicons-exclamation-triangle',
-                color: 'error',
+                title: t("documents.authError"),
+                description: t("documents.authErrorDescription"),
+                icon: "i-heroicons-exclamation-triangle",
+                color: "error",
             });
             return;
         }
     }
 
     try {
-        const success = await uploadDocument(selectedFile.value, selectedAccessRole.value);
+        const success = await uploadDocument(
+            selectedFile.value,
+            selectedAccessRole.value,
+        );
 
         if (success) {
             // Success toast
             toast.add({
-                title: t('documents.uploadSuccessTitle'),
-                description: t('documents.uploadSuccessDescription', { fileName: selectedFile.value.name }),
-                icon: 'i-heroicons-check-circle',
-                color: 'success',
+                title: t("documents.uploadSuccessTitle"),
+                description: t("documents.uploadSuccessDescription", {
+                    fileName: selectedFile.value.name,
+                }),
+                icon: "i-heroicons-check-circle",
+                color: "success",
             });
 
             // Emit uploaded event and close modal
-            emit('uploaded');
+            emit("uploaded");
             handleCancel();
         } else if (uploadError.value) {
             // Error toast only if no specific error alert is shown
             toast.add({
-                title: t('documents.uploadFailed'),
-                description: uploadError.value || t('documents.uploadErrorDescription'),
-                icon: 'i-heroicons-exclamation-triangle',
-                color: 'error',
+                title: t("documents.uploadFailed"),
+                description:
+                    uploadError.value || t("documents.uploadErrorDescription"),
+                icon: "i-heroicons-exclamation-triangle",
+                color: "error",
             });
         }
     } catch (error) {
-        console.error('Upload submission error:', error);
+        console.error("Upload submission error:", error);
         toast.add({
-            title: t('documents.uploadErrorUnexpected'),
-            description: 'An unexpected error occurred during upload.',
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
+            title: t("documents.uploadErrorUnexpected"),
+            description: "An unexpected error occurred during upload.",
+            icon: "i-heroicons-exclamation-triangle",
+            color: "error",
         });
     }
 }
@@ -180,7 +193,7 @@ async function handleSubmit(): Promise<void> {
  * Handle cancel/close
  */
 function handleCancel(): void {
-    emit('update:isOpen', false);
+    emit("update:isOpen", false);
 }
 </script>
 

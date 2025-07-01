@@ -41,41 +41,51 @@ import type { Document } from "@/models/message";
 const { t } = useI18n();
 
 const props = defineProps<{
-  document: Document;
-  index: number;
+    document: Document;
+    index: number;
 }>();
 
 // Helper function to get document title from metadata
 const getDocumentTitle = (): string => {
-  const metadata = props.document.metadata;
-  if (metadata?.file_name && typeof metadata.file_name === "string")
-    return metadata.file_name;
+    const metadata = props.document.metadata;
+    if (metadata?.file_name && typeof metadata.file_name === "string")
+        return metadata.file_name;
 
-  return t("chat.document");
+    return t("chat.document");
 };
 
 // Helper function to get page information
 const getPageInfo = (): string => {
-  const metadata = props.document.metadata;
+    const metadata = props.document.metadata;
 
-  if (metadata?.page && metadata.num_pages && typeof metadata.page === "number" && typeof metadata.num_pages === "number") {
-    return t("chat.page", { page: metadata.page, num_pages: metadata.num_pages });
-  }
+    if (
+        metadata?.page &&
+        metadata.num_pages &&
+        typeof metadata.page === "number" &&
+        typeof metadata.num_pages === "number"
+    ) {
+        return t("chat.page", {
+            page: metadata.page,
+            num_pages: metadata.num_pages,
+        });
+    }
 
-  return "";
+    return "";
 };
 
 const formatMetadata = (metadata: Record<string, unknown>): string => {
-  const metadata_strings = []
-  if (metadata?.mime_type && typeof metadata.mime_type === "string") {
-    const mime_type = metadata.mime_type.split("/")[1]
-    metadata_strings.push(`${t("chat.mime_type")}: ${mime_type}`);
-  }
-  if (metadata?.created_at && typeof metadata.created_at === "string") {
-    metadata_strings.push(`${t("chat.created_at")}: ${new Date(metadata.created_at).toLocaleDateString()}`);
-  }
+    const metadata_strings = [];
+    if (metadata?.mime_type && typeof metadata.mime_type === "string") {
+        const mime_type = metadata.mime_type.split("/")[1];
+        metadata_strings.push(`${t("chat.mime_type")}: ${mime_type}`);
+    }
+    if (metadata?.created_at && typeof metadata.created_at === "string") {
+        metadata_strings.push(
+            `${t("chat.created_at")}: ${new Date(metadata.created_at).toLocaleDateString()}`,
+        );
+    }
 
-  return metadata_strings.join(", ");
+    return metadata_strings.join(", ");
 };
 </script>
 

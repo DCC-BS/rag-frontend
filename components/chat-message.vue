@@ -91,16 +91,16 @@ import { computed } from "vue";
 import Document from "./document.vue";
 
 const props = defineProps<{
-  message: Message;
+    message: Message;
 }>();
 
 const { t } = useI18n();
 
 // Make accordionItems computed per component instance
 const accordionItems = computed(() => [
-  {
-    label: t("chat.sources"),
-    slot: "item",
-  },
+    {
+        label: t("chat.sources"),
+        slot: "item",
+    },
 ]);
 </script>

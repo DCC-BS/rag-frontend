@@ -122,8 +122,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { UserDocument } from "~/models/message";
 import DocumentViewer from "~/components/documents/document-viewer.vue";
+import type { UserDocument } from "~/models/message";
 
 const { t } = useI18n();
 
@@ -135,19 +135,27 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    'update:selected': [documentId: number, selected: boolean];
-    'delete': [documentId: number];
-    'update': [documentId: number];
+    "update:selected": [documentId: number, selected: boolean];
+    delete: [documentId: number];
+    update: [documentId: number];
 }>();
 
 // Authentication session data
 const { data: session, refresh: refreshSession } = useAuth();
 
 // Document download functionality
-const { downloadDocument, loading: isDownloading, error: downloadError } = useDocumentDownload();
+const {
+    downloadDocument,
+    loading: isDownloading,
+    error: downloadError,
+} = useDocumentDownload();
 
 // Document viewer functionality
-const { fetchDocument, loading: isLoadingViewer, error: viewerError } = useDocumentViewer();
+const {
+    fetchDocument,
+    loading: isLoadingViewer,
+    error: viewerError,
+} = useDocumentViewer();
 
 // Toast notifications
 const toast = useToast();
@@ -155,7 +163,7 @@ const toast = useToast();
 // Viewer state
 const isViewerOpen = ref<boolean>(false);
 const documentFile = ref<Blob | undefined>(undefined);
-const documentFileName = ref<string>('');
+const documentFileName = ref<string>("");
 
 // Session data is automatically managed by nuxt-auth
 // No need to manually fetch user data
@@ -165,14 +173,14 @@ const documentFileName = ref<string>('');
  */
 function handleSelectionChange(value: boolean | "indeterminate"): void {
     const checked = value === true;
-    emit('update:selected', props.document.id, checked);
+    emit("update:selected", props.document.id, checked);
 }
 
 /**
  * Handle delete button click
  */
 function handleDeleteClick(): void {
-    emit('delete', props.document.id);
+    emit("delete", props.document.id);
 }
 
 /**
@@ -184,47 +192,47 @@ async function handleUpdateClick(): Promise<void> {
         try {
             await refreshSession();
         } catch (error) {
-            console.error('Failed to refresh session for update:', error);
+            console.error("Failed to refresh session for update:", error);
             toast.add({
-                title: t('documents.authError'),
-                description: t('documents.authErrorDescription'),
-                icon: 'i-heroicons-exclamation-triangle',
-                color: 'error',
+                title: t("documents.authError"),
+                description: t("documents.authErrorDescription"),
+                icon: "i-heroicons-exclamation-triangle",
+                color: "error",
             });
             return;
         }
     }
 
-    emit('update', props.document.id);
+    emit("update", props.document.id);
 }
 
 /**
  * Get loading icon based on current operation
  */
 function getLoadingIcon(): string {
-    if (isDownloading.value) return 'i-heroicons-arrow-down-tray';
-    if (isLoadingViewer.value) return 'i-heroicons-eye';
-    if (props.isDeletingDocument) return 'i-heroicons-trash';
-    if (props.isUpdatingDocument) return 'i-heroicons-pencil-square';
-    return 'i-heroicons-arrow-path';
+    if (isDownloading.value) return "i-heroicons-arrow-down-tray";
+    if (isLoadingViewer.value) return "i-heroicons-eye";
+    if (props.isDeletingDocument) return "i-heroicons-trash";
+    if (props.isUpdatingDocument) return "i-heroicons-pencil-square";
+    return "i-heroicons-arrow-path";
 }
 
 /**
  * Get loading text based on current operation
  */
 function getLoadingText(): string {
-    if (isDownloading.value) return t('documents.downloading');
-    if (isLoadingViewer.value) return t('documents.loadingDocument');
-    if (props.isDeletingDocument) return t('documents.deleting');
-    if (props.isUpdatingDocument) return t('documents.updating');
-    return t('documents.processing');
+    if (isDownloading.value) return t("documents.downloading");
+    if (isLoadingViewer.value) return t("documents.loadingDocument");
+    if (props.isDeletingDocument) return t("documents.deleting");
+    if (props.isUpdatingDocument) return t("documents.updating");
+    return t("documents.processing");
 }
 
 /**
  * Check if document is a PDF file
  */
 function isPdfFile(): boolean {
-    return props.document.mime_type.toLowerCase().includes('pdf');
+    return props.document.mime_type.toLowerCase().includes("pdf");
 }
 
 /**
@@ -239,7 +247,10 @@ async function handleDocumentClick(): Promise<void> {
     try {
         if (isPdfFile()) {
             // For PDF files, fetch and show in viewer
-            const result = await fetchDocument(props.document.id, props.document.file_name);
+            const result = await fetchDocument(
+                props.document.id,
+                props.document.file_name,
+            );
             if (result) {
                 documentFile.value = result.blob;
                 documentFileName.value = result.fileName;
@@ -247,10 +258,14 @@ async function handleDocumentClick(): Promise<void> {
             } else if (viewerError.value) {
                 // Show error toast for viewer failure
                 toast.add({
-                    title: t('documents.failedToLoad'),
-                    description: viewerError.value || t('documents.unableToLoad', { fileName: props.document.file_name }),
-                    icon: 'i-heroicons-exclamation-triangle',
-                    color: 'error',
+                    title: t("documents.failedToLoad"),
+                    description:
+                        viewerError.value ||
+                        t("documents.unableToLoad", {
+                            fileName: props.document.file_name,
+                        }),
+                    icon: "i-heroicons-exclamation-triangle",
+                    color: "error",
                 });
             }
         } else {
@@ -260,31 +275,42 @@ async function handleDocumentClick(): Promise<void> {
             // Show success toast for download
             if (!downloadError.value) {
                 toast.add({
-                    title: t('documents.downloadStarted'),
-                    description: t('documents.downloadInitiated', { fileName: props.document.file_name }),
-                    icon: 'i-heroicons-arrow-down-tray',
-                    color: 'success',
+                    title: t("documents.downloadStarted"),
+                    description: t("documents.downloadInitiated", {
+                        fileName: props.document.file_name,
+                    }),
+                    icon: "i-heroicons-arrow-down-tray",
+                    color: "success",
                 });
             } else {
                 // Show error toast for download failure
                 toast.add({
-                    title: t('documents.downloadFailed'),
-                    description: downloadError.value || t('documents.failedToDownload', { fileName: props.document.file_name }),
-                    icon: 'i-heroicons-exclamation-triangle',
-                    color: 'error',
+                    title: t("documents.downloadFailed"),
+                    description:
+                        downloadError.value ||
+                        t("documents.failedToDownload", {
+                            fileName: props.document.file_name,
+                        }),
+                    icon: "i-heroicons-exclamation-triangle",
+                    color: "error",
                 });
             }
         }
     } catch (error) {
-        console.error('Failed to handle document:', error);
+        console.error("Failed to handle document:", error);
 
         // Show generic error toast if no specific error was captured
         if (!downloadError.value && !viewerError.value) {
             toast.add({
-                title: t('documents.operationFailed'),
-                description: t('documents.failedTo', { operation: isPdfFile() ? t('documents.load') : t('documents.download'), fileName: props.document.file_name }),
-                icon: 'i-heroicons-exclamation-triangle',
-                color: 'error',
+                title: t("documents.operationFailed"),
+                description: t("documents.failedTo", {
+                    operation: isPdfFile()
+                        ? t("documents.load")
+                        : t("documents.download"),
+                    fileName: props.document.file_name,
+                }),
+                icon: "i-heroicons-exclamation-triangle",
+                color: "error",
             });
         }
     }
@@ -296,35 +322,35 @@ async function handleDocumentClick(): Promise<void> {
 function getFileIcon(): string {
     const mimeType = props.document.mime_type.toLowerCase();
 
-    if (mimeType.includes('pdf')) {
-        return 'i-heroicons-document-text';
+    if (mimeType.includes("pdf")) {
+        return "i-heroicons-document-text";
     }
-    if (mimeType.includes('image')) {
-        return 'i-heroicons-photo';
+    if (mimeType.includes("image")) {
+        return "i-heroicons-photo";
     }
-    if (mimeType.includes('video')) {
-        return 'i-heroicons-film';
+    if (mimeType.includes("video")) {
+        return "i-heroicons-film";
     }
-    if (mimeType.includes('audio')) {
-        return 'i-heroicons-musical-note';
+    if (mimeType.includes("audio")) {
+        return "i-heroicons-musical-note";
     }
-    if (mimeType.includes('text') || mimeType.includes('doc')) {
-        return 'i-heroicons-document-text';
+    if (mimeType.includes("text") || mimeType.includes("doc")) {
+        return "i-heroicons-document-text";
     }
-    if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) {
-        return 'i-heroicons-table-cells';
+    if (mimeType.includes("spreadsheet") || mimeType.includes("excel")) {
+        return "i-heroicons-table-cells";
     }
-    if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) {
-        return 'i-heroicons-presentation-chart-bar';
+    if (mimeType.includes("presentation") || mimeType.includes("powerpoint")) {
+        return "i-heroicons-presentation-chart-bar";
     }
-    return 'i-heroicons-document';
+    return "i-heroicons-document";
 }
 
 /**
  * Format mime type for display
  */
 function formatMimeType(mimeType: string): string {
-    const parts = mimeType.split('/');
+    const parts = mimeType.split("/");
     if (parts.length > 1) {
         return parts[1].toUpperCase();
     }
@@ -336,10 +362,10 @@ function formatMimeType(mimeType: string): string {
  */
 function formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
+    return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
     });
 }
 </script>

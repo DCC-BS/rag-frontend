@@ -198,18 +198,24 @@
 </template>
 
 <script lang="ts" setup>
-import type { UserDocument } from "~/models/message";
 import DocumentUploadModal from "~/components/documents/document-upload-modal.vue";
+import type { UserDocument } from "~/models/message";
 
 const { t } = useI18n();
-const { documents, loading, error, fetchDocuments, refreshDocuments } = useDocuments();
-const { deleteDocument, deleteMultipleDocuments, loading: isDeletingDocuments, error: deletionError } = useDocumentDeletion();
+const { documents, loading, error, fetchDocuments, refreshDocuments } =
+    useDocuments();
+const {
+    deleteDocument,
+    deleteMultipleDocuments,
+    loading: isDeletingDocuments,
+    error: deletionError,
+} = useDocumentDeletion();
 
 // Toast notifications
 const toast = useToast();
 
 // Search functionality
-const searchQuery = ref<string>('');
+const searchQuery = ref<string>("");
 
 // Selection functionality
 const selectedDocuments = ref<number[]>([]);
@@ -224,8 +230,8 @@ const updateModalData = ref<{
     currentAccessRole: string;
 }>({
     documentId: 0,
-    documentName: '',
-    currentAccessRole: '',
+    documentName: "",
+    currentAccessRole: "",
 });
 
 // Upload functionality
@@ -238,8 +244,8 @@ const deleteModalData = ref<{
     message: string;
     documentIds: number[];
 }>({
-    title: '',
-    message: '',
+    title: "",
+    message: "",
     documentIds: [],
 });
 
@@ -254,7 +260,7 @@ const filteredDocuments = computed<UserDocument[]>(() => {
 
     const query = searchQuery.value.toLowerCase().trim();
     return documents.value.documents.filter((document: UserDocument) =>
-        document.file_name.toLowerCase().includes(query)
+        document.file_name.toLowerCase().includes(query),
     );
 });
 
@@ -262,8 +268,12 @@ const filteredDocuments = computed<UserDocument[]>(() => {
  * Check if all documents are selected
  */
 const allSelected = computed<boolean>(() => {
-    return filteredDocuments.value.length > 0 &&
-        filteredDocuments.value.every(doc => selectedDocuments.value.includes(doc.id));
+    return (
+        filteredDocuments.value.length > 0 &&
+        filteredDocuments.value.every((doc) =>
+            selectedDocuments.value.includes(doc.id),
+        )
+    );
 });
 
 /**
@@ -295,7 +305,7 @@ function handleDocumentSelection(documentId: number, selected: boolean): void {
 function toggleSelectAll(value: boolean | "indeterminate"): void {
     if (value === true) {
         // Select all filtered documents
-        selectedDocuments.value = filteredDocuments.value.map(doc => doc.id);
+        selectedDocuments.value = filteredDocuments.value.map((doc) => doc.id);
     } else {
         // Deselect all
         selectedDocuments.value = [];
@@ -313,20 +323,22 @@ function clearSelection(): void {
  * Clear the search query
  */
 function clearSearch(): void {
-    searchQuery.value = '';
+    searchQuery.value = "";
 }
 
 /**
  * Show update modal for a document
  */
 function showUpdateModal(documentId: number): void {
-    const document = documents.value?.documents?.find(doc => doc.id === documentId);
+    const document = documents.value?.documents?.find(
+        (doc) => doc.id === documentId,
+    );
     if (!document) return;
 
     updateModalData.value = {
         documentId: documentId,
         documentName: document.file_name,
-        currentAccessRole: document.access_roles[0] || '', // Use first access role as current
+        currentAccessRole: document.access_roles[0] || "", // Use first access role as current
     };
     showUpdateModalState.value = true;
 }
@@ -343,10 +355,14 @@ async function handleDocumentUpdated(documentId: number): Promise<void> {
         await refreshDocuments();
 
         // Remove from selection if it was selected
-        selectedDocuments.value = selectedDocuments.value.filter(id => id !== documentId);
+        selectedDocuments.value = selectedDocuments.value.filter(
+            (id) => id !== documentId,
+        );
     } finally {
         // Remove from updating state
-        updatingDocumentIds.value = updatingDocumentIds.value.filter(id => id !== documentId);
+        updatingDocumentIds.value = updatingDocumentIds.value.filter(
+            (id) => id !== documentId,
+        );
     }
 }
 
@@ -361,14 +377,14 @@ async function handleDocumentUploaded(): Promise<void> {
         // Clear any selections since we have new data
         selectedDocuments.value = [];
     } catch (error) {
-        console.error('Error refreshing documents after upload:', error);
+        console.error("Error refreshing documents after upload:", error);
 
         // Show error toast if refresh fails
         toast.add({
-            title: t('documents.refreshErrorTitle'),
-            description: t('documents.refreshErrorDescription'),
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'warning',
+            title: t("documents.refreshErrorTitle"),
+            description: t("documents.refreshErrorDescription"),
+            icon: "i-heroicons-exclamation-triangle",
+            color: "warning",
         });
     }
 }
@@ -377,12 +393,16 @@ async function handleDocumentUploaded(): Promise<void> {
  * Show single document delete confirmation
  */
 function showSingleDeleteConfirmation(documentId: number): void {
-    const document = documents.value?.documents?.find(doc => doc.id === documentId);
+    const document = documents.value?.documents?.find(
+        (doc) => doc.id === documentId,
+    );
     if (!document) return;
 
     deleteModalData.value = {
-        title: t('documents.deleteModalTitle', { count: 1 }),
-        message: t('documents.deleteModalMessage', { fileName: document.file_name }),
+        title: t("documents.deleteModalTitle", { count: 1 }),
+        message: t("documents.deleteModalMessage", {
+            fileName: document.file_name,
+        }),
         documentIds: [documentId],
     };
     showDeleteModal.value = true;
@@ -394,8 +414,8 @@ function showSingleDeleteConfirmation(documentId: number): void {
 function showBulkDeleteConfirmation(): void {
     const count = selectedDocuments.value.length;
     deleteModalData.value = {
-        title: t('documents.deleteModalTitle', { count }),
-        message: t('documents.deleteModalMessage_plural', { count }),
+        title: t("documents.deleteModalTitle", { count }),
+        message: t("documents.deleteModalMessage_plural", { count }),
         documentIds: [...selectedDocuments.value],
     };
     showDeleteModal.value = true;
@@ -406,7 +426,7 @@ function showBulkDeleteConfirmation(): void {
  */
 function cancelDelete(): void {
     showDeleteModal.value = false;
-    deleteModalData.value = { title: '', message: '', documentIds: [] };
+    deleteModalData.value = { title: "", message: "", documentIds: [] };
 }
 
 /**
@@ -422,37 +442,48 @@ async function confirmDelete(): Promise<void> {
 
         if (documentIds.length === 1) {
             // Single document deletion
-            const document = documents.value?.documents?.find(doc => doc.id === documentIds[0]);
-            const documentName = document?.file_name || 'Unknown document';
+            const document = documents.value?.documents?.find(
+                (doc) => doc.id === documentIds[0],
+            );
+            const documentName = document?.file_name || "Unknown document";
 
             const success = await deleteDocument(documentIds[0]);
             if (success) {
                 // Show success toast
                 toast.add({
-                    title: t('documents.deleteSuccessTitle'),
-                    description: t('documents.deleteSuccessDescription', { fileName: documentName }),
-                    icon: 'i-heroicons-trash',
-                    color: 'success',
+                    title: t("documents.deleteSuccessTitle"),
+                    description: t("documents.deleteSuccessDescription", {
+                        fileName: documentName,
+                    }),
+                    icon: "i-heroicons-trash",
+                    color: "success",
                 });
 
                 // Remove from local state
                 if (documents.value?.documents) {
-                    documents.value.documents = documents.value.documents.filter(
-                        doc => doc.id !== documentIds[0]
-                    );
+                    documents.value.documents =
+                        documents.value.documents.filter(
+                            (doc) => doc.id !== documentIds[0],
+                        );
                     if (documents.value.total_count) {
                         documents.value.total_count--;
                     }
                 }
                 // Remove from selection
-                selectedDocuments.value = selectedDocuments.value.filter(id => id !== documentIds[0]);
+                selectedDocuments.value = selectedDocuments.value.filter(
+                    (id) => id !== documentIds[0],
+                );
             } else {
                 // Show error toast
                 toast.add({
-                    title: t('documents.deleteErrorTitle'),
-                    description: deletionError.value || t('documents.deleteErrorDescription', { fileName: documentName }),
-                    icon: 'i-heroicons-exclamation-triangle',
-                    color: 'error',
+                    title: t("documents.deleteErrorTitle"),
+                    description:
+                        deletionError.value ||
+                        t("documents.deleteErrorDescription", {
+                            fileName: documentName,
+                        }),
+                    icon: "i-heroicons-exclamation-triangle",
+                    color: "error",
                 });
             }
         } else {
@@ -462,58 +493,72 @@ async function confirmDelete(): Promise<void> {
                 // Show success toast
                 if (result.failed === 0) {
                     toast.add({
-                        title: t('documents.deleteMultipleSuccessTitle'),
-                        description: t('documents.deleteMultipleSuccessDescription', { count: result.success }),
-                        icon: 'i-heroicons-trash',
-                        color: 'success',
+                        title: t("documents.deleteMultipleSuccessTitle"),
+                        description: t(
+                            "documents.deleteMultipleSuccessDescription",
+                            { count: result.success },
+                        ),
+                        icon: "i-heroicons-trash",
+                        color: "success",
                     });
                 } else {
                     toast.add({
-                        title: t('documents.deleteMultiplePartialSuccessTitle'),
-                        description: t('documents.deleteMultiplePartialSuccessDescription', { successCount: result.success, failedCount: result.failed }),
-                        icon: 'i-heroicons-exclamation-triangle',
-                        color: 'warning',
+                        title: t("documents.deleteMultiplePartialSuccessTitle"),
+                        description: t(
+                            "documents.deleteMultiplePartialSuccessDescription",
+                            {
+                                successCount: result.success,
+                                failedCount: result.failed,
+                            },
+                        ),
+                        icon: "i-heroicons-exclamation-triangle",
+                        color: "warning",
                     });
                 }
 
                 // Remove successfully deleted documents from local state
                 if (documents.value?.documents) {
-                    documents.value.documents = documents.value.documents.filter(
-                        doc => !documentIds.includes(doc.id)
-                    );
+                    documents.value.documents =
+                        documents.value.documents.filter(
+                            (doc) => !documentIds.includes(doc.id),
+                        );
                     if (documents.value.total_count) {
                         documents.value.total_count -= result.success;
                     }
                 }
                 // Clear selection for successfully deleted documents
-                selectedDocuments.value = selectedDocuments.value.filter(id => !documentIds.includes(id));
+                selectedDocuments.value = selectedDocuments.value.filter(
+                    (id) => !documentIds.includes(id),
+                );
             } else {
                 // Show error toast for complete failure
                 toast.add({
-                    title: t('documents.deleteMultipleErrorTitle'),
-                    description: deletionError.value || t('documents.deleteMultipleErrorDescription', { count: documentIds.length }),
-                    icon: 'i-heroicons-exclamation-triangle',
-                    color: 'error',
+                    title: t("documents.deleteMultipleErrorTitle"),
+                    description:
+                        deletionError.value ||
+                        t("documents.deleteMultipleErrorDescription", {
+                            count: documentIds.length,
+                        }),
+                    icon: "i-heroicons-exclamation-triangle",
+                    color: "error",
                 });
             }
         }
     } finally {
         // Remove from deleting state
         deletingDocumentIds.value = deletingDocumentIds.value.filter(
-            id => !documentIds.includes(id)
+            (id) => !documentIds.includes(id),
         );
         // Close modal
         showDeleteModal.value = false;
-        deleteModalData.value = { title: '', message: '', documentIds: [] };
+        deleteModalData.value = { title: "", message: "", documentIds: [] };
     }
 }
 
 // Set page metadata
 useHead({
-    title: t('documents.title'),
-    meta: [
-        { name: 'description', content: t('documents.description') }
-    ]
+    title: t("documents.title"),
+    meta: [{ name: "description", content: t("documents.description") }],
 });
 
 // Fetch documents on mount
