@@ -31,7 +31,7 @@
           <!-- Status indicator -->
           <div v-if="props.message.status && !props.message.isUser && props.message.status !== 'Error'"
             class="flex items-center gap-2 mt-3 pt-2 border-t border-gray-200 dark:border-gray-600">
-            <div class="flex space-x-1">
+            <div v-if="props.message.streaming" class="flex space-x-1">
               <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
               <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
               <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
@@ -91,16 +91,16 @@ import { computed } from "vue";
 import Document from "./document.vue";
 
 const props = defineProps<{
-    message: Message;
+  message: Message;
 }>();
 
 const { t } = useI18n();
 
 // Make accordionItems computed per component instance
 const accordionItems = computed(() => [
-    {
-        label: t("chat.sources"),
-        slot: "item",
-    },
+  {
+    label: t("chat.sources"),
+    slot: "item",
+  },
 ]);
 </script>

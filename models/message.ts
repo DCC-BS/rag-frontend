@@ -4,6 +4,7 @@ export interface Message {
     avatar: string;
     content: string;
     status?: string;
+    streaming?: boolean;
     documents?: Document[] | null;
     timestamp?: Date;
 }

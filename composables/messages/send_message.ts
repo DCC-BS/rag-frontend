@@ -23,7 +23,8 @@ function parseStreamLine(line: string): StreamChunk[] {
         const jsonData = parseLine(line);
         const result: StreamChunk[] = [];
         for (const data of jsonData) {
-            const type = data.type;
+            const type = data.type as string;
+            const sender = data.sender as string;
 
             if (type === "interrupt") {
                 result.push({
@@ -44,8 +45,8 @@ function parseStreamLine(line: string): StreamChunk[] {
             if (type === "status") {
                 // Check if we need to clear text based on detector decisions
                 if (
-                    (data.sender === "GradeAnswerAction" ||
-                        data.sender === "GradeHallucinationAction") &&
+                    (sender === "GradeAnswerAction" ||
+                        sender === "GradeHallucinationAction") &&
                     data.decision === "Yes"
                 ) {
                     result.push({
@@ -53,9 +54,13 @@ function parseStreamLine(line: string): StreamChunk[] {
                         message: "Text cleared due to detector decision",
                     });
                 } else {
+                    let message = data.message;
+                    if (data.decision) {
+                        message += `: ${data.decision}`;
+                    }
                     result.push({
                         type: "status",
-                        message: `${data.message}: ${data.decision ?? ""}`,
+                        message: message,
                     });
                 }
             }

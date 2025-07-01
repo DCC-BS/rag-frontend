@@ -13,6 +13,8 @@ We use nuxt with auto import functionality.
 
 Use nativ tailwind 3 css.
 
+You have access to context7 to fetch up to date documentation on libraries and frameworks.
+
 1. **Use Composition API exclusively**
    Always use the Composition API style for components and composables.
 

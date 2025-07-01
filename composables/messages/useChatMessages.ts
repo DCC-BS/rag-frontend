@@ -38,7 +38,8 @@ export const useChatMessages = () => {
             isUser: false,
             avatar: aiAvatar,
             content: "",
-            status: "Thinking...",
+            status: "",
+            streaming: true,
             timestamp: new Date(),
         });
 
@@ -59,7 +60,12 @@ export const useChatMessages = () => {
             if (chunk.decision) {
                 statusText += ` (Decision: ${chunk.decision})`;
             }
-            currentAiMessage.status = statusText;
+            if (currentAiMessage.status) {
+                currentAiMessage.status += ` -> ${statusText}`;
+            } else {
+                currentAiMessage.status = statusText;
+            }
+
             if (currentAiMessage.content === "") {
                 currentAiMessage.content = "…";
             }
@@ -83,7 +89,7 @@ export const useChatMessages = () => {
     function finalizeAiMessage(index: number): void {
         const currentAiMessage = messages.value[index];
         if (currentAiMessage) {
-            currentAiMessage.status = undefined;
+            currentAiMessage.streaming = false;
             if (
                 currentAiMessage.content === "…" ||
                 currentAiMessage.content === ""

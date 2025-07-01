@@ -15,6 +15,10 @@ export default defineI18nConfig(() => ({
                 created_at: "Created at",
                 mime_type: "File type",
                 sourcesCount: "{count} document | {count} documents",
+                error: {
+                    title: "Message could not be sent",
+                    sendMessage: "Please sign in again and try again.",
+                },
                 exampleQuestions: {
                     title: "Try asking:",
                     clickToAsk: "Click to ask",
@@ -180,6 +184,11 @@ export default defineI18nConfig(() => ({
                 created_at: "Erstellt am",
                 mime_type: "Dateityp",
                 sourcesCount: "{count} Dokument | {count} Dokumente",
+                error: {
+                    title: "Nachricht konnte nicht gesendet werden",
+                    sendMessage:
+                        "Bitte melden Sie sich erneut an und versuchen Sie es erneut.",
+                },
                 exampleQuestions: {
                     additionalHelp:
                         "Sie können mir alles zu Sozialversicherung fragen.",
