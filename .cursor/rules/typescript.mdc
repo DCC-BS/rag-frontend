@@ -7,6 +7,12 @@ alwaysApply: false
 
 Instead of npm I am using bun. Therefore use bun for tool calls.
 
+Always preferr nuxt ui components over custom one.
+
+We use nuxt with auto import functionality.
+
+Use nativ tailwind 3 css.
+
 1. **Use Composition API exclusively**
    Always use the Composition API style for components and composables.
 

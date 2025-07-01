@@ -90,7 +90,7 @@ export default NuxtAuthHandler({
             tenantId: useRuntimeConfig().azureAdTenantId,
             authorization: {
                 params: {
-                    scope: "openid email profile offline_access", // offline_access for refresh token
+                    scope: "openid email profile offline_access User.Read", // offline_access for refresh token
                 },
             },
         }),
@@ -114,7 +114,6 @@ export default NuxtAuthHandler({
                 extendedToken.sub = azureProfile.sub || azureProfile.oid; // Azure AD uses 'oid' for user ID
                 extendedToken.email = azureProfile.email;
                 extendedToken.name = azureProfile.name;
-                extendedToken.picture = azureProfile.picture;
                 // Azure AD roles come from the 'roles' claim
                 extendedToken.roles = azureProfile.roles || [];
 
@@ -154,7 +153,7 @@ export default NuxtAuthHandler({
                     id: extendedToken.sub || session.user?.email || "",
                     name: extendedToken.name || session.user?.name || "",
                     email: extendedToken.email || session.user?.email || "",
-                    picture: extendedToken.picture || session.user?.image || "",
+                    picture: session.user?.image || "",
                     organizations: extendedToken.roles || [],
                 },
                 accessToken: extendedToken.accessToken,

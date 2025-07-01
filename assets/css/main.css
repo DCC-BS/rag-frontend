@@ -32,3 +32,12 @@
         margin-right: 2.5rem;
     }
 }
+
+/* Ensure toasts appear above other fixed elements */
+[data-ui-toast-provider] {
+    z-index: 50 !important;
+}
+
+[data-ui-toast] {
+    z-index: 50 !important;
+}

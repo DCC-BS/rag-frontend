@@ -12,6 +12,7 @@ const {
 const { chatHistoryRef, watchMessages } = useAutoScroll();
 const { userInput, hasContent, createKeydownHandler, clearInput, setInput } =
     useChatInput();
+const toast = useToast();
 
 // Auto-scroll when messages change
 watchMessages(messages);
@@ -29,7 +30,22 @@ async function sendChat(): Promise<void> {
     if (!content) return;
 
     clearInput();
-    await sendChatMessage(content);
+
+    try {
+        await sendChatMessage(content);
+    } catch (error) {
+        toast.add({
+            title: t('chat.error.title'),
+            description: t('chat.error.sendMessage'),
+            color: 'error',
+            icon: 'i-heroicons-exclamation-triangle',
+        });
+
+        // Restore the input content so user can try again
+        setInput(content);
+
+        console.error('Error sending chat message:', error);
+    }
 }
 
 /**
@@ -38,17 +54,49 @@ async function sendChat(): Promise<void> {
 function startNewChat(): void {
     if (isLoading.value) return;
 
-    resetThreadId();
-    clearMessages();
-    clearInput();
+    try {
+        resetThreadId();
+        clearMessages();
+        clearInput();
+
+        // Show success toast
+        toast.add({
+            title: t('chat.newChat.success'),
+            description: t('chat.newChat.description'),
+            color: 'success',
+            icon: 'i-heroicons-chat-bubble-left-right',
+        });
+    } catch (error) {
+        // Display error toast
+        toast.add({
+            title: t('chat.error.title'),
+            description: t('chat.error.newChat'),
+            color: 'error',
+            icon: 'i-heroicons-exclamation-triangle',
+        });
+
+        console.error('Error starting new chat:', error);
+    }
 }
 
 /**
  * Handle example question clicks
  */
-function handleExampleQuestionClick(question: string): void {
-    setInput(question);
-    sendChat();
+async function handleExampleQuestionClick(question: string): Promise<void> {
+    try {
+        setInput(question);
+        await sendChat();
+    } catch (error) {
+        // Display error toast
+        toast.add({
+            title: t('chat.error.title'),
+            description: t('chat.error.exampleQuestion'),
+            color: 'error',
+            icon: 'i-heroicons-exclamation-triangle',
+        });
+
+        console.error('Error handling example question click:', error);
+    }
 }
 
 // Keyboard event handler

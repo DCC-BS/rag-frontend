@@ -15,7 +15,7 @@ export const useChatMessages = () => {
      */
     function addUserMessage(content: string): void {
         const userAvatar =
-            authData.value?.user?.image ?? "https://i.pravatar.cc/150?img=1";
+            authData.value?.user?.picture ?? "https://i.pravatar.cc/150?img=1";
 
         messages.value.push({
             id: `user-${Date.now()}`,
@@ -123,24 +123,27 @@ export const useChatMessages = () => {
         }
 
         try {
-            await sendMessage(
-                content,
-                thread_id.value,
-                (chunk: StreamChunk) => updateAiMessage(aiMessageIndex, chunk),
-                () => {
-                    finalizeAiMessage(aiMessageIndex);
-                    isLoading.value = false;
-                },
-                (error: Error) => {
-                    console.error("Failed to initiate chat send:", error);
-                    handleAiMessageError(aiMessageIndex);
-                    isLoading.value = false;
-                },
-            );
+            await new Promise<void>((resolve, reject) => {
+                sendMessage(
+                    content,
+                    thread_id.value,
+                    (chunk: StreamChunk) =>
+                        updateAiMessage(aiMessageIndex, chunk),
+                    () => {
+                        finalizeAiMessage(aiMessageIndex);
+                        isLoading.value = false;
+                        resolve();
+                    },
+                    (error: Error) => {
+                        reject(error);
+                    },
+                );
+            });
         } catch (error) {
-            console.error("Failed to initiate chat send:", error);
+            console.error("Failed to send chat message:", error);
             handleAiMessageError(aiMessageIndex);
             isLoading.value = false;
+            throw error;
         }
     }
 
