@@ -14,6 +14,7 @@ export default defineI18nConfig(() => ({
                 document: "Document",
                 created_at: "Created at",
                 mime_type: "File type",
+                sourcesCount: "{count} document | {count} documents",
                 exampleQuestions: {
                     title: "Try asking:",
                     clickToAsk: "Click to ask",
@@ -36,7 +37,6 @@ export default defineI18nConfig(() => ({
                 signOut: "Sign Out",
                 title: "AI Chat Bot",
                 documents: "Documents",
-                home: "Home",
             },
             documents: {
                 title: "Documents",
@@ -163,6 +163,7 @@ export default defineI18nConfig(() => ({
                 previous: "Previous",
                 next: "Next",
                 pageOf: "Page {currentPage} of {totalPages}",
+                selectForDeletion: "Select for multi-delete",
             },
         },
 
@@ -178,6 +179,7 @@ export default defineI18nConfig(() => ({
                 page: "Seite {page} von {num_pages}",
                 created_at: "Erstellt am",
                 mime_type: "Dateityp",
+                sourcesCount: "{count} Dokument | {count} Dokumente",
                 exampleQuestions: {
                     additionalHelp:
                         "Sie können mir alles zu Sozialversicherung fragen.",
@@ -201,12 +203,11 @@ export default defineI18nConfig(() => ({
                 signOut: "Abmelden",
                 title: "AI Chat Bot",
                 documents: "Dokumente",
-                home: "Home",
             },
             documents: {
                 title: "Dokumente",
                 description:
-                    "Verwalten und betrachten Sie Ihre zugänglichen Dokumente",
+                    "Verwalten und betrachten Sie Ihre hinterlegten Dokumente",
                 loading: "Dokumente werden geladen...",
                 errorTitle: "Fehler beim Laden der Dokumente",
                 tryAgain: "Erneut versuchen",
@@ -334,6 +335,7 @@ export default defineI18nConfig(() => ({
                 previous: "Zurück",
                 next: "Weiter",
                 pageOf: "Seite {currentPage} von {totalPages}",
+                selectForDeletion: "Für Mehrfachlöschung auswählen",
             },
         },
     },

@@ -18,54 +18,28 @@
                 </UCard>
             </div>
 
-            <!-- Header with selection and actions -->
+            <!-- Header -->
             <template #header>
-                <div class="flex items-start justify-between">
-                    <!-- Document info -->
-                    <div class="flex items-center gap-3 min-w-0 flex-1" @click.stop>
-                        <!-- Selection checkbox -->
-                        <UCheckbox :model-value="isSelected" @update:model-value="handleSelectionChange"
-                            class="shrink-0" />
-
-                        <div class="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg shrink-0">
-                            <UIcon :name="getFileIcon()" class="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                        </div>
-
-                        <div class="min-w-0 flex-1">
-                            <UTooltip :text="props.document.file_name" :delay="100">
-                                <h3 class="font-semibold text-gray-900 dark:text-white text-base truncate">
-                                    {{ props.document.file_name }}
-                                </h3>
-                            </UTooltip>
-                            <div class="flex items-center gap-2 mt-1">
-                                <UBadge color="neutral" variant="soft" size="xs">
-                                    {{ formatMimeType(props.document.mime_type) }}
-                                </UBadge>
-                                <span class="text-xs text-gray-500 dark:text-gray-400">
-                                    {{ formatDate(props.document.created_at) }}
-                                </span>
-                            </div>
-                        </div>
+                <!-- Document info -->
+                <div class="flex items-center gap-3 min-w-0 flex-1" @click.stop>
+                    <div class="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg shrink-0">
+                        <UIcon :name="getFileIcon()" class="w-5 h-5 text-primary-600 dark:text-primary-400" />
                     </div>
 
-                    <!-- Actions -->
-                    <div class="flex items-center gap-2 shrink-0" @click.stop>
-                        <UTooltip :text="isPdfFile() ? t('documents.clickToView') : t('documents.clickToDownload')">
-                            <UButton :icon="isPdfFile() ? 'i-heroicons-eye' : 'i-heroicons-arrow-down-tray'"
-                                color="neutral" variant="ghost" size="sm" @click="handleDocumentClick" />
+                    <div class="min-w-0 flex-1">
+                        <UTooltip :text="props.document.file_name" :delay="100">
+                            <h3 class="font-semibold text-gray-900 dark:text-white text-base break-all">
+                                {{ props.document.file_name }}
+                            </h3>
                         </UTooltip>
-
-                        <UTooltip :text="isUpdatingDocument ? t('documents.updating') : t('documents.updateDocument')">
-                            <UButton :icon="isUpdatingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-pencil-square'"
-                                :class="{ 'animate-spin': isUpdatingDocument }" color="warning" variant="ghost"
-                                size="sm" :disabled="isUpdatingDocument" @click="handleUpdateClick" />
-                        </UTooltip>
-
-                        <UTooltip :text="isDeletingDocument ? t('documents.deleting') : t('documents.deleteDocument')">
-                            <UButton :icon="isDeletingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-trash'"
-                                :class="{ 'animate-spin': isDeletingDocument }" color="error" variant="ghost" size="sm"
-                                :disabled="isDeletingDocument" @click="handleDeleteClick" />
-                        </UTooltip>
+                        <div class="flex items-center gap-2 mt-1">
+                            <UBadge color="neutral" variant="soft" size="xs">
+                                {{ formatMimeType(props.document.mime_type) }}
+                            </UBadge>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                {{ formatDate(props.document.created_at) }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -105,19 +79,41 @@
                         </UBadge>
                     </div>
                 </div>
-
-                <!-- Document path -->
-                <div>
-                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                        {{ t('documents.documentPath') }}
-                    </p>
-                    <UCard class="bg-gray-50 dark:bg-gray-800/50">
-                        <p class="text-xs text-gray-600 dark:text-gray-400 font-mono break-all">
-                            {{ props.document.document_path }}
-                        </p>
-                    </UCard>
-                </div>
             </div>
+
+            <!-- Footer with selection and actions -->
+            <template #footer>
+                <div class="flex items-center justify-between" @click.stop>
+                    <!-- Selection checkbox -->
+                    <div class="flex items-center gap-2">
+                        <UCheckbox :model-value="isSelected" @update:model-value="handleSelectionChange"
+                            class="shrink-0" />
+                        <span class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ t('documents.selectForDeletion') }}
+                        </span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <UTooltip :text="isPdfFile() ? t('documents.clickToView') : t('documents.clickToDownload')">
+                            <UButton :icon="isPdfFile() ? 'i-heroicons-eye' : 'i-heroicons-arrow-down-tray'"
+                                color="neutral" variant="ghost" size="sm" @click="handleDocumentClick" />
+                        </UTooltip>
+
+                        <UTooltip :text="isUpdatingDocument ? t('documents.updating') : t('documents.updateDocument')">
+                            <UButton :icon="isUpdatingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-pencil-square'"
+                                :class="{ 'animate-spin': isUpdatingDocument }" color="warning" variant="ghost"
+                                size="sm" :disabled="isUpdatingDocument" @click="handleUpdateClick" />
+                        </UTooltip>
+
+                        <UTooltip :text="isDeletingDocument ? t('documents.deleting') : t('documents.deleteDocument')">
+                            <UButton :icon="isDeletingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-trash'"
+                                :class="{ 'animate-spin': isDeletingDocument }" color="error" variant="ghost" size="sm"
+                                :disabled="isDeletingDocument" @click="handleDeleteClick" />
+                        </UTooltip>
+                    </div>
+                </div>
+            </template>
         </UCard>
 
         <!-- Document Viewer Modal - Outside the card to prevent click conflicts -->

@@ -27,13 +27,6 @@ const items = ref<NavigationMenuItem[]>([
             label: t("navigation.title"),
             icon: "i-heroicons-chat-bubble-left-right",
             class: "font-bold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-default",
-        },
-
-    ],
-    [
-        {
-            label: t("navigation.home"),
-            icon: "i-heroicons-home",
             to: "/",
         },
         {

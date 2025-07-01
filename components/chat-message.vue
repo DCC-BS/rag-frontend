@@ -66,7 +66,7 @@
               <div class="text-left">
                 <span class="font-medium text-gray-900 dark:text-gray-100">{{ item.label }}</span>
                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                  {{ props.message.documents.length }} source{{ props.message.documents.length !== 1 ? 's' : '' }}
+                  {{ t('chat.sourcesCount', { count: props.message.documents.length }) }}
                 </div>
               </div>
             </div>
