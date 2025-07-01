@@ -35,16 +35,16 @@ async function sendChat(): Promise<void> {
         await sendChatMessage(content);
     } catch (error) {
         toast.add({
-            title: t('chat.error.title'),
-            description: t('chat.error.sendMessage'),
-            color: 'error',
-            icon: 'i-heroicons-exclamation-triangle',
+            title: t("chat.error.title"),
+            description: t("chat.error.sendMessage"),
+            color: "error",
+            icon: "i-heroicons-exclamation-triangle",
         });
 
         // Restore the input content so user can try again
         setInput(content);
 
-        console.error('Error sending chat message:', error);
+        console.error("Error sending chat message:", error);
     }
 }
 
@@ -61,21 +61,21 @@ function startNewChat(): void {
 
         // Show success toast
         toast.add({
-            title: t('chat.newChat.success'),
-            description: t('chat.newChat.description'),
-            color: 'success',
-            icon: 'i-heroicons-chat-bubble-left-right',
+            title: t("chat.newChat.success"),
+            description: t("chat.newChat.description"),
+            color: "success",
+            icon: "i-heroicons-chat-bubble-left-right",
         });
     } catch (error) {
         // Display error toast
         toast.add({
-            title: t('chat.error.title'),
-            description: t('chat.error.newChat'),
-            color: 'error',
-            icon: 'i-heroicons-exclamation-triangle',
+            title: t("chat.error.title"),
+            description: t("chat.error.newChat"),
+            color: "error",
+            icon: "i-heroicons-exclamation-triangle",
         });
 
-        console.error('Error starting new chat:', error);
+        console.error("Error starting new chat:", error);
     }
 }
 
@@ -89,13 +89,13 @@ async function handleExampleQuestionClick(question: string): Promise<void> {
     } catch (error) {
         // Display error toast
         toast.add({
-            title: t('chat.error.title'),
-            description: t('chat.error.exampleQuestion'),
-            color: 'error',
-            icon: 'i-heroicons-exclamation-triangle',
+            title: t("chat.error.title"),
+            description: t("chat.error.exampleQuestion"),
+            color: "error",
+            icon: "i-heroicons-exclamation-triangle",
         });
 
-        console.error('Error handling example question click:', error);
+        console.error("Error handling example question click:", error);
     }
 }
 

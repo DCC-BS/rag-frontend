@@ -291,7 +291,9 @@ const filteredDocuments = computed<UserDocument[]>(() => {
  * Returns a slice of filtered documents based on current page and items per page
  */
 const paginatedDocuments = computed<UserDocument[]>(() => {
-    const totalPages = Math.ceil(filteredDocuments.value.length / itemsPerPage.value);
+    const totalPages = Math.ceil(
+        filteredDocuments.value.length / itemsPerPage.value,
+    );
 
     // Reset to page 1 if current page is beyond available pages
     if (currentPage.value > totalPages && totalPages > 0) {
@@ -344,14 +346,20 @@ function handleDocumentSelection(documentId: number, selected: boolean): void {
 function toggleSelectAll(value: boolean | "indeterminate"): void {
     if (value === true) {
         // Select all documents on current page
-        const currentPageDocumentIds = paginatedDocuments.value.map((doc) => doc.id);
-        const uniqueIds = [...new Set([...selectedDocuments.value, ...currentPageDocumentIds])];
+        const currentPageDocumentIds = paginatedDocuments.value.map(
+            (doc) => doc.id,
+        );
+        const uniqueIds = [
+            ...new Set([...selectedDocuments.value, ...currentPageDocumentIds]),
+        ];
         selectedDocuments.value = uniqueIds;
     } else {
         // Deselect all documents on current page
-        const currentPageDocumentIds = paginatedDocuments.value.map((doc) => doc.id);
+        const currentPageDocumentIds = paginatedDocuments.value.map(
+            (doc) => doc.id,
+        );
         selectedDocuments.value = selectedDocuments.value.filter(
-            (id) => !currentPageDocumentIds.includes(id)
+            (id) => !currentPageDocumentIds.includes(id),
         );
     }
 }
@@ -370,8 +378,6 @@ function clearSearch(): void {
     searchQuery.value = "";
     currentPage.value = 1; // Reset to first page when clearing search
 }
-
-
 
 /**
  * Show update modal for a document
@@ -616,9 +622,12 @@ watch(searchQuery, () => {
 // Watch for page changes to scroll to top of documents grid
 watch(currentPage, () => {
     nextTick(() => {
-        const documentsGrid = document.querySelector('.documents-grid');
+        const documentsGrid = document.querySelector(".documents-grid");
         if (documentsGrid) {
-            documentsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            documentsGrid.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
         }
     });
 });
@@ -627,19 +636,21 @@ watch(currentPage, () => {
 watch(error, (newError) => {
     if (newError) {
         toast.add({
-            title: t('documents.errorTitle'),
+            title: t("documents.errorTitle"),
             description: newError,
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
-            actions: [{
-                label: t('documents.tryAgain'),
-                icon: 'i-heroicons-arrow-path',
-                color: 'primary',
-                variant: 'outline',
-                onClick: () => {
-                    fetchDocuments();
-                }
-            }]
+            icon: "i-heroicons-exclamation-triangle",
+            color: "error",
+            actions: [
+                {
+                    label: t("documents.tryAgain"),
+                    icon: "i-heroicons-arrow-path",
+                    color: "primary",
+                    variant: "outline",
+                    onClick: () => {
+                        fetchDocuments();
+                    },
+                },
+            ],
         });
     }
 });
@@ -648,15 +659,13 @@ watch(error, (newError) => {
 watch(deletionError, (newError) => {
     if (newError) {
         toast.add({
-            title: t('documents.deleteErrorTitle'),
+            title: t("documents.deleteErrorTitle"),
             description: newError,
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error'
+            icon: "i-heroicons-exclamation-triangle",
+            color: "error",
         });
     }
 });
-
-
 
 // Fetch documents on mount
 onMounted(() => {
