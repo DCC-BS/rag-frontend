@@ -87,21 +87,18 @@ const { updateDocument, loading: isLoading, error: updateError } = useDocumentUp
 
 // Shared document form logic
 const {
-    user,
+    session,
     selectedFile,
     selectedAccessRole,
     fileInputRef,
     organizations,
-    fetchUser,
+    refreshSession,
     handleFileChange,
     formatFileSize,
     resetForm,
 } = useDocumentForm();
 
-// Ensure user data is available
-if (!user.value) {
-    fetchUser();
-}
+// Session data is automatically managed by nuxt-auth
 
 const { t } = useI18n();
 // Toast notifications
@@ -115,16 +112,13 @@ watch(() => props.isOpen, (newValue) => {
         selectedAccessRole.value = props.currentAccessRole || '';
         updateError.value = undefined;
 
-        // Ensure user data is loaded
-        if (!user.value) {
-            fetchUser();
-        }
+        // Session data is automatically managed by nuxt-auth
     }
 });
 
-// Watch for user data changes to ensure access role is set when available
-watch(() => user.value?.organizations, (organizations) => {
-    // If user data loads and we have a current access role, make sure it's still valid
+// Watch for session data changes to ensure access role is set when available
+watch(() => session.value?.user?.organizations, (organizations) => {
+    // If session data loads and we have a current access role, make sure it's still valid
     if (organizations && props.currentAccessRole && organizations.includes(props.currentAccessRole)) {
         selectedAccessRole.value = props.currentAccessRole;
     }

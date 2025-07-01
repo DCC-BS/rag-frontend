@@ -1,14 +1,30 @@
 import AzureADProvider from "next-auth/providers/azure-ad";
 import { NuxtAuthHandler } from "#auth";
 
-// Interface for extended token with expiration info
-interface ExtendedToken {
+// Interface for Azure AD profile data
+interface AzureADProfile {
+    sub?: string;
+    oid?: string;
+    email?: string;
+    name?: string;
+    picture?: string;
+    roles?: string[];
+}
+
+// Interface for extended token with expiration info and profile data
+interface ExtendedToken extends Record<string, unknown> {
     idToken?: string;
     accessToken?: string;
     refreshToken?: string;
     expiresAt?: number;
     provider?: string;
     error?: string;
+    // Azure AD profile data
+    sub?: string;
+    email?: string;
+    name?: string;
+    picture?: string;
+    roles?: string[];
 }
 
 // Function to refresh Azure AD access token
@@ -84,7 +100,7 @@ export default NuxtAuthHandler({
             const extendedToken = token as ExtendedToken;
 
             // Initial sign in
-            if (account) {
+            if (account && profile) {
                 extendedToken.idToken = account.id_token;
                 extendedToken.accessToken = account.access_token;
                 extendedToken.refreshToken = account.refresh_token;
@@ -92,6 +108,16 @@ export default NuxtAuthHandler({
                 // Set expiration time (default to 1 hour if not provided)
                 extendedToken.expiresAt =
                     account.expires_at ?? Math.floor(Date.now() / 1000 + 3600);
+
+                // Inject Azure AD profile data into JWT token
+                const azureProfile = profile as AzureADProfile;
+                extendedToken.sub = azureProfile.sub || azureProfile.oid; // Azure AD uses 'oid' for user ID
+                extendedToken.email = azureProfile.email;
+                extendedToken.name = azureProfile.name;
+                extendedToken.picture = azureProfile.picture;
+                // Azure AD roles come from the 'roles' claim
+                extendedToken.roles = azureProfile.roles || [];
+
                 return extendedToken;
             }
 
@@ -121,20 +147,20 @@ export default NuxtAuthHandler({
         async session({ session, token }) {
             const extendedToken = token as ExtendedToken;
 
-            // Pass error to session if token refresh failed
-            if (extendedToken.error) {
-                (session as any).error = extendedToken.error;
-            }
-
-            if (extendedToken.idToken) {
-                (session as any).idToken = extendedToken.idToken;
-            }
-
-            if (extendedToken.accessToken) {
-                (session as any).accessToken = extendedToken.accessToken;
-            }
-
-            return session;
+            // Enhanced session with user profile data and tokens
+            return {
+                ...session,
+                user: {
+                    id: extendedToken.sub || session.user?.email || "",
+                    name: extendedToken.name || session.user?.name || "",
+                    email: extendedToken.email || session.user?.email || "",
+                    picture: extendedToken.picture || session.user?.image || "",
+                    organizations: extendedToken.roles || [],
+                },
+                accessToken: extendedToken.accessToken,
+                idToken: extendedToken.idToken,
+                error: extendedToken.error,
+            };
         },
     },
 });

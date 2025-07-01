@@ -86,28 +86,22 @@ const value = ref('Backlog')
 
 // Shared document form logic
 const {
-    user,
+    session,
     selectedFile,
     selectedAccessRole,
     fileInputRef,
     organizations,
-    fetchUser,
-    refreshUser,
+    refreshSession,
     handleFileChange,
     formatFileSize,
     resetForm
 } = useDocumentForm();
 
-// Authentication and token refresh
-const { handleTokenRefresh } = useTokenRefresh();
 const { t } = useI18n();
 // Toast notifications
 const toast = useToast();
 
-// Ensure user data is available
-if (!user.value) {
-    fetchUser();
-}
+// Session data is automatically managed by nuxt-auth
 
 // Watch for modal open/close to reset form and ensure authentication
 watch(() => props.isOpen, async (newValue) => {
@@ -131,13 +125,12 @@ async function handleSubmit(): Promise<void> {
         return;
     }
 
-    // Ensure user data is still available before upload
-    if (!user.value) {
+    // Ensure session is still available before upload
+    if (!session.value?.user) {
         try {
-            await handleTokenRefresh();
-            await refreshUser();
+            await refreshSession();
         } catch (error) {
-            console.error('Failed to refresh user data for upload:', error);
+            console.error('Failed to refresh session for upload:', error);
             toast.add({
                 title: t('documents.authError'),
                 description: t('documents.authErrorDescription'),

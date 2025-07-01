@@ -140,11 +140,8 @@ const emit = defineEmits<{
     'update': [documentId: number];
 }>();
 
-// Authentication and token refresh
-const { handleTokenRefresh } = useTokenRefresh();
-
-// User data
-const { user, fetchUser, refreshUser } = useUser();
+// Authentication session data
+const { data: session, refresh: refreshSession } = useAuth();
 
 // Document download functionality
 const { downloadDocument, loading: isDownloading, error: downloadError } = useDocumentDownload();
@@ -160,22 +157,8 @@ const isViewerOpen = ref<boolean>(false);
 const documentFile = ref<Blob | undefined>(undefined);
 const documentFileName = ref<string>('');
 
-// Initialize user data and authentication on component mount
-onMounted(async () => {
-    if (import.meta.client) {
-        try {
-            // Ensure token is fresh
-            await handleTokenRefresh();
-
-            // Fetch user data if not already available
-            if (!user.value) {
-                await fetchUser();
-            }
-        } catch (error) {
-            console.error('Failed to initialize user authentication:', error);
-        }
-    }
-});
+// Session data is automatically managed by nuxt-auth
+// No need to manually fetch user data
 
 /**
  * Handle selection change
@@ -196,13 +179,12 @@ function handleDeleteClick(): void {
  * Handle update button click
  */
 async function handleUpdateClick(): Promise<void> {
-    // Ensure user data is available before attempting update
-    if (!user.value) {
+    // Ensure session is available before attempting update
+    if (!session.value?.user) {
         try {
-            await handleTokenRefresh();
-            await refreshUser();
+            await refreshSession();
         } catch (error) {
-            console.error('Failed to refresh user data for update:', error);
+            console.error('Failed to refresh session for update:', error);
             toast.add({
                 title: t('documents.authError'),
                 description: t('documents.authErrorDescription'),

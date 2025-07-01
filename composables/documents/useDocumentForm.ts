@@ -1,6 +1,5 @@
 import { ref, computed } from "vue";
 import type { Ref, ComputedRef } from "vue";
-import type { User } from "~/models/user";
 
 /**
  * Composable for managing document form state and logic.
@@ -9,17 +8,17 @@ import type { User } from "~/models/user";
  * @returns An object with reactive state and methods for the document form.
  */
 export function useDocumentForm() {
-    // User data from global state
-    const { user, fetchUser, refreshUser } = useUser();
+    // Use authentication session data
+    const { data: session, refresh } = useAuth();
 
     // Form state
     const selectedFile = ref<File | undefined>(undefined);
     const selectedAccessRole = ref<string>("");
     const fileInputRef = ref<{ input: HTMLInputElement } | null>(null);
 
-    // Computed property for organizations to ensure reactivity
+    // Computed property for organizations from session data
     const organizations: ComputedRef<string[]> = computed(
-        () => user.value?.organizations ?? [],
+        () => session.value?.user?.organizations ?? [],
     );
 
     /**
@@ -59,13 +58,12 @@ export function useDocumentForm() {
     }
 
     return {
-        user,
+        session,
         selectedFile,
         selectedAccessRole,
         fileInputRef,
         organizations,
-        fetchUser,
-        refreshUser,
+        refreshSession: refresh,
         handleFileChange,
         formatFileSize,
         resetForm,
