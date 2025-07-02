@@ -58,14 +58,6 @@ function startNewChat(): void {
         resetThreadId();
         clearMessages();
         clearInput();
-
-        // Show success toast
-        toast.add({
-            title: t("chat.newChat.success"),
-            description: t("chat.newChat.description"),
-            color: "success",
-            icon: "i-heroicons-chat-bubble-left-right",
-        });
     } catch (error) {
         // Display error toast
         toast.add({
