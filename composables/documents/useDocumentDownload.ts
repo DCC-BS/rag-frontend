@@ -40,29 +40,9 @@ export const useDocumentDownload = (): UseDocumentDownloadReturn => {
             const blob = response._data as unknown as Blob;
             let blobUrl: string;
 
-            try {
-                blobUrl = URL.createObjectURL(blob);
-            } catch (e) {
-                throw new Error("Failed to create blob URL for document");
-            }
+            blobUrl = URL.createObjectURL(blob);
 
-            // Extract filename from Content-Disposition header if available
-            const contentDisposition = response.headers.get?.(
-                "content-disposition",
-            );
-            let finalFileName = fileName || `document_${documentId}`;
-
-            if (contentDisposition) {
-                const filenameMatch = contentDisposition.match(
-                    /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
-                );
-                if (filenameMatch?.[1]) {
-                    finalFileName = filenameMatch[1].replace(/['"]/g, "");
-                }
-            }
-
-            // Sanitize filename to remove invalid characters
-            finalFileName = sanitizeFilename(finalFileName);
+            const finalFileName = fileName ?? `document_${documentId}`;
 
             // Determine if we should open in popup or download based on file type
             const mimeType = blob.type;

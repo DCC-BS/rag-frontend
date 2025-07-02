@@ -42,23 +42,7 @@ export const useDocumentViewer = (): UseDocumentViewerReturn => {
             // Create blob from response
             const blob = response._data as unknown as Blob;
 
-            // Extract filename from Content-Disposition header if available
-            const contentDisposition = response.headers.get?.(
-                "content-disposition",
-            );
-            let finalFileName = fileName || `document_${documentId}`;
-
-            if (contentDisposition) {
-                const filenameMatch = contentDisposition.match(
-                    /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
-                );
-                if (filenameMatch?.[1]) {
-                    finalFileName = filenameMatch[1].replace(/['"]/g, "");
-                }
-            }
-
-            // Sanitize filename to remove invalid characters
-            finalFileName = sanitizeFilename(finalFileName);
+            const finalFileName = fileName ?? `document_${documentId}`;
 
             return {
                 blob,
