@@ -170,11 +170,16 @@ async function handleSubmit(): Promise<void> {
     } catch (error) {
         console.error("Failed to update document:", error);
 
+        // Include server error message using i18n template
+        const serverErrorMessage = updateError.value;
+        const errorMessage = serverErrorMessage
+            ? t("documents.updateFailedWithDetails", { details: serverErrorMessage })
+            : t("documents.updateFailedDescription");
+
         // Show error toast
         toast.add({
             title: t("documents.updateFailed"),
-            description:
-                updateError.value || t("documents.updateFailedDescription"),
+            description: errorMessage,
             icon: "i-heroicons-exclamation-triangle",
             color: "error",
         });

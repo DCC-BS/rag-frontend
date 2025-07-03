@@ -163,11 +163,6 @@ export default defineEventHandler(
                 headers: response.headers,
             });
         } catch (error) {
-            console.error(
-                `[Nuxt Server Proxy] Error fetching ${targetUrl}:`,
-                error,
-            );
-
             // If it's a token expiration error, provide specific guidance
             if (isTokenExpiredError(error)) {
                 throw createError({
@@ -182,6 +177,10 @@ export default defineEventHandler(
             if (typeof err.statusCode === "number") {
                 throw err;
             }
+            console.error(
+                `[Nuxt Server Proxy] Error fetching ${targetUrl}:`,
+                error,
+            );
             throw createError({
                 statusCode: 502,
                 statusMessage: "Bad Gateway",

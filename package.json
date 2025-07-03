@@ -22,6 +22,7 @@
         "@sidebase/nuxt-auth": "0.10.1",
         "@types/uuid": "^10.0.0",
         "better-sqlite3": "^11.10.0",
+        "fflate": "^0.8.2",
         "nuxt": "latest",
         "vue": "latest",
         "vue-pdf-embed": "^2.1.2",

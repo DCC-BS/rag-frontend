@@ -38,7 +38,8 @@
                                 class="spinner border-t-4 border-blue-500 border-solid rounded-full w-12 h-12 animate-spin">
                             </div>
                         </div>
-                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ t('documents.loadingPdf') }}</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ t('documents.loadingDocument')
+                            }}</span>
                     </div>
                 </div>
 
@@ -47,7 +48,7 @@
                     <div class="p-6 bg-red-50 dark:bg-red-900/20 rounded-md flex flex-col items-center text-center">
                         <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 text-red-500 mb-3" />
                         <span class="text-sm text-red-600 dark:text-red-400 mb-2">{{ t('documents.failedToLoadPdf')
-                        }}</span>
+                            }}</span>
                         <span class="text-xs text-red-500 dark:text-red-300">{{ pdfError }}</span>
                         <button @click="retryLoad"
                             class="mt-3 px-3 py-1 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 rounded text-sm hover:bg-red-200 dark:hover:bg-red-700">
