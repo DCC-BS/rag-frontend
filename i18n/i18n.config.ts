@@ -156,6 +156,13 @@ export default defineI18nConfig(() => ({
                 updateFailed: "Update Failed",
                 updateFailedDescription:
                     "Failed to update document. Please try again.",
+                uploadSuccessTitle: "Document Updated Successfully",
+                uploadSuccessDescription:
+                    '"{fileName}" has been updated. Changes will be reflected in the application within 15 minutes.',
+                fileSizeError: "File Too Large",
+                fileSizeErrorDescription:
+                    "The selected file ({fileSize}) exceeds the maximum allowed size of {maxSize}.",
+                maxFileSize: "Max size: {size}",
                 closeViewer: "Close PDF viewer",
                 loadingPdf: "Loading PDF...",
                 failedToLoadPdf: "Failed to load PDF",
@@ -301,7 +308,7 @@ export default defineI18nConfig(() => ({
                     "Fügen Sie Ihrer Sammlung ein neues Dokument hinzu",
                 selectFile: "Datei auswählen *",
                 file: "Datei",
-                fileSize: "Dateigröße",
+                fileSize: "Dateigrösse",
                 chooseFile: "Wählen Sie ein Dokument zum Hochladen",
                 accessRole: "Zugriffsrolle *",
                 selectAccessRole: "Wählen Sie eine Zugriffsrolle",
@@ -333,11 +340,18 @@ export default defineI18nConfig(() => ({
                 updateFailed: "Aktualisierung fehlgeschlagen",
                 updateFailedDescription:
                     "Das Aktualisieren des Dokuments ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
-                closeViewer: "PDF-Viewer schließen",
+                uploadSuccessTitle: "Dokument erfolgreich aktualisiert",
+                uploadSuccessDescription:
+                    '"{fileName}" wurde aktualisiert. Änderungen werden innerhalb von 15 Minuten in der Anwendung sichtbar sein.',
+                fileSizeError: "Datei zu gross",
+                fileSizeErrorDescription:
+                    "Die ausgewählte Datei ({fileSize}) überschreitet die maximal zulässige Grösse von {maxSize}.",
+                maxFileSize: "Max. Grösse: {size}",
+                closeViewer: "PDF-Viewer schliessen",
                 loadingPdf: "PDF wird geladen...",
                 failedToLoadPdf: "PDF konnte nicht geladen werden",
                 retry: "Erneut versuchen",
-                zoomIn: "Vergrößern",
+                zoomIn: "Vergrössern",
                 zoomOut: "Verkleinern",
                 resetZoom: "Zoom zurücksetzen",
                 download: "Herunterladen",

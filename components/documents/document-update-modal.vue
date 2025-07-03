@@ -96,7 +96,6 @@ const {
     selectedAccessRole,
     fileInputRef,
     organizations,
-    refreshSession,
     handleFileChange,
     formatFileSize,
     resetForm,

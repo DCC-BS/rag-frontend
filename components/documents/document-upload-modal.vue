@@ -24,13 +24,13 @@
                     <label for="file-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ t('documents.selectFile') }}
                     </label>
-                    <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange"
+                    <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange" accept=".pdf"
                         :disabled="isLoading" class="w-full" />
                     <p v-if="selectedFile" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                         {{ t('documents.file') }}: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
                     </p>
                     <p v-else class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {{ t('documents.chooseFile') }}
+                        {{ t('documents.chooseFile') }} ({{ t('documents.maxFileSize', { size: formatMaxFileSize }) }})
                     </p>
                 </div>
 
@@ -95,6 +95,7 @@ const {
     selectedAccessRole,
     fileInputRef,
     organizations,
+    formatMaxFileSize,
     refreshSession,
     handleFileChange,
     formatFileSize,
