@@ -82,7 +82,7 @@ export default defineI18nConfig(() => ({
                 // Search and Filter
                 searchPlaceholder: "Search documents...",
                 searchLimit: "Limit",
-                searchLimitPlaceholder: "Max results (1-20)",
+                searchLimitPlaceholder: "Max results",
                 search: "Search",
                 searchResultsCount:
                     "{count} document found | {count} documents found",
@@ -313,7 +313,7 @@ export default defineI18nConfig(() => ({
                 // Search and Filter
                 searchPlaceholder: "Dokumente durchsuchen...",
                 searchLimit: "Limit",
-                searchLimitPlaceholder: "Max. Ergebnisse (1-20)",
+                searchLimitPlaceholder: "Max. Ergebnisse",
                 search: "Suchen",
                 searchResultsCount:
                     "{count} Dokument gefunden | {count} Dokumente gefunden",

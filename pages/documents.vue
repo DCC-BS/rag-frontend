@@ -44,33 +44,37 @@
 
                     <!-- Search and Actions -->
                     <div v-else-if="documents" class="space-y-6">
-                        <div class="flex items-center justify-between gap-4 mb-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-center">
                             <!-- Search and Limit Controls -->
-                            <div class="flex items-center gap-3 w-full sm:w-auto">
-                                <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" size="lg"
-                                    variant="outline" :placeholder="t('documents.searchPlaceholder')"
-                                    :loading="searchLoading" @keyup.enter="performSearch" class="w-full sm:w-80">
-                                    <template #trailing>
-                                        <UButton v-if="searchQuery" icon="i-heroicons-x-mark" color="neutral"
-                                            variant="ghost" size="xs" @click="clearSearch" />
-                                    </template>
-                                </UInput>
+                            <div class="flex items-center gap-3 w-full lg:justify-start">
+                                <UButtonGroup size="lg" orientation="horizontal">
+                                    <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" size="lg"
+                                        variant="outline" :placeholder="t('documents.searchPlaceholder')"
+                                        :loading="searchLoading" @keyup.enter="performSearch" class="w-full sm:w-80">
+                                        <template v-if="searchQuery?.length" #trailing>
+                                            <UButton color="neutral" variant="link" size="sm" icon="i-lucide-circle-x"
+                                                aria-label="Clear input" @click="searchQuery = ''" />
+                                        </template>
+                                    </UInput>
 
-                                <UInput v-model="searchLimit" type="number" size="lg" variant="outline"
-                                    :placeholder="t('documents.searchLimitPlaceholder')" min="1" max="20" class="w-32"
-                                    @keyup.enter="performSearch">
-                                    <template #leading>
-                                        <span class="text-sm text-gray-500">{{ t('documents.searchLimit') }}</span>
-                                    </template>
-                                </UInput>
+                                    <UInput v-model="searchLimit" type="number" size="lg" variant="outline" min="1"
+                                        max="20" @keyup.enter="performSearch" placeholder="" :ui="{ base: 'peer' }"
+                                        class="w-32">
+                                        <label
+                                            class="pointer-events-none absolute left-0 -top-2.5 text-highlighted text-xs font-medium px-1.5 transition-all peer-focus:-top-2.5 peer-focus:text-highlighted peer-focus:text-xs peer-focus:font-medium peer-placeholder-shown:text-sm peer-placeholder-shown:text-dimmed peer-placeholder-shown:top-1.5 peer-placeholder-shown:font-normal">
+                                            <span class="inline-flex bg-default px-1">{{
+                                                t('documents.searchLimitPlaceholder') }}</span>
+                                        </label>
+                                    </UInput>
 
-                                <UButton :label="t('documents.search')" icon="i-heroicons-magnifying-glass"
-                                    color="primary" variant="solid" size="lg" @click="performSearch"
-                                    :loading="searchLoading" />
+                                    <UButton :label="t('documents.search')" icon="i-heroicons-magnifying-glass"
+                                        color="primary" variant="solid" size="lg" @click="performSearch"
+                                        :loading="searchLoading" />
+                                </UButtonGroup>
                             </div>
 
-                            <!-- Document Count Stats -->
-                            <div class="hidden lg:flex items-center gap-3">
+                            <!-- Document Count Stats - Centered -->
+                            <div class="hidden lg:flex items-center justify-center gap-2">
                                 <UIcon name="i-heroicons-document-duplicate"
                                     class="w-5 h-5 text-gray-500 dark:text-gray-400" />
                                 <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">
@@ -92,23 +96,20 @@
                             </div>
 
                             <!-- Actions -->
-                            <div class="flex items-center gap-2"
+                            <div class="flex items-center gap-2 lg:justify-end"
                                 v-if="documents.documents && documents.documents.length > 0">
                                 <template v-if="selectedDocuments.length === 0">
-                                    <UButtonGroup size="md">
+                                    <UButtonGroup size="lg">
                                         <UButton
                                             :icon="allSelected ? 'i-heroicons-minus-circle' : 'i-heroicons-check-circle'"
                                             :label="allSelected ? t('documents.deselectAll') : t('documents.selectAll')"
                                             color="neutral" variant="outline" @click="toggleSelectAll(!allSelected)" />
                                         <UButton :label="t('documents.addDocument')" icon="i-heroicons-plus"
                                             color="primary" variant="solid" @click="showUploadModal = true" />
-                                        <UButton :label="t('documents.refresh')" icon="i-heroicons-arrow-path"
-                                            color="neutral" variant="outline" @click="refreshDocuments"
-                                            :loading="loading" />
                                     </UButtonGroup>
                                 </template>
                                 <template v-else>
-                                    <UButtonGroup size="md">
+                                    <UButtonGroup size="lg">
                                         <UButton :label="t('documents.selected', { count: selectedDocuments.length })"
                                             color="neutral" disabled />
                                         <UButton :label="t('documents.clearSelection')" color="neutral"
