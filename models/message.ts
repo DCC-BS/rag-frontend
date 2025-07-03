@@ -35,7 +35,6 @@ export interface Document {
     metadata: Record<string, unknown>;
 }
 
-// Document types for documents page
 export interface UserDocument {
     id: number;
     file_name: string;
@@ -44,6 +43,7 @@ export interface UserDocument {
     num_pages: number;
     created_at: string;
     access_roles: string[];
+    page?: number;
 }
 
 export interface DocumentsResponse {

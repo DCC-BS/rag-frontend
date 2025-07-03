@@ -7,6 +7,7 @@ export interface UserDocument {
     num_pages: number;
     created_at: string;
     access_roles: string[];
+    page?: number;
 }
 
 export interface DocumentsResponse {

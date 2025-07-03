@@ -80,9 +80,14 @@ export default defineI18nConfig(() => ({
                 deleteDocument: "Delete document",
 
                 // Search and Filter
-                searchPlaceholder: "Search documents by title...",
-                searchMatch_plural:
-                    "{count} of {total} documents match your search",
+                searchPlaceholder: "Search documents...",
+                searchLimit: "Limit",
+                searchLimitPlaceholder: "Max results (1-20)",
+                search: "Search",
+                searchResultsCount:
+                    "{count} document found | {count} documents found",
+                searchResultsCountWithLimit:
+                    "Showing {count} of possibly more documents",
                 available:
                     "{count} document available | {count} documents available",
                 selected: "{count} selected",
@@ -100,6 +105,7 @@ export default defineI18nConfig(() => ({
                 documentId: "Document ID",
                 pages: "Pages",
                 page: "page",
+                relevantPage: "Relevant page",
                 accessRoles: "Access Roles",
                 file: "File",
                 fileSize: "File size",
@@ -305,9 +311,14 @@ export default defineI18nConfig(() => ({
                 deleteDocument: "Dokument löschen",
 
                 // Search and Filter
-                searchPlaceholder: "Dokumente nach Titel durchsuchen...",
-                searchMatch_plural:
-                    "{count} von {total} Dokumenten entsprechen Ihrer Suche",
+                searchPlaceholder: "Dokumente durchsuchen...",
+                searchLimit: "Limit",
+                searchLimitPlaceholder: "Max. Ergebnisse (1-20)",
+                search: "Suchen",
+                searchResultsCount:
+                    "{count} Dokument gefunden | {count} Dokumente gefunden",
+                searchResultsCountWithLimit:
+                    "Zeige {count} von möglicherweise mehr Dokumenten",
                 available:
                     "{count} Dokument verfügbar | {count} Dokumente verfügbar",
                 selected: "{count} ausgewählt",
@@ -325,6 +336,7 @@ export default defineI18nConfig(() => ({
                 documentId: "Dokumenten-ID",
                 pages: "Seiten",
                 page: "Seite",
+                relevantPage: "Relevante Seite",
                 accessRoles: "Zugriffsrollen",
                 file: "Datei",
                 fileSize: "Dateigrösse",

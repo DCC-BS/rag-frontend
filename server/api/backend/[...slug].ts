@@ -91,7 +91,19 @@ export default defineEventHandler(
         const targetBaseUrl = config.fastapiUrl;
 
         const slug = event.context.params?.slug ?? "";
-        const targetUrl = `${targetBaseUrl}/${slug}`;
+        const query = getQuery(event);
+
+        // Construct URL with query parameters
+        let targetUrl = `${targetBaseUrl}/${slug}`;
+        if (Object.keys(query).length > 0) {
+            const searchParams = new URLSearchParams();
+            for (const [key, value] of Object.entries(query)) {
+                if (value !== null && value !== undefined) {
+                    searchParams.append(key, String(value));
+                }
+            }
+            targetUrl += `?${searchParams.toString()}`;
+        }
 
         // Handle different body types based on content type
         let body: unknown = undefined;

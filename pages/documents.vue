@@ -27,8 +27,6 @@
                     </div>
                 </div>
 
-
-
                 <!-- Documents Content -->
                 <div v-else-if="documents || error">
                     <!-- Show error message as toast and empty state when error occurs -->
@@ -40,23 +38,35 @@
                                 {{ t('documents.errorTitle') }}
                             </h3>
                             <UButton :label="t('documents.tryAgain')" color="primary" variant="solid"
-                                icon="i-heroicons-arrow-path" @click="fetchDocuments" :loading="loading" />
+                                icon="i-heroicons-arrow-path" @click="() => fetchDocuments()" :loading="loading" />
                         </div>
                     </div>
 
                     <!-- Search and Actions -->
                     <div v-else-if="documents" class="space-y-6">
                         <div class="flex items-center justify-between gap-4 mb-6">
-                            <!-- Search Input -->
-                            <div class="w-full sm:w-auto">
+                            <!-- Search and Limit Controls -->
+                            <div class="flex items-center gap-3 w-full sm:w-auto">
                                 <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" size="lg"
-                                    :placeholder="t('documents.searchPlaceholder')" :trailing="false"
-                                    class="w-full sm:w-80">
+                                    variant="outline" :placeholder="t('documents.searchPlaceholder')"
+                                    :loading="searchLoading" @keyup.enter="performSearch" class="w-full sm:w-80">
                                     <template #trailing>
                                         <UButton v-if="searchQuery" icon="i-heroicons-x-mark" color="neutral"
                                             variant="ghost" size="xs" @click="clearSearch" />
                                     </template>
                                 </UInput>
+
+                                <UInput v-model="searchLimit" type="number" size="lg" variant="outline"
+                                    :placeholder="t('documents.searchLimitPlaceholder')" min="1" max="20" class="w-32"
+                                    @keyup.enter="performSearch">
+                                    <template #leading>
+                                        <span class="text-sm text-gray-500">{{ t('documents.searchLimit') }}</span>
+                                    </template>
+                                </UInput>
+
+                                <UButton :label="t('documents.search')" icon="i-heroicons-magnifying-glass"
+                                    color="primary" variant="solid" size="lg" @click="performSearch"
+                                    :loading="searchLoading" />
                             </div>
 
                             <!-- Document Count Stats -->
@@ -64,18 +74,16 @@
                                 <UIcon name="i-heroicons-document-duplicate"
                                     class="w-5 h-5 text-gray-500 dark:text-gray-400" />
                                 <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                                    <template
-                                        v-if="searchQuery && filteredDocuments.length !== documents.documents?.length">
-                                        {{ t('documents.searchMatch_plural', {
-                                            count: filteredDocuments.length, total:
-                                                documents.total_count ?? 0
+                                    <template v-if="searchQuery && searchPerformed">
+                                        {{ t('documents.searchResultsCount', {
+                                            count: documents.documents?.length ?? 0
                                         }) }}
-                                    </template>
-                                    <template v-else-if="filteredDocuments.length > itemsPerPage">
-                                        Showing {{ paginatedDocuments.length }} of {{ filteredDocuments.length }}
-                                        documents
-                                        (Page {{ currentPage }} of {{ Math.ceil(filteredDocuments.length / itemsPerPage)
-                                        }})
+                                        <template v-if="documents.documents?.length === searchLimit">
+                                            ({{ t('documents.searchResultsCountWithLimit', {
+                                                count:
+                                                    documents.documents.length
+                                            }) }})
+                                        </template>
                                     </template>
                                     <template v-else>
                                         {{ t('documents.available', { count: documents.total_count ?? 0 }) }}
@@ -84,7 +92,8 @@
                             </div>
 
                             <!-- Actions -->
-                            <div class="flex items-center gap-2" v-if="paginatedDocuments.length > 0">
+                            <div class="flex items-center gap-2"
+                                v-if="documents.documents && documents.documents.length > 0">
                                 <template v-if="selectedDocuments.length === 0">
                                     <UButtonGroup size="md">
                                         <UButton
@@ -113,51 +122,46 @@
                             </div>
                         </div>
 
-
-
                         <!-- Empty State -->
                         <div v-if="documents.documents && documents.documents.length === 0" class="text-center py-12">
                             <UIcon name="i-heroicons-document-text" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
                             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                {{ t('documents.noDocumentsTitle') }}
+                                <template v-if="searchQuery && searchPerformed">
+                                    {{ t('documents.noResultsTitle') }}
+                                </template>
+                                <template v-else>
+                                    {{ t('documents.noDocumentsTitle') }}
+                                </template>
                             </h3>
                             <p class="text-gray-600 dark:text-gray-400 mb-6">
-                                {{ t('documents.noDocumentsDescription') }}
+                                <template v-if="searchQuery && searchPerformed">
+                                    {{ t('documents.noResultsDescription', { query: searchQuery }) }}
+                                </template>
+                                <template v-else>
+                                    {{ t('documents.noDocumentsDescription') }}
+                                </template>
                             </p>
-                            <UButton color="primary" variant="solid" icon="i-heroicons-plus"
-                                @click="showUploadModal = true">
-                                {{ t('documents.uploadFirst') }}
-                            </UButton>
-                        </div>
-
-                        <!-- No Search Results -->
-                        <div v-else-if="searchQuery && filteredDocuments.length === 0" class="text-center py-12">
-                            <UIcon name="i-heroicons-magnifying-glass" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                {{ t('documents.noResultsTitle') }}
-                            </h3>
-                            <p class="text-gray-600 dark:text-gray-400 mb-6">
-                                {{ t('documents.noResultsDescription', { query: searchQuery }) }}
-                            </p>
-                            <UButton :label="t('documents.clearSearch')" color="primary" variant="solid"
-                                @click="clearSearch" />
+                            <template v-if="searchQuery && searchPerformed">
+                                <UButton :label="t('documents.clearSearch')" color="primary" variant="solid"
+                                    @click="clearSearch" />
+                            </template>
+                            <template v-else>
+                                <UButton color="primary" variant="solid" icon="i-heroicons-plus"
+                                    @click="showUploadModal = true">
+                                    {{ t('documents.uploadFirst') }}
+                                </UButton>
+                            </template>
                         </div>
 
                         <!-- Documents Grid -->
-                        <div v-else-if="filteredDocuments.length > 0" class="space-y-6">
+                        <div v-else-if="documents.documents && documents.documents.length > 0" class="space-y-6">
                             <div class="documents-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                                <UserDocument v-for="document in paginatedDocuments" :key="document.id"
+                                <UserDocument v-for="document in documents.documents" :key="document.id"
                                     :document="document" :isSelected="selectedDocuments.includes(document.id)"
                                     :isDeletingDocument="deletingDocumentIds.includes(document.id)"
                                     :isUpdatingDocument="updatingDocumentIds.includes(document.id)"
                                     @update:selected="handleDocumentSelection" @delete="showSingleDeleteConfirmation"
                                     @update="showUpdateModal" />
-                            </div>
-
-                            <!-- Pagination -->
-                            <div v-if="filteredDocuments.length > itemsPerPage" class="flex justify-center mt-8">
-                                <UPagination v-model:page="currentPage" :total="filteredDocuments.length"
-                                    :items-per-page="itemsPerPage" :sibling-count="1" show-edges />
                             </div>
                         </div>
                     </div>
@@ -217,8 +221,14 @@ import DocumentUploadModal from "~/components/documents/document-upload-modal.vu
 import type { UserDocument } from "~/models/message";
 
 const { t } = useI18n();
-const { documents, loading, error, fetchDocuments, refreshDocuments } =
-    useDocuments();
+const {
+    documents,
+    loading,
+    error,
+    fetchDocuments,
+    refreshDocuments,
+    searchDocuments,
+} = useDocuments();
 const {
     deleteDocument,
     deleteMultipleDocuments,
@@ -231,10 +241,9 @@ const toast = useToast();
 
 // Search functionality
 const searchQuery = ref<string>("");
-
-// Pagination functionality
-const currentPage = ref<number>(1);
-const itemsPerPage = ref<number>(12); // Number of documents per page
+const searchLimit = ref<number>(10);
+const searchLoading = ref<boolean>(false);
+const searchPerformed = ref<boolean>(false);
 
 // Selection functionality
 const selectedDocuments = ref<number[]>([]);
@@ -269,57 +278,40 @@ const deleteModalData = ref<{
 });
 
 /**
- * Computed property to filter documents based on search query
- * Uses case-insensitive partial matching on file names
- */
-const filteredDocuments = computed<UserDocument[]>(() => {
-    if (!documents.value?.documents || !searchQuery.value.trim()) {
-        return documents.value?.documents || [];
-    }
-
-    const query = searchQuery.value.toLowerCase().trim();
-    return documents.value.documents.filter((document: UserDocument) =>
-        document.file_name.toLowerCase().includes(query),
-    );
-});
-
-/**
- * Computed property to get paginated documents
- * Returns a slice of filtered documents based on current page and items per page
- */
-const paginatedDocuments = computed<UserDocument[]>(() => {
-    const totalPages = Math.ceil(
-        filteredDocuments.value.length / itemsPerPage.value,
-    );
-
-    // Reset to page 1 if current page is beyond available pages
-    if (currentPage.value > totalPages && totalPages > 0) {
-        currentPage.value = 1;
-    }
-
-    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
-    const endIndex = startIndex + itemsPerPage.value;
-    return filteredDocuments.value.slice(startIndex, endIndex);
-});
-
-/**
- * Check if all documents on current page are selected
+ * Check if all visible documents are selected
  */
 const allSelected = computed<boolean>(() => {
+    const visibleDocuments = documents.value?.documents || [];
     return (
-        paginatedDocuments.value.length > 0 &&
-        paginatedDocuments.value.every((doc) =>
+        visibleDocuments.length > 0 &&
+        visibleDocuments.every((doc) =>
             selectedDocuments.value.includes(doc.id),
         )
     );
 });
 
 /**
- * Check if some documents are selected
+ * Perform search with current query and limit
  */
-const someSelected = computed<boolean>(() => {
-    return selectedDocuments.value.length > 0;
-});
+async function performSearch(): Promise<void> {
+    if (!searchQuery.value.trim() && !searchPerformed.value) {
+        // If no query and haven't searched before, just fetch all
+        await fetchDocuments();
+        return;
+    }
+
+    searchLoading.value = true;
+    try {
+        const limit =
+            searchLimit.value > 0 ? Math.min(searchLimit.value, 20) : 10;
+        await searchDocuments(searchQuery.value.trim(), limit);
+        searchPerformed.value = true;
+        // Clear selections after search
+        selectedDocuments.value = [];
+    } finally {
+        searchLoading.value = false;
+    }
+}
 
 /**
  * Handle individual document selection
@@ -341,22 +333,20 @@ function handleDocumentSelection(documentId: number, selected: boolean): void {
  * Toggle select all documents
  */
 function toggleSelectAll(value: boolean | "indeterminate"): void {
+    const visibleDocuments = documents.value?.documents || [];
+
     if (value === true) {
-        // Select all documents on current page
-        const currentPageDocumentIds = paginatedDocuments.value.map(
-            (doc) => doc.id,
-        );
+        // Select all visible documents
+        const visibleDocumentIds = visibleDocuments.map((doc) => doc.id);
         const uniqueIds = [
-            ...new Set([...selectedDocuments.value, ...currentPageDocumentIds]),
+            ...new Set([...selectedDocuments.value, ...visibleDocumentIds]),
         ];
         selectedDocuments.value = uniqueIds;
     } else {
-        // Deselect all documents on current page
-        const currentPageDocumentIds = paginatedDocuments.value.map(
-            (doc) => doc.id,
-        );
+        // Deselect all visible documents
+        const visibleDocumentIds = visibleDocuments.map((doc) => doc.id);
         selectedDocuments.value = selectedDocuments.value.filter(
-            (id) => !currentPageDocumentIds.includes(id),
+            (id) => !visibleDocumentIds.includes(id),
         );
     }
 }
@@ -369,11 +359,14 @@ function clearSelection(): void {
 }
 
 /**
- * Clear the search query
+ * Clear the search query and fetch all documents
  */
-function clearSearch(): void {
+async function clearSearch(): Promise<void> {
     searchQuery.value = "";
-    currentPage.value = 1; // Reset to first page when clearing search
+    searchLimit.value = 10;
+    searchPerformed.value = false;
+    selectedDocuments.value = [];
+    await fetchDocuments();
 }
 
 /**
@@ -402,7 +395,11 @@ async function handleDocumentUpdated(documentId: number): Promise<void> {
 
     try {
         // Refresh documents to get updated data
-        await refreshDocuments();
+        if (searchPerformed.value && searchQuery.value.trim()) {
+            await performSearch();
+        } else {
+            await refreshDocuments();
+        }
 
         // Remove from selection if it was selected
         selectedDocuments.value = selectedDocuments.value.filter(
@@ -422,7 +419,11 @@ async function handleDocumentUpdated(documentId: number): Promise<void> {
 async function handleDocumentUploaded(): Promise<void> {
     try {
         // Refresh documents to get updated data including the new document
-        await refreshDocuments();
+        if (searchPerformed.value && searchQuery.value.trim()) {
+            await performSearch();
+        } else {
+            await refreshDocuments();
+        }
 
         // Clear any selections since we have new data
         selectedDocuments.value = [];
@@ -509,16 +510,13 @@ async function confirmDelete(): Promise<void> {
                     color: "success",
                 });
 
-                // Remove from local state
-                if (documents.value?.documents) {
-                    documents.value.documents =
-                        documents.value.documents.filter(
-                            (doc) => doc.id !== documentIds[0],
-                        );
-                    if (documents.value.total_count) {
-                        documents.value.total_count--;
-                    }
+                // Refresh documents
+                if (searchPerformed.value && searchQuery.value.trim()) {
+                    await performSearch();
+                } else {
+                    await refreshDocuments();
                 }
+
                 // Remove from selection
                 selectedDocuments.value = selectedDocuments.value.filter(
                     (id) => id !== documentIds[0],
@@ -566,16 +564,13 @@ async function confirmDelete(): Promise<void> {
                     });
                 }
 
-                // Remove successfully deleted documents from local state
-                if (documents.value?.documents) {
-                    documents.value.documents =
-                        documents.value.documents.filter(
-                            (doc) => !documentIds.includes(doc.id),
-                        );
-                    if (documents.value.total_count) {
-                        documents.value.total_count -= result.success;
-                    }
+                // Refresh documents
+                if (searchPerformed.value && searchQuery.value.trim()) {
+                    await performSearch();
+                } else {
+                    await refreshDocuments();
                 }
+
                 // Clear selection for successfully deleted documents
                 selectedDocuments.value = selectedDocuments.value.filter(
                     (id) => !documentIds.includes(id),
@@ -611,24 +606,6 @@ useHead({
     meta: [{ name: "description", content: t("documents.description") }],
 });
 
-// Watch for search query changes to reset pagination
-watch(searchQuery, () => {
-    currentPage.value = 1; // Reset to first page when search changes
-});
-
-// Watch for page changes to scroll to top of documents grid
-watch(currentPage, () => {
-    nextTick(() => {
-        const documentsGrid = document.querySelector(".documents-grid");
-        if (documentsGrid) {
-            documentsGrid.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-            });
-        }
-    });
-});
-
 // Watch for errors and show toast notifications
 watch(error, (newError) => {
     if (newError) {
@@ -644,7 +621,11 @@ watch(error, (newError) => {
                     color: "primary",
                     variant: "outline",
                     onClick: () => {
-                        fetchDocuments();
+                        if (searchPerformed.value && searchQuery.value.trim()) {
+                            performSearch();
+                        } else {
+                            fetchDocuments();
+                        }
                     },
                 },
             ],

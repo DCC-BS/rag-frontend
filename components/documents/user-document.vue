@@ -47,7 +47,7 @@
             <!-- Document details -->
             <div class="space-y-4">
                 <!-- Stats row -->
-                <div class="grid grid-cols-2 gap-4">
+                <div :class="props.document.page ? 'grid grid-cols-3 gap-4' : 'grid grid-cols-2 gap-4'">
                     <div>
                         <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             {{ t('documents.documentId') }}
@@ -63,6 +63,14 @@
                         <p class="text-sm text-gray-900 dark:text-white">
                             {{ props.document.num_pages }} {{ props.document.num_pages === 1 ? t('documents.page') :
                                 t('documents.pages') }}
+                        </p>
+                    </div>
+                    <div v-if="props.document.page">
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {{ t('documents.relevantPage') }}
+                        </p>
+                        <p class="text-sm text-gray-900 dark:text-white font-medium">
+                            {{ props.document.page }}
                         </p>
                     </div>
                 </div>
@@ -117,7 +125,8 @@
         </UCard>
 
         <!-- Document Viewer Modal - Outside the card to prevent click conflicts -->
-        <DocumentViewer v-model:isOpen="isViewerOpen" :file="documentFile" :fileName="documentFileName" />
+        <DocumentViewer v-model:isOpen="isViewerOpen" :file="documentFile" :fileName="documentFileName"
+            :page="props.document.page || 1" />
     </div>
 </template>
 
