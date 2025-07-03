@@ -173,7 +173,9 @@ async function handleSubmit(): Promise<void> {
         // Include server error message using i18n template
         const serverErrorMessage = updateError.value;
         const errorMessage = serverErrorMessage
-            ? t("documents.updateFailedWithDetails", { details: serverErrorMessage })
+            ? t("documents.updateFailedWithDetails", {
+                  details: serverErrorMessage,
+              })
             : t("documents.updateFailedDescription");
 
         // Show error toast

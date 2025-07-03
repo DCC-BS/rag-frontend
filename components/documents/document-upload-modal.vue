@@ -141,7 +141,12 @@ watch(
             resetForm();
             uploadError.value = undefined;
             // Reset progress
-            progress.value = { current: 0, total: 0, percentage: 0, status: "idle" };
+            progress.value = {
+                current: 0,
+                total: 0,
+                percentage: 0,
+                status: "idle",
+            };
         }
     },
 );
@@ -203,7 +208,10 @@ async function handleSubmit(): Promise<void> {
         } catch (error) {
             console.error("Failed to refresh session for upload:", error);
             // Include server error message for auth errors too
-            const serverErrorMessage = error instanceof Error ? error.message : "Unknown authentication error";
+            const serverErrorMessage =
+                error instanceof Error
+                    ? error.message
+                    : "Unknown authentication error";
             toast.add({
                 title: t("documents.authError"),
                 description: `${t("documents.authErrorDescription")}: ${serverErrorMessage}`,
@@ -215,7 +223,10 @@ async function handleSubmit(): Promise<void> {
     }
 
     try {
-        const result = await uploadFiles(selectedFile.value, selectedAccessRole.value);
+        const result = await uploadFiles(
+            selectedFile.value,
+            selectedAccessRole.value,
+        );
 
         if (result.success > 0) {
             // Determine which toast to show based on results
@@ -224,10 +235,13 @@ async function handleSubmit(): Promise<void> {
                 if (isZipFile.value) {
                     toast.add({
                         title: t("documents.batchUploadSuccessTitle"),
-                        description: t("documents.batchUploadSuccessDescription", {
-                            successCount: result.success,
-                            totalCount: result.totalFiles,
-                        }),
+                        description: t(
+                            "documents.batchUploadSuccessDescription",
+                            {
+                                successCount: result.success,
+                                totalCount: result.totalFiles,
+                            },
+                        ),
                         icon: "i-heroicons-check-circle",
                         color: "success",
                     });
@@ -243,19 +257,24 @@ async function handleSubmit(): Promise<void> {
                 }
             } else {
                 // Partial success with failed files list
-                let description = t("documents.batchUploadPartialSuccessDescription", {
-                    successCount: result.success,
-                    failedCount: result.failed,
-                });
+                let description = t(
+                    "documents.batchUploadPartialSuccessDescription",
+                    {
+                        successCount: result.success,
+                        failedCount: result.failed,
+                    },
+                );
 
                 if (result.failedFiles && result.failedFiles.length > 0) {
-                    const failedFilesList = result.failedFiles.slice(0, 5).join(", ");
+                    const failedFilesList = result.failedFiles
+                        .slice(0, 5)
+                        .join(", ");
                     const moreCount = result.failedFiles.length - 5;
                     let filesString = failedFilesList;
                     if (moreCount > 0) {
-                        filesString += ` ${t('documents.andMore', { count: moreCount })}`;
+                        filesString += ` ${t("documents.andMore", { count: moreCount })}`;
                     }
-                    description += `\n\n${t('documents.failedFilesList')}:\n${filesString}`;
+                    description += `\n\n${t("documents.failedFilesList")}:\n${filesString}`;
                 }
 
                 toast.add({
@@ -273,18 +292,26 @@ async function handleSubmit(): Promise<void> {
             // All files failed
             const serverErrorMessage = uploadError.value;
             let description = serverErrorMessage
-                ? t("documents.uploadErrorWithDetails", { details: serverErrorMessage })
+                ? t("documents.uploadErrorWithDetails", {
+                      details: serverErrorMessage,
+                  })
                 : t("documents.uploadErrorDescription");
 
             // For ZIP files, add list of failed files
-            if (isZipFile.value && result.failedFiles && result.failedFiles.length > 0) {
-                const failedFilesList = result.failedFiles.slice(0, 5).join(", ");
+            if (
+                isZipFile.value &&
+                result.failedFiles &&
+                result.failedFiles.length > 0
+            ) {
+                const failedFilesList = result.failedFiles
+                    .slice(0, 5)
+                    .join(", ");
                 const moreCount = result.failedFiles.length - 5;
                 let filesString = failedFilesList;
                 if (moreCount > 0) {
-                    filesString += ` ${t('documents.andMore', { count: moreCount })}`;
+                    filesString += ` ${t("documents.andMore", { count: moreCount })}`;
                 }
-                description += `\n\n${t('documents.failedFilesList')}:\n${filesString}`;
+                description += `\n\n${t("documents.failedFilesList")}:\n${filesString}`;
             }
 
             toast.add({
@@ -309,7 +336,10 @@ async function handleSubmit(): Promise<void> {
             });
         } else {
             // Include server error message without translation
-            const serverErrorMessage = error instanceof Error ? error.message : "An unexpected error occurred during upload.";
+            const serverErrorMessage =
+                error instanceof Error
+                    ? error.message
+                    : "An unexpected error occurred during upload.";
             toast.add({
                 title: t("documents.uploadErrorUnexpected"),
                 description: serverErrorMessage,
