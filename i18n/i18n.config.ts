@@ -71,6 +71,7 @@ export default defineI18nConfig(() => ({
 
                 // Basic terms
                 page: "page",
+                pageCount: "{count} page | {count} pages",
                 file: "File",
 
                 // Common phrases
@@ -225,6 +226,10 @@ export default defineI18nConfig(() => ({
                 selectFile: "Select File *",
                 selectNewFile: "Select New File *",
                 chooseFile: "Choose a document to upload",
+                chooseMultipleFiles: "Choose up to 10 documents to upload",
+                selectedFiles: "Selected files",
+                multipleFileHint:
+                    "You can select multiple files at once (max 10)",
                 accessRole: "Access Role *",
                 selectAccessRole: "Select an access role",
                 availableOrganizations:
@@ -232,8 +237,24 @@ export default defineI18nConfig(() => ({
                 noOrganizations:
                     "No organizations available for access control",
                 uploadDocument: "Upload Document",
+                uploadMultipleFiles: "Upload {count} Files",
                 supportedFormats: "Supported formats",
                 maxFileSize: "Max size: {size}",
+
+                // Multi-file validation errors
+                tooManyFilesError: "Too Many Files",
+                tooManyFilesErrorDescription:
+                    "You can select up to {maxFiles} files at once.",
+                fileSizeErrorForFile:
+                    "File {fileName} exceeds max size of {maxSize}",
+                invalidFileTypeError:
+                    "File {fileName} has an unsupported file type",
+                fileValidationError: "File Validation Error",
+
+                // Multi-file success messages
+                multipleUploadSuccessTitle: "Multiple Files Uploaded",
+                multipleUploadSuccessDescription:
+                    "Successfully uploaded {count} files.",
 
                 // Batch Upload Progress
                 progressExtracting: "Extracting ZIP file...",
@@ -326,6 +347,7 @@ export default defineI18nConfig(() => ({
 
                 // Basic terms
                 page: "Seite",
+                pageCount: "{count} Seite | {count} Seiten",
                 file: "Datei",
 
                 // Common phrases
@@ -489,6 +511,11 @@ export default defineI18nConfig(() => ({
                 selectFile: "Datei auswählen *",
                 selectNewFile: "Neue Datei auswählen *",
                 chooseFile: "Wählen Sie ein Dokument zum Hochladen",
+                chooseMultipleFiles:
+                    "Wählen Sie bis zu 10 Dokumente zum Hochladen",
+                selectedFiles: "Ausgewählte Dateien",
+                multipleFileHint:
+                    "Sie können mehrere Dateien auf einmal auswählen (max. 10)",
                 accessRole: "Zugriffsrolle *",
                 selectAccessRole: "Wählen Sie eine Zugriffsrolle",
                 availableOrganizations:
@@ -496,8 +523,24 @@ export default defineI18nConfig(() => ({
                 noOrganizations:
                     "Keine Organisationen für die Zugriffskontrolle verfügbar",
                 uploadDocument: "Dokument hochladen",
+                uploadMultipleFiles: "{count} Dateien hochladen",
                 supportedFormats: "Unterstützte Dateiformate",
                 maxFileSize: "Max. Grösse: {size}",
+
+                // Multi-file validation errors
+                tooManyFilesError: "Zu viele Dateien",
+                tooManyFilesErrorDescription:
+                    "Sie können maximal {maxFiles} Dateien auf einmal auswählen.",
+                fileSizeErrorForFile:
+                    "Datei {fileName} überschreitet die maximale Grösse von {maxSize}",
+                invalidFileTypeError:
+                    "Datei {fileName} hat einen nicht unterstützten Dateityp",
+                fileValidationError: "Dateivalidierungsfehler",
+
+                // Multi-file success messages
+                multipleUploadSuccessTitle: "Mehrere Dateien hochgeladen",
+                multipleUploadSuccessDescription:
+                    "{count} Dateien erfolgreich hochgeladen.",
 
                 // Batch Upload Progress
                 progressExtracting: "ZIP-Datei wird entpackt...",

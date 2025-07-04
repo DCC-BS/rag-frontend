@@ -25,7 +25,8 @@
                     <span class="text-xs text-gray-500 dark:text-gray-400">
                         {{ formatFileType(document.mime_type) }}
                     </span>
-                    <span v-if="document.num_pages > 0" class="text-xs text-gray-500 dark:text-gray-400">
+                    <span v-if="document.num_pages && document.num_pages > 0"
+                        class="text-xs text-gray-500 dark:text-gray-400">
                         • {{ t('documents.pages', { count: document.num_pages }) }}
                     </span>
                 </div>
@@ -38,9 +39,9 @@
                 <UIcon name="i-heroicons-calendar" class="w-3 h-3" />
                 <span>{{ formatDate(document.created_at) }}</span>
             </div>
-            <div v-if="document.access_roles.length > 0" class="flex items-center gap-1">
+            <div v-if="document.access_roles?.length > 0" class="flex items-center gap-1">
                 <UIcon name="i-heroicons-user-group" class="w-3 h-3" />
-                <span>{{ document.access_roles[0] }}</span>
+                <span>{{ document.access_roles?.[0] }}</span>
             </div>
         </div>
 
@@ -87,7 +88,7 @@ function handleClick(): void {
  * Get appropriate file icon based on MIME type
  */
 function getFileIcon(): string {
-    const mimeType = props.document.mime_type.toLowerCase();
+    const mimeType = props.document.mime_type?.toLowerCase() || '';
 
     if (mimeType.includes('pdf')) {
         return 'i-heroicons-document-text';
@@ -116,7 +117,15 @@ function formatFileType(mimeType: string): string {
  * Format date for display
  */
 function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
+    try {
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) {
+            return 'Invalid date';
+        }
+        return date.toLocaleDateString();
+    } catch (error) {
+        console.warn('Error parsing date:', dateString);
+        return 'Invalid date';
+    }
 }
 </script>

@@ -6,7 +6,7 @@ const { resetThreadId } = useThread();
 // Document selection functionality
 const documentSelectionDrawer = ref();
 const selectedDocumentIds = computed(() =>
-    documentSelectionDrawer.value?.selectedDocumentIds || ref([])
+    documentSelectionDrawer.value?.selectedDocumentIds || []
 );
 
 const {
@@ -66,7 +66,11 @@ function startNewChat(): void {
         clearMessages();
         clearInput();
         // Clear document selection when starting new chat
-        documentSelectionDrawer.value?.clearSelection();
+        try {
+            documentSelectionDrawer.value?.clearSelection();
+        } catch (error) {
+            console.warn('Error clearing document selection:', error);
+        }
     } catch (error) {
         // Display error toast
         toast.add({

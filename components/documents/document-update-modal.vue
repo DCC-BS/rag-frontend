@@ -28,8 +28,8 @@
                     <label for="file-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ t('documents.selectNewFile') }}
                     </label>
-                    <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange"
-                        :disabled="isLoading" class="w-full" />
+                    <UInput id="file-input" ref="fileInputRef" type="file" accept=".pdf,.docx,.pptx,.html"
+                        @change="handleFileChange" :disabled="isLoading" class="w-full" />
                     <p v-if="selectedFile" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                         {{ t('documents.fileSize') }}: {{ formatFileSize(selectedFile.size) }}
                     </p>

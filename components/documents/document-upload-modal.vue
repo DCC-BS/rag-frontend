@@ -24,21 +24,50 @@
                     <label for="file-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ t('documents.selectFile') }}
                     </label>
-                    <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange" accept=".pdf,.zip"
-                        :disabled="isLoading" class="w-full" />
-                    <p v-if="selectedFile" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        {{ t('common.file') }}: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
-                        <span v-if="isZipFile"
-                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 ml-2">
-                            ZIP Archive
-                        </span>
-                    </p>
-                    <p v-else class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {{ t('documents.chooseFile') }} ({{ t('documents.maxFileSize', { size: formatMaxFileSize }) }})
-                        <span class="block mt-1">
-                            {{ t('documents.supportedFormats') }}: PDF, ZIP
-                        </span>
-                    </p>
+                    <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange"
+                        accept=".pdf,.zip,.docx,.pptx,.html" multiple :disabled="isLoading" class="w-full" />
+
+                    <!-- Multiple files selected -->
+                    <div v-if="selectedFiles.length > 0" class="mt-3 space-y-2">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="font-medium text-gray-700 dark:text-gray-300">
+                                {{ t('documents.selectedFiles') }}: {{ selectedFiles.length }}
+                                <span v-if="isZipFile && selectedFiles.length === 1"
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 ml-2">
+                                    ZIP Archive
+                                </span>
+                            </span>
+                            <span class="text-gray-500 dark:text-gray-400">
+                                {{ formatTotalFileSize() }}
+                            </span>
+                        </div>
+
+                        <!-- File list -->
+                        <div class="max-h-32 overflow-y-auto space-y-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
+                            <div v-for="(file, index) in selectedFiles" :key="index"
+                                class="flex items-center justify-between text-xs">
+                                <span class="truncate flex-1 pr-2">{{ file.name }}</span>
+                                <span class="text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                    {{ formatFileSize(file.size) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No files selected -->
+                    <div v-else class="mt-1">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ t('documents.chooseMultipleFiles') }} ({{ t('documents.maxFileSize', {
+                                size:
+                            formatMaxFileSize }) }})
+                            <span class="block mt-1">
+                                {{ t('documents.supportedFormats') }}: PDF, DOCX, PPTX, HTML, ZIP
+                            </span>
+                            <span class="block mt-1 text-blue-600 dark:text-blue-400">
+                                {{ t('documents.multipleFileHint') }}
+                            </span>
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Access Role Selection -->
@@ -75,7 +104,7 @@
                 <UButton color="neutral" variant="outline" :disabled="isLoading" @click="handleCancel">
                     {{ t('common.cancel') }}
                 </UButton>
-                <UButton color="primary" :loading="isLoading" :disabled="!selectedFile || !selectedAccessRole"
+                <UButton color="primary" :loading="isLoading" :disabled="!hasValidFiles || !selectedAccessRole"
                     icon="i-heroicons-arrow-up-tray" @click="handleSubmit">
                     {{ getUploadButtonText() }}
                 </UButton>
@@ -106,32 +135,133 @@ const {
     progress,
 } = useDocumentUpload();
 
-// Shared document form logic
+// Shared document form logic (we'll use some parts but override file handling)
 const {
     session,
-    selectedFile,
     selectedAccessRole,
     fileInputRef,
     organizations,
     formatMaxFileSize,
     refreshSession,
-    handleFileChange,
     formatFileSize,
-    resetForm,
 } = useDocumentForm();
 
 const { t } = useI18n();
 // Toast notifications
 const toast = useToast();
 
-// Check if selected file is a zip file
+// Multiple file selection state
+const selectedFiles = ref<File[]>([]);
+const maxFiles = 10;
+const maxFileSize = 50 * 1024 * 1024; // 50MB per file
+
+// Check if any selected file is a zip file
 const isZipFile = computed(() => {
-    return (
-        selectedFile.value?.name.toLowerCase().endsWith(".zip") ||
-        selectedFile.value?.type === "application/zip" ||
-        selectedFile.value?.type === "application/x-zip-compressed"
+    return selectedFiles.value.length === 1 && (
+        selectedFiles.value[0]?.name.toLowerCase().endsWith(".zip") ||
+        selectedFiles.value[0]?.type === "application/zip" ||
+        selectedFiles.value[0]?.type === "application/x-zip-compressed"
     );
 });
+
+// Check if we have valid files selected
+const hasValidFiles = computed(() => {
+    return selectedFiles.value.length > 0;
+});
+
+/**
+ * Handle file input change event with support for multiple files
+ */
+function handleFileChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const files = Array.from(target.files || []);
+
+    if (files.length === 0) {
+        selectedFiles.value = [];
+        return;
+    }
+
+    // Validate file count
+    if (files.length > maxFiles) {
+        toast.add({
+            title: t("documents.tooManyFilesError"),
+            description: t("documents.tooManyFilesErrorDescription", { maxFiles }),
+            icon: "i-heroicons-exclamation-triangle",
+            color: "error",
+        });
+        clearFileSelection();
+        return;
+    }
+
+    // Validate individual file sizes and types
+    const validFiles: File[] = [];
+    const errors: string[] = [];
+
+    for (const file of files) {
+        // Check file size
+        if (file.size > maxFileSize) {
+            errors.push(t("documents.fileSizeErrorForFile", {
+                fileName: file.name,
+                maxSize: formatFileSize(maxFileSize)
+            }));
+            continue;
+        }
+
+        // Check file type
+        const allowedExtensions = ['.pdf', '.zip', '.docx', '.pptx', '.html'];
+        const fileExtension = '.' + file.name.toLowerCase().split('.').pop();
+        if (!allowedExtensions.includes(fileExtension)) {
+            errors.push(t("documents.invalidFileTypeError", { fileName: file.name }));
+            continue;
+        }
+
+        validFiles.push(file);
+    }
+
+    // Show errors if any
+    if (errors.length > 0) {
+        toast.add({
+            title: t("documents.fileValidationError"),
+            description: errors.slice(0, 3).join('\n') + (errors.length > 3 ? '\n...' : ''),
+            icon: "i-heroicons-exclamation-triangle",
+            color: "error",
+        });
+    }
+
+    // If no valid files, clear selection
+    if (validFiles.length === 0) {
+        clearFileSelection();
+        return;
+    }
+
+    selectedFiles.value = validFiles;
+}
+
+/**
+ * Clear file selection
+ */
+function clearFileSelection(): void {
+    selectedFiles.value = [];
+    if (fileInputRef.value?.input) {
+        fileInputRef.value.input.value = "";
+    }
+}
+
+/**
+ * Format total size of all selected files
+ */
+function formatTotalFileSize(): string {
+    const totalSize = selectedFiles.value.reduce((sum, file) => sum + file.size, 0);
+    return formatFileSize(totalSize);
+}
+
+/**
+ * Reset form state
+ */
+function resetForm(): void {
+    clearFileSelection();
+    selectedAccessRole.value = "";
+}
 
 // Watch for modal open/close to reset form and ensure authentication
 watch(
@@ -182,16 +312,27 @@ function getUploadButtonText(): string {
     if (isLoading.value) {
         return t("documents.uploading");
     }
-    return isZipFile.value
-        ? `${t("documents.uploadDocument")} (ZIP)`
-        : t("documents.uploadDocument");
+
+    if (selectedFiles.value.length === 0) {
+        return t("documents.uploadDocument");
+    }
+
+    if (isZipFile.value) {
+        return `${t("documents.uploadDocument")} (ZIP)`;
+    }
+
+    if (selectedFiles.value.length === 1) {
+        return t("documents.uploadDocument");
+    }
+
+    return t("documents.uploadMultipleFiles", { count: selectedFiles.value.length });
 }
 
 /**
  * Handle form submission
  */
 async function handleSubmit(): Promise<void> {
-    if (!selectedFile.value || !selectedAccessRole.value) {
+    if (selectedFiles.value.length === 0 || !selectedAccessRole.value) {
         toast.add({
             title: t("documents.validationError"),
             description: t("documents.validationErrorDescription"),
@@ -223,8 +364,12 @@ async function handleSubmit(): Promise<void> {
     }
 
     try {
+        // For single ZIP file, pass the file directly
+        // For multiple files, pass the array
+        const filesToUpload = isZipFile.value ? selectedFiles.value[0] : selectedFiles.value;
+
         const result = await uploadFiles(
-            selectedFile.value,
+            filesToUpload,
             selectedAccessRole.value,
         );
 
@@ -245,11 +390,20 @@ async function handleSubmit(): Promise<void> {
                         icon: "i-heroicons-check-circle",
                         color: "success",
                     });
-                } else {
+                } else if (selectedFiles.value.length === 1) {
                     toast.add({
                         title: t("documents.uploadSuccessTitle"),
                         description: t("documents.uploadSuccessDescription", {
-                            fileName: selectedFile.value.name,
+                            fileName: selectedFiles.value[0].name,
+                        }),
+                        icon: "i-heroicons-check-circle",
+                        color: "success",
+                    });
+                } else {
+                    toast.add({
+                        title: t("documents.multipleUploadSuccessTitle"),
+                        description: t("documents.multipleUploadSuccessDescription", {
+                            count: result.success,
                         }),
                         icon: "i-heroicons-check-circle",
                         color: "success",
@@ -297,9 +451,9 @@ async function handleSubmit(): Promise<void> {
                 })
                 : t("documents.uploadErrorDescription");
 
-            // For ZIP files, add list of failed files
+            // For multiple files, add list of failed files
             if (
-                isZipFile.value &&
+                selectedFiles.value.length > 1 &&
                 result.failedFiles &&
                 result.failedFiles.length > 0
             ) {
@@ -315,7 +469,7 @@ async function handleSubmit(): Promise<void> {
             }
 
             toast.add({
-                title: isZipFile.value
+                title: isZipFile.value || selectedFiles.value.length > 1
                     ? t("documents.batchUploadFailedTitle")
                     : t("documents.uploadFailed"),
                 description,

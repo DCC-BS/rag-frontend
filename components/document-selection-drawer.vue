@@ -68,7 +68,7 @@
                     </div>
 
                     <!-- No documents -->
-                    <div v-else-if="documents && documents.documents.length === 0" class="text-center py-12">
+                    <div v-else-if="documents?.documents?.length === 0" class="text-center py-12">
                         <UIcon name="i-heroicons-document-text" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                             {{ searchQuery ? t('documents.noResultsTitle') : t('documents.noDocumentsTitle') }}
@@ -84,7 +84,7 @@
                     </div>
 
                     <!-- Documents grid -->
-                    <div v-else-if="documents && documents.documents.length > 0" class="space-y-3">
+                    <div v-else-if="documents && documents.documents?.length > 0" class="space-y-3">
                         <DocumentSelectionItem v-for="document in documents.documents" :key="document.id"
                             :document="document" :is-selected="isDocumentSelected(document.id)"
                             :can-select="canSelectMore || isDocumentSelected(document.id)" @select="selectDocument"
@@ -147,15 +147,23 @@ const buttonLabel = computed<string>(() => {
  * Perform search with current query
  */
 async function performSearch(): Promise<void> {
-    if (!searchQuery.value.trim() && !searchPerformed.value) {
-        await fetchDocuments();
+    const query = searchQuery.value.trim();
+
+    if (!query && !searchPerformed.value) {
+        try {
+            await fetchDocuments();
+        } catch (error) {
+            console.error('Error fetching documents:', error);
+        }
         return;
     }
 
     searchLoading.value = true;
     try {
-        await searchDocuments(searchQuery.value.trim(), 20);
+        await searchDocuments(query, 20);
         searchPerformed.value = true;
+    } catch (error) {
+        console.error('Error searching documents:', error);
     } finally {
         searchLoading.value = false;
     }

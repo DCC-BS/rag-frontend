@@ -61,8 +61,7 @@
                             {{ t('documents.pages') }}
                         </p>
                         <p class="text-sm text-gray-900 dark:text-white">
-                            {{ props.document.num_pages }} {{ props.document.num_pages === 1 ? t('common.page') :
-                                t('documents.pages') }}
+                            {{ t('common.pageCount', { count: props.document.num_pages }) }}
                         </p>
                     </div>
                     <div v-if="props.document.page">
