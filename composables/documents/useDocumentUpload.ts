@@ -250,7 +250,7 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
             let totalSuccess = 0;
             let totalFailed = 0;
             const allFailedFiles: string[] = [];
-            let lastBatchError: string | undefined = undefined;
+            let lastBatchError: string | undefined;
 
             // Upload each batch
             for (let i = 0; i < batches.length; i++) {

@@ -86,8 +86,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { Message } from "@/models/message";
 import { computed } from "vue";
+import type { Message } from "@/models/message";
 import Document from "./document.vue";
 
 const props = defineProps<{

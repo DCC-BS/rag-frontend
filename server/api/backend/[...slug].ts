@@ -106,7 +106,7 @@ export default defineEventHandler(
         }
 
         // Handle different body types based on content type
-        let body: unknown = undefined;
+        let body: unknown;
         if (["POST", "PUT", "PATCH"].includes(event.method)) {
             const contentType = getRequestHeader(event, "content-type");
             if (contentType?.includes("multipart/form-data")) {
