@@ -61,7 +61,7 @@
                             {{ t('documents.pages') }}
                         </p>
                         <p class="text-sm text-gray-900 dark:text-white">
-                            {{ props.document.num_pages }} {{ props.document.num_pages === 1 ? t('documents.page') :
+                            {{ props.document.num_pages }} {{ props.document.num_pages === 1 ? t('common.page') :
                                 t('documents.pages') }}
                         </p>
                     </div>
@@ -131,7 +131,6 @@
 </template>
 
 <script lang="ts" setup>
-import DocumentViewer from "~/components/documents/document-viewer.vue";
 import type { UserDocument } from "~/models/message";
 
 const { t } = useI18n();

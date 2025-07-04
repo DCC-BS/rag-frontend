@@ -27,7 +27,7 @@
                     <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange" accept=".pdf,.zip"
                         :disabled="isLoading" class="w-full" />
                     <p v-if="selectedFile" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        {{ t('documents.file') }}: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
+                        {{ t('common.file') }}: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
                         <span v-if="isZipFile"
                             class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 ml-2">
                             ZIP Archive
@@ -73,7 +73,7 @@
         <template #footer>
             <div class="flex justify-end gap-3">
                 <UButton color="neutral" variant="outline" :disabled="isLoading" @click="handleCancel">
-                    {{ t('documents.cancel') }}
+                    {{ t('common.cancel') }}
                 </UButton>
                 <UButton color="primary" :loading="isLoading" :disabled="!selectedFile || !selectedAccessRole"
                     icon="i-heroicons-arrow-up-tray" @click="handleSubmit">
@@ -293,8 +293,8 @@ async function handleSubmit(): Promise<void> {
             const serverErrorMessage = uploadError.value;
             let description = serverErrorMessage
                 ? t("documents.uploadErrorWithDetails", {
-                      details: serverErrorMessage,
-                  })
+                    details: serverErrorMessage,
+                })
                 : t("documents.uploadErrorDescription");
 
             // For ZIP files, add list of failed files

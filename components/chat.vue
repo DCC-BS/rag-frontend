@@ -2,13 +2,20 @@
 // Composables
 const { t } = useI18n();
 const { resetThreadId } = useThread();
+
+// Document selection functionality
+const documentSelectionDrawer = ref();
+const selectedDocumentIds = computed(() =>
+    documentSelectionDrawer.value?.selectedDocumentIds || ref([])
+);
+
 const {
     messages,
     isLoading,
     showExampleQuestions,
     sendChatMessage,
     clearMessages,
-} = useChatMessages();
+} = useChatMessages(selectedDocumentIds);
 const { chatHistoryRef, watchMessages } = useAutoScroll();
 const { userInput, hasContent, createKeydownHandler, clearInput, setInput } =
     useChatInput();
@@ -58,6 +65,8 @@ function startNewChat(): void {
         resetThreadId();
         clearMessages();
         clearInput();
+        // Clear document selection when starting new chat
+        documentSelectionDrawer.value?.clearSelection();
     } catch (error) {
         // Display error toast
         toast.add({
@@ -114,14 +123,31 @@ const handleKeydown = createKeydownHandler(sendChat);
         <!-- Input Area -->
         <div class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg">
             <div class="max-w-4xl mx-auto p-6">
-                <!-- Input Container with New Chat Button inline -->
+                <!-- Document Selection and Actions Bar -->
+                <div class="flex items-center gap-3 mb-4">
+                    <!-- Document Selection Drawer -->
+                    <DocumentSelectionDrawer ref="documentSelectionDrawer" />
+
+                    <!-- Selected documents indicator -->
+                    <div v-if="documentSelectionDrawer?.selectedDocuments?.length > 0"
+                        class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <UIcon name="i-heroicons-document-text" class="w-4 h-4" />
+                        <span>
+                            {{ t('chat.chatWithDocuments', {
+                                count: documentSelectionDrawer.selectedDocuments.length
+                            }) }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Input Container -->
                 <div class="flex justify-stretch items-center gap-3">
                     <!-- Large Input Container -->
                     <UTextarea v-model="userInput" :placeholder="t('chat.message')"
                         class="resize-none bg-transparent focus:ring-0 text-base w-full" autoresize :rows="1"
                         :maxrows="8" @keydown="handleKeydown" :disabled="isLoading" :ui="{ base: 'resize-none' }" />
 
-                    <!-- Send Button - Inside the textarea -->
+                    <!-- Send Button -->
                     <UTooltip :text="t('chat.pressEnterToSend')" :content="{
                         side: 'top'
                     }">
@@ -139,7 +165,7 @@ const handleKeydown = createKeydownHandler(sendChat);
                         side: 'top'
                     }">
                         <UButton @click="startNewChat" variant="soft" size="lg" :disabled="isLoading"
-                            class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-700 dark:hover:bg-gray-700 h-12 w-12 rounded-2xl transition-all duration-200">
+                            class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 h-12 w-12 rounded-2xl transition-all duration-200">
                             <UIcon name="i-heroicons-plus" class="w-5 h-5" />
                         </UButton>
                     </UTooltip>

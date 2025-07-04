@@ -72,29 +72,6 @@ export const useDocumentViewer = (): UseDocumentViewerReturn => {
         }
     }
 
-    /**
-     * Sanitize filename to remove invalid characters
-     */
-    function sanitizeFilename(filename: string): string {
-        // Remove or replace invalid characters for filenames
-        // Keep alphanumeric, dots, hyphens, underscores, and spaces
-        let sanitized = filename
-            .replace(/[<>:"/\\|?*]/g, "_") // Replace invalid chars with underscore
-            .replace(/\s+/g, " ") // Replace multiple spaces with single space
-            .trim() // Remove leading/trailing whitespace
-            .substring(0, 255); // Limit length to 255 characters
-
-        // Remove control characters (0-31)
-        for (let i = 0; i < 32; i++) {
-            sanitized = sanitized.replace(
-                new RegExp(String.fromCharCode(i), "g"),
-                "_",
-            );
-        }
-
-        return sanitized || `document_${Date.now()}`; // Fallback if filename becomes empty
-    }
-
     return {
         fetchDocument,
         loading,

@@ -37,7 +37,7 @@
                             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                                 {{ t('documents.errorTitle') }}
                             </h3>
-                            <UButton :label="t('documents.tryAgain')" color="primary" variant="solid"
+                            <UButton :label="t('common.tryAgain')" color="primary" variant="solid"
                                 icon="i-heroicons-arrow-path" @click="() => fetchDocuments()" :loading="loading" />
                         </div>
                     </div>
@@ -67,7 +67,7 @@
                                         </label>
                                     </UInput>
 
-                                    <UButton :label="t('documents.search')" icon="i-heroicons-magnifying-glass"
+                                    <UButton :label="t('common.search')" icon="i-heroicons-magnifying-glass"
                                         color="primary" variant="solid" size="lg" @click="performSearch"
                                         :loading="searchLoading" />
                                 </UButtonGroup>
@@ -112,8 +112,8 @@
                                     <UButtonGroup size="lg">
                                         <UButton :label="t('documents.selected', { count: selectedDocuments.length })"
                                             color="neutral" disabled />
-                                        <UButton :label="t('documents.clearSelection')" color="neutral"
-                                            variant="outline" @click="clearSelection" />
+                                        <UButton :label="t('common.clearSelection')" color="neutral" variant="outline"
+                                            @click="clearSelection" />
                                         <UButton
                                             :label="t('documents.deleteSelected', { count: selectedDocuments.length })"
                                             icon="i-heroicons-trash" color="error" variant="solid"
@@ -194,14 +194,14 @@
             <template #footer>
                 <div class="flex justify-end gap-3">
                     <UButton color="neutral" variant="outline" @click="cancelDelete" :disabled="isDeletingDocuments">
-                        {{ t('documents.cancel') }}
+                        {{ t('common.cancel') }}
                     </UButton>
                     <UButton color="error" variant="solid" @click="confirmDelete" :disabled="isDeletingDocuments"
                         :loading="isDeletingDocuments">
                         <template #leading>
                             <UIcon name="i-heroicons-trash" class="w-4 h-4" />
                         </template>
-                        {{ t('documents.delete') }}
+                        {{ t('common.delete') }}
                     </UButton>
                 </div>
             </template>
@@ -218,9 +218,6 @@
 </template>
 
 <script lang="ts" setup>
-import DocumentUploadModal from "~/components/documents/document-upload-modal.vue";
-import type { UserDocument } from "~/models/message";
-
 const { t } = useI18n();
 const {
     documents,

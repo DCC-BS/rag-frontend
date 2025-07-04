@@ -82,13 +82,18 @@ function parseStreamLine(line: string): StreamChunk[] {
 export async function sendMessage(
     message: string,
     thread_id: string,
+    document_ids: number[] | null,
     onChunk: (chunk: StreamChunk) => void,
     onComplete: () => void,
     onError: (error: Error) => void,
 ): Promise<void> {
+    if (document_ids && document_ids.length === 0) {
+        document_ids = null;
+    }
     const body: ChatMessage = {
         message: message,
         thread_id: thread_id,
+        document_ids: document_ids,
     };
 
     try {

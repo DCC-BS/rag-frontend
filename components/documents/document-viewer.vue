@@ -39,7 +39,7 @@
                             </div>
                         </div>
                         <span class="text-sm text-gray-600 dark:text-gray-400">{{ t('documents.loadingDocument')
-                            }}</span>
+                        }}</span>
                     </div>
                 </div>
 
@@ -48,11 +48,11 @@
                     <div class="p-6 bg-red-50 dark:bg-red-900/20 rounded-md flex flex-col items-center text-center">
                         <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 text-red-500 mb-3" />
                         <span class="text-sm text-red-600 dark:text-red-400 mb-2">{{ t('documents.failedToLoadPdf')
-                            }}</span>
+                        }}</span>
                         <span class="text-xs text-red-500 dark:text-red-300">{{ pdfError }}</span>
                         <button @click="retryLoad"
                             class="mt-3 px-3 py-1 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 rounded text-sm hover:bg-red-200 dark:hover:bg-red-700">
-                            {{ t('documents.retry') }}
+                            {{ t('common.retry') }}
                         </button>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                         <button
                             class="py-1 px-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             :disabled="currentPage <= 1" @click="goToPage(currentPage - 1)">
-                            {{ t('documents.previous') }}
+                            {{ t('common.previous') }}
                         </button>
                         <span class="mx-2 text-sm text-gray-700 dark:text-gray-300">{{ t('documents.pageOf', {
                             currentPage, totalPages
@@ -100,7 +100,7 @@
                         <button
                             class="py-1 px-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             :disabled="currentPage >= totalPages" @click="goToPage(currentPage + 1)">
-                            {{ t('documents.next') }}
+                            {{ t('common.next') }}
                         </button>
                     </div>
                 </div>

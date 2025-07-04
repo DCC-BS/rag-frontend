@@ -12,6 +12,7 @@ export interface Message {
 export interface ChatMessage {
     message: string;
     thread_id: string;
+    document_ids: number[] | null;
 }
 
 export interface StreamChunk {

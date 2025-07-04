@@ -39,6 +39,43 @@ export default defineI18nConfig(() => ({
                         "Does the salary from the month before support count as income?",
                     category3: "Income",
                 },
+                // Document selection for chat
+                selectDocuments: "Select Documents",
+                selectDocumentsDescription:
+                    "Choose up to {max} documents to chat with",
+                documentsSelected: "{count} of {max} selected",
+                clearSelection: "Clear Selection",
+                maxDocumentsSelected: "Maximum selection reached (5 documents)",
+                documentSelectionUpdated: "Document Selection Updated",
+                documentSelectionUpdatedDescription:
+                    "Now chatting with {count} selected documents",
+                chatWithSelected: "Chat with Selected",
+                chatWithDocuments: "Chatting with {count} documents",
+                maxReached: "Max",
+            },
+            common: {
+                // Basic actions
+                close: "Close",
+                cancel: "Cancel",
+                delete: "Delete",
+                refresh: "Refresh",
+                search: "Search",
+                retry: "Retry",
+
+                // Navigation
+                next: "Next",
+                previous: "Previous",
+
+                // States
+                selected: "Selected",
+
+                // Basic terms
+                page: "page",
+                file: "File",
+
+                // Common phrases
+                tryAgain: "Try Again",
+                clearSelection: "Clear Selection",
             },
             navigation: {
                 title: "AI Chat Bot",
@@ -62,15 +99,10 @@ export default defineI18nConfig(() => ({
 
                 // Actions
                 addDocument: "Add Document",
-                refresh: "Refresh",
-                tryAgain: "Try Again",
-                cancel: "Cancel",
-                delete: "Delete",
                 clearSearch: "Clear Search",
                 uploadFirst: "Upload Your First Document",
                 deselectAll: "Deselect All",
                 selectAll: "Select All",
-                clearSelection: "Clear selection",
                 deleteSelected:
                     "Delete {count} document | Delete {count} documents",
                 clickToView: "Click to view",
@@ -83,14 +115,12 @@ export default defineI18nConfig(() => ({
                 searchPlaceholder: "Search documents...",
                 searchLimit: "Limit",
                 searchLimitPlaceholder: "Max results",
-                search: "Search",
                 searchResultsCount:
                     "{count} document found | {count} documents found",
                 searchResultsCountWithLimit:
                     "Showing {count} of possibly more documents",
                 available:
                     "{count} document available | {count} documents available",
-                selected: "{count} selected",
 
                 // Empty States
                 noDocumentsTitle: "No Documents Found",
@@ -104,10 +134,8 @@ export default defineI18nConfig(() => ({
                 // Properties
                 documentId: "Document ID",
                 pages: "Pages",
-                page: "page",
                 relevantPage: "Relevant page",
                 accessRoles: "Access Roles",
-                file: "File",
                 fileSize: "File size",
 
                 // Delete Modal
@@ -219,12 +247,9 @@ export default defineI18nConfig(() => ({
                 // PDF Viewer
                 closeViewer: "Close PDF viewer",
                 failedToLoadPdf: "Failed to load PDF",
-                retry: "Retry",
                 zoomIn: "Zoom in",
                 zoomOut: "Zoom out",
                 resetZoom: "Reset zoom",
-                previous: "Previous",
-                next: "Next",
                 pageOf: "Page {currentPage} of {totalPages}",
             },
         },
@@ -269,6 +294,43 @@ export default defineI18nConfig(() => ({
                         "Zählt der Lohn aus dem Monat vor Unterstütztung als Einnahme?",
                     category3: "Einkommen",
                 },
+                // Document selection for chat
+                selectDocuments: "Dokumente auswählen",
+                selectDocumentsDescription:
+                    "Wählen Sie bis zu {max} Dokumente für den Chat aus",
+                documentsSelected: "{count} von {max} ausgewählt",
+                clearSelection: "Auswahl löschen",
+                maxDocumentsSelected: "Maximale Auswahl erreicht (5 Dokumente)",
+                documentSelectionUpdated: "Dokumentenauswahl aktualisiert",
+                documentSelectionUpdatedDescription:
+                    "Chatte jetzt mit {count} ausgewählten Dokumenten",
+                chatWithSelected: "Mit Auswahl chatten",
+                chatWithDocuments: "Chatte mit {count} Dokumenten",
+                maxReached: "Max",
+            },
+            common: {
+                // Basic actions
+                close: "Schließen",
+                cancel: "Abbrechen",
+                delete: "Löschen",
+                refresh: "Aktualisieren",
+                search: "Suchen",
+                retry: "Erneut versuchen",
+
+                // Navigation
+                next: "Weiter",
+                previous: "Zurück",
+
+                // States
+                selected: "Ausgewählt",
+
+                // Basic terms
+                page: "Seite",
+                file: "Datei",
+
+                // Common phrases
+                tryAgain: "Erneut versuchen",
+                clearSelection: "Auswahl löschen",
             },
             navigation: {
                 title: "KI-Chatbot",
@@ -293,15 +355,10 @@ export default defineI18nConfig(() => ({
 
                 // Actions
                 addDocument: "Dokument hinzufügen",
-                refresh: "Aktualisieren",
-                tryAgain: "Erneut versuchen",
-                cancel: "Abbrechen",
-                delete: "Löschen",
                 clearSearch: "Suche löschen",
                 uploadFirst: "Laden Sie Ihr erstes Dokument hoch",
                 deselectAll: "Auswahl aufheben",
                 selectAll: "Alle auswählen",
-                clearSelection: "Auswahl löschen",
                 deleteSelected:
                     "{count} Dokument löschen | {count} Dokumente löschen",
                 clickToView: "Klicken zum Anzeigen",
@@ -314,14 +371,12 @@ export default defineI18nConfig(() => ({
                 searchPlaceholder: "Dokumente durchsuchen...",
                 searchLimit: "Limit",
                 searchLimitPlaceholder: "Max. Ergebnisse",
-                search: "Suchen",
                 searchResultsCount:
                     "{count} Dokument gefunden | {count} Dokumente gefunden",
                 searchResultsCountWithLimit:
                     "Zeige {count} von möglicherweise mehr Dokumenten",
                 available:
                     "{count} Dokument verfügbar | {count} Dokumente verfügbar",
-                selected: "{count} ausgewählt",
 
                 // Empty States
                 noDocumentsTitle: "Keine Dokumente gefunden",
@@ -335,10 +390,8 @@ export default defineI18nConfig(() => ({
                 // Properties
                 documentId: "Dokumenten-ID",
                 pages: "Seiten",
-                page: "Seite",
                 relevantPage: "Relevante Seite",
                 accessRoles: "Zugriffsrollen",
-                file: "Datei",
                 fileSize: "Dateigrösse",
 
                 // Delete Modal
@@ -458,12 +511,9 @@ export default defineI18nConfig(() => ({
                 // PDF Viewer
                 closeViewer: "PDF-Viewer schliessen",
                 failedToLoadPdf: "PDF konnte nicht geladen werden",
-                retry: "Erneut versuchen",
                 zoomIn: "Vergrössern",
                 zoomOut: "Verkleinern",
                 resetZoom: "Zoom zurücksetzen",
-                previous: "Zurück",
-                next: "Weiter",
                 pageOf: "Seite {currentPage} von {totalPages}",
             },
         },

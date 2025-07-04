@@ -54,7 +54,7 @@
         <template #footer>
             <div class="flex justify-end gap-3">
                 <UButton color="neutral" variant="outline" :disabled="isLoading" @click="handleCancel">
-                    {{ t('documents.cancel') }}
+                    {{ t('common.cancel') }}
                 </UButton>
                 <UButton color="warning" :loading="isLoading" :disabled="!selectedFile || !selectedAccessRole"
                     icon="i-heroicons-arrow-up-tray" @click="handleSubmit">
@@ -174,8 +174,8 @@ async function handleSubmit(): Promise<void> {
         const serverErrorMessage = updateError.value;
         const errorMessage = serverErrorMessage
             ? t("documents.updateFailedWithDetails", {
-                  details: serverErrorMessage,
-              })
+                details: serverErrorMessage,
+            })
             : t("documents.updateFailedDescription");
 
         // Show error toast

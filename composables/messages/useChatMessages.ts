@@ -3,7 +3,9 @@ import type { Message, StreamChunk } from "~/models/message";
 /**
  * Composable for managing chat messages and sending functionality
  */
-export const useChatMessages = () => {
+export const useChatMessages = (
+    selectedDocumentIds?: ComputedRef<number[]>,
+) => {
     const { data: authData } = useAuth();
     const { thread_id } = useThread();
 
@@ -129,10 +131,16 @@ export const useChatMessages = () => {
         }
 
         try {
+            // Use provided document IDs or null
+            const documentIds = selectedDocumentIds?.value?.length
+                ? selectedDocumentIds.value
+                : null;
+
             await new Promise<void>((resolve, reject) => {
                 sendMessage(
                     content,
                     thread_id.value,
+                    documentIds,
                     (chunk: StreamChunk) =>
                         updateAiMessage(aiMessageIndex, chunk),
                     () => {
