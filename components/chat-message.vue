@@ -16,29 +16,34 @@
             : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-bl-md'
         ]">
           <!-- Error state -->
-          <div v-if="props.message.status === 'Error'" class="flex items-center gap-2 mb-2">
+          <div v-if="hasErrorStatus" class="flex items-center gap-2 mb-2">
             <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4 text-red-500" />
             <span class="text-xs font-medium text-red-500">Error</span>
           </div>
 
           <!-- Message text -->
           <div class="prose prose-sm max-w-none" :class="props.message.isUser ? 'prose-invert' : 'dark:prose-invert'">
-            <p>{{ props.message.content }}</p>
-            <!-- TODO: Fix MDC rendering -->
-            <!-- <MDC :key="props.message.id" :value="props.message.content" /> -->
+            <MDCRenderer v-if="body" :body="body.body" />
           </div>
 
           <!-- Status indicator -->
-          <div v-if="props.message.status && !props.message.isUser && props.message.status !== 'Error'"
+          <div v-if="(props.message.statusParts && props.message.statusParts.length > 0) && !props.message.isUser"
             class="flex items-center gap-2 mt-3 pt-2 border-t border-gray-200 dark:border-gray-600">
             <div v-if="props.message.streaming" class="flex space-x-1">
               <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
               <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
               <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
             </div>
-            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-              {{ props.message.status }}
-            </span>
+
+            <!-- Render structured status parts -->
+            <div class="text-xs font-medium flex flex-wrap gap-1">
+              <template v-for="(part, partIndex) in props.message.statusParts" :key="partIndex">
+                <span v-if="partIndex > 0" class="text-gray-400 dark:text-gray-500"> → </span>
+                <span :class="getStatusPartClasses(part)">
+                  {{ part.text }}
+                </span>
+              </template>
+            </div>
           </div>
         </div>
 
@@ -87,19 +92,47 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import type { Message } from "@/models/message";
+import type { Message, StatusPart } from "@/models/message";
+import type { MDCParserResult } from "@nuxtjs/mdc";
 
 const props = defineProps<{
-    message: Message;
+  message: Message;
 }>();
+
+const body = ref<MDCParserResult | null>(null);
+
+watch(() => props.message.content, async () => {
+  const result = await parseMarkdown(props.message.content)
+  body.value = result
+}, { immediate: true });
+
 
 const { t } = useI18n();
 
 // Make accordionItems computed per component instance
 const accordionItems = computed(() => [
-    {
-        label: t("chat.sources"),
-        slot: "item",
-    },
+  {
+    label: t("chat.sources"),
+    slot: "item",
+  },
 ]);
+
+const hasErrorStatus = computed(() => {
+  return props.message.statusParts?.some(part => part.text === "Error" && part.highlight === 'error') || false;
+});
+
+function getStatusPartClasses(part: StatusPart): string {
+  const baseClasses = "text-xs font-medium";
+
+  switch (part.highlight) {
+    case 'error':
+      return `${baseClasses} text-red-500 dark:text-red-400`;
+    case 'warning':
+      return `${baseClasses} text-yellow-500 dark:text-yellow-400`;
+    case 'success':
+      return `${baseClasses} text-green-500 dark:text-green-400`;
+    default:
+      return `${baseClasses} text-gray-500 dark:text-gray-400`;
+  }
+}
 </script>

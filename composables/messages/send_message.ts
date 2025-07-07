@@ -22,58 +22,67 @@ function parseStreamLine(line: string): StreamChunk[] {
         const jsonData = parseLine(line);
         const result: StreamChunk[] = [];
         for (const data of jsonData) {
-            const type = data.type as string;
-            const sender = data.sender as string;
-
-            if (type === "interrupt") {
-                result.push({
-                    type: "status",
-                    message: "Bla",
-                });
-            }
-
-            if (type === "documents") {
-                const documents = data.documents as Document[];
-                result.push({
-                    type: "documents",
-                    documents,
-                });
-            }
-
-            if (type === "status") {
-                // Check if we need to clear text based on detector decisions
-                if (
-                    (sender === "GradeAnswerAction" ||
-                        sender === "GradeHallucinationAction") &&
-                    data.decision === "Yes"
-                ) {
-                    result.push({
-                        type: "clear",
-                        message: "Text cleared due to detector decision",
-                    });
-                } else {
-                    let message = data.message;
-                    if (data.decision) {
-                        message += `: ${data.decision}`;
-                    }
-                    result.push({
-                        type: "status",
-                        message,
-                    });
-                }
-            }
-
-            if (type === "answer") {
-                result.push({
-                    type: "answer",
-                    answer: data.answer,
-                });
+            const chunk = processDataChunk(data);
+            if (chunk) {
+                result.push(chunk);
             }
         }
         return result;
     } catch {
         return [];
     }
+}
+
+function processDataChunk(data: any): StreamChunk | null {
+    const type = data.type as string;
+
+    switch (type) {
+        case "interrupt":
+            return { type: "status", message: "Bla" };
+
+        case "documents":
+            return {
+                type: "documents",
+                documents: data.documents as Document[],
+            };
+
+        case "status":
+            return processStatusChunk(data);
+
+        case "answer":
+            return { type: "answer", answer: data.answer };
+
+        default:
+            return null;
+    }
+}
+
+function processStatusChunk(data: any): StreamChunk {
+    const sender = data.sender as string;
+
+    if (shouldClearText(sender, data.decision)) {
+        return {
+            type: "clear",
+            message: "Text cleared due to detector decision",
+        };
+    }
+
+    let message = data.message;
+    if (data.decision) {
+        message += `: ${data.decision}`;
+    }
+
+    return {
+        type: "status",
+        message,
+        sender: sender as StreamChunk["sender"],
+        decision: data.decision ?? undefined,
+    };
+}
+
+function shouldClearText(sender: string, decision: string): boolean {
+    const clearSenders = ["GradeAnswerAction", "GradeHallucinationAction"];
+    return clearSenders.includes(sender) && decision === "Ja";
 }
 
 export async function sendMessage(

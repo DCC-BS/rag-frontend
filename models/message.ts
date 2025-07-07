@@ -4,6 +4,7 @@ export interface Message {
     avatar: string;
     content: string;
     status?: string;
+    statusParts?: StatusPart[];
     streaming?: boolean;
     documents?: Document[] | null;
     timestamp?: Date;
@@ -50,4 +51,10 @@ export interface UserDocument {
 export interface DocumentsResponse {
     documents: UserDocument[];
     total_count: number;
+}
+
+export interface StatusPart {
+    text: string;
+    highlight?: "error" | "warning" | "success" | null;
+    sender?: string;
 }

@@ -1,4 +1,4 @@
-import type { Message, StreamChunk } from "~/models/message";
+import type { Message, StatusPart, StreamChunk } from "~/models/message";
 
 /**
  * Composable for managing chat messages and sending functionality
@@ -40,7 +40,6 @@ export const useChatMessages = (
             isUser: false,
             avatar: aiAvatar,
             content: "",
-            status: "",
             streaming: true,
             timestamp: new Date(),
         });
@@ -59,31 +58,72 @@ export const useChatMessages = (
             return;
         }
 
-        if (chunk.type === "status") {
-            let statusText = chunk.message || "";
-            if (chunk.decision) {
-                statusText += ` (Decision: ${chunk.decision})`;
-            }
-            if (currentAiMessage.status) {
-                currentAiMessage.status += ` -> ${statusText}`;
-            } else {
-                currentAiMessage.status = statusText;
+        switch (chunk.type) {
+            case "status":
+                handleStatusChunk(currentAiMessage, chunk);
+                break;
+            case "answer":
+                handleAnswerChunk(currentAiMessage, chunk);
+                break;
+            case "documents":
+                currentAiMessage.documents = chunk.documents;
+                break;
+        }
+    }
+
+    /**
+     * Handle status chunk updates
+     */
+    function handleStatusChunk(message: Message, chunk: StreamChunk): void {
+        const statusPart = createStatusPart(chunk);
+
+        message.statusParts ??= [];
+        message.statusParts.push(statusPart);
+
+        if (message.content === "") {
+            message.content = "…";
+        }
+    }
+
+    /**
+     * Create status part with highlighting
+     */
+    function createStatusPart(chunk: StreamChunk): StatusPart {
+        const statusPart: StatusPart = {
+            text: chunk.message ?? "",
+            sender: chunk.sender ?? undefined,
+        };
+
+        if (chunk.decision) {
+            const decisionText = ` (Decision: ${chunk.decision})`;
+            if (
+                chunk.sender === "GradeAnswerAction" &&
+                chunk.decision.startsWith("Nein")
+            ) {
+                statusPart.highlight = "error";
+            } else if (
+                chunk.sender === "GradeAnswerAction" &&
+                chunk.decision.startsWith("Ja")
+            ) {
+                statusPart.highlight = "success";
             }
 
-            if (currentAiMessage.content === "") {
-                currentAiMessage.content = "…";
-            }
-        } else if (chunk.type === "answer") {
-            if (
-                currentAiMessage.content === "…" ||
-                currentAiMessage.content === ""
-            ) {
-                currentAiMessage.content = chunk.answer || "";
-            } else {
-                currentAiMessage.content += chunk.answer || "";
-            }
-        } else if (chunk.type === "documents") {
-            currentAiMessage.documents = chunk.documents;
+            statusPart.text += decisionText;
+        }
+
+        return statusPart;
+    }
+
+    /**
+     * Handle answer chunk updates
+     */
+    function handleAnswerChunk(message: Message, chunk: StreamChunk): void {
+        const answer = chunk.answer ?? "";
+
+        if (message.content === "…" || message.content === "") {
+            message.content = answer;
+        } else {
+            message.content += answer;
         }
     }
 
@@ -110,7 +150,12 @@ export const useChatMessages = (
         const currentAiMessage = messages.value[index];
         if (currentAiMessage) {
             currentAiMessage.content = "Failed to send message.";
-            currentAiMessage.status = "Error";
+            currentAiMessage.statusParts = [
+                {
+                    text: "Error",
+                    highlight: "error",
+                },
+            ];
         }
     }
 
