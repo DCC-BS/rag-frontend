@@ -55,7 +55,9 @@ export const useChatMessages = (
      */
     function updateAiMessage(index: number, chunk: StreamChunk): void {
         const currentAiMessage = messages.value[index];
-        if (!currentAiMessage) return;
+        if (!currentAiMessage) {
+            return;
+        }
 
         if (chunk.type === "status") {
             let statusText = chunk.message || "";
@@ -116,7 +118,9 @@ export const useChatMessages = (
      * Send a chat message
      */
     async function sendChatMessage(content: string): Promise<void> {
-        if (!content.trim() || isLoading.value) return;
+        if (!content.trim() || isLoading.value) {
+            return;
+        }
 
         isLoading.value = true;
 

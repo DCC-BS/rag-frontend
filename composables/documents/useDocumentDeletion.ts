@@ -32,23 +32,8 @@ export const useDocumentDeletion = (): UseDocumentDeletionReturn => {
 
             return true;
         } catch (e: unknown) {
-            console.error("Error deleting document:", e);
-            let errorMessage = "Failed to delete document.";
-
-            if (e instanceof Error) {
-                errorMessage = e.message;
-            } else if (typeof e === "string") {
-                errorMessage = e;
-            } else if (
-                typeof e === "object" &&
-                e !== null &&
-                "message" in e &&
-                typeof (e as { message: unknown }).message === "string"
-            ) {
-                errorMessage = (e as { message: string }).message;
-            }
-
-            error.value = errorMessage;
+            const { extractErrorMessage } = useErrorExtractor();
+            error.value = extractErrorMessage(e, "Failed to delete document.");
             return false;
         } finally {
             loading.value = false;
@@ -78,8 +63,7 @@ export const useDocumentDeletion = (): UseDocumentDeletionReturn => {
                         },
                     });
                     return { id, success: true };
-                } catch (e) {
-                    console.error(`Error deleting document ${id}:`, e);
+                } catch {
                     return { id, success: false };
                 }
             });
@@ -101,8 +85,7 @@ export const useDocumentDeletion = (): UseDocumentDeletionReturn => {
             }
 
             return { success: successCount, failed: failedCount };
-        } catch (e: unknown) {
-            console.error("Error in bulk deletion:", e);
+        } catch {
             error.value = "Failed to delete documents.";
             return { success: 0, failed: documentIds.length };
         } finally {

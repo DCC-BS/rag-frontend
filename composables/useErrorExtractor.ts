@@ -27,7 +27,7 @@ export const useErrorExtractor = () => {
      */
     function extractErrorMessage(
         error: unknown,
-        fallbackMessage = "An unexpected error occurred",
+        fallbackMessage = "An unexpected error occurred"
     ): string {
         // Handle null/undefined
         if (!error) {

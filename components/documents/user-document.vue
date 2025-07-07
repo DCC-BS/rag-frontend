@@ -359,6 +359,15 @@ function getFileIcon(): string {
 function formatMimeType(mimeType: string): string {
     const parts = mimeType.split("/");
     if (parts.length > 1) {
+        if (parts[1].includes("word")) {
+            return "DOCX";
+        }
+        if (parts[1].includes("excel")) {
+            return "XLSX";
+        }
+        if (parts[1].includes("powerpoint")) {
+            return "PPTX";
+        }
         return parts[1].toUpperCase();
     }
     return mimeType.toUpperCase();

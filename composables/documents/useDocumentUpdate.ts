@@ -40,8 +40,6 @@ export const useDocumentUpdate = (): UseDocumentUpdateReturn => {
 
             return true;
         } catch (e: unknown) {
-            console.error("Error updating document:", e);
-
             const { extractErrorMessage } = useErrorExtractor();
             error.value = extractErrorMessage(e, "Failed to update document.");
             return false;

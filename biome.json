@@ -6,17 +6,7 @@
         "useIgnoreFile": true
     },
     "files": {
-        "ignoreUnknown": false,
-        "includes": [
-            "components/**",
-            "composables/**",
-            "i18n/**",
-            "models/**",
-            "pages/**",
-            "public/**",
-            "server/**",
-            "app.vue"
-        ]
+        "ignoreUnknown": false
     },
     "overrides": [
         {

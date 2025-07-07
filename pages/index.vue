@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col h-screen">
+    <div class="flex h-screen flex-col">
         <header>
             <NavigationMenu />
         </header>
@@ -10,4 +10,4 @@
             <Footer />
         </footer>
     </div>
-</template>
+</template>;

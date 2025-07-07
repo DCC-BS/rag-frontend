@@ -12,8 +12,7 @@ function parseLine(line: string): StreamChunk[] {
             result.push(jsonData);
         }
         return result;
-    } catch (error) {
-        console.error("Failed to parse JSON from stream line:", line, error);
+    } catch {
         return [];
     }
 }
@@ -34,11 +33,10 @@ function parseStreamLine(line: string): StreamChunk[] {
             }
 
             if (type === "documents") {
-                console.log("documents", data);
                 const documents = data.documents as Document[];
                 result.push({
                     type: "documents",
-                    documents: documents,
+                    documents,
                 });
             }
 
@@ -60,7 +58,7 @@ function parseStreamLine(line: string): StreamChunk[] {
                     }
                     result.push({
                         type: "status",
-                        message: message,
+                        message,
                     });
                 }
             }
@@ -73,8 +71,7 @@ function parseStreamLine(line: string): StreamChunk[] {
             }
         }
         return result;
-    } catch (error) {
-        console.error("Failed to parse JSON from stream line:", line, error);
+    } catch {
         return [];
     }
 }
@@ -91,15 +88,15 @@ export async function sendMessage(
         document_ids = null;
     }
     const body: ChatMessage = {
-        message: message,
-        thread_id: thread_id,
-        document_ids: document_ids,
+        message,
+        thread_id,
+        document_ids,
     };
 
     try {
         const response = (await $fetch("/api/backend/chat", {
             method: "POST",
-            body: body,
+            body,
             responseType: "stream",
         })) as ReadableStream<Uint8Array>;
 
@@ -119,21 +116,11 @@ export async function sendMessage(
         }
         onComplete();
     } catch (e: unknown) {
-        // Typed catch error
-        console.error("Error in sendMessage:", e);
-        let errorMessage = "Failed to send message or process stream.";
-        if (e instanceof Error) {
-            errorMessage = e.message;
-        } else if (typeof e === "string") {
-            errorMessage = e;
-        } else if (
-            typeof e === "object" &&
-            e !== null &&
-            "message" in e &&
-            typeof (e as { message: unknown }).message === "string"
-        ) {
-            errorMessage = (e as { message: string }).message;
-        }
+        const { extractErrorMessage } = useErrorExtractor();
+        const errorMessage = extractErrorMessage(
+            e,
+            "Failed to send message or process stream.",
+        );
         // Ensure error passed to onError is an Error instance
         onError(new Error(errorMessage));
     }

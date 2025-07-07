@@ -56,23 +56,8 @@ export const useDocuments = (): UseDocumentsReturn => {
 
             documents.value = response;
         } catch (e: unknown) {
-            console.error("Error fetching documents:", e);
-            let errorMessage = "Failed to fetch documents.";
-
-            if (e instanceof Error) {
-                errorMessage = e.message;
-            } else if (typeof e === "string") {
-                errorMessage = e;
-            } else if (
-                typeof e === "object" &&
-                e !== null &&
-                "message" in e &&
-                typeof (e as { message: unknown }).message === "string"
-            ) {
-                errorMessage = (e as { message: string }).message;
-            }
-
-            error.value = errorMessage;
+            const { extractErrorMessage } = useErrorExtractor();
+            error.value = extractErrorMessage(e, "Failed to fetch documents.");
         } finally {
             loading.value = false;
         }

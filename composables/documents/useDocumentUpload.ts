@@ -297,8 +297,6 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
                 failedFiles: allFailedFiles,
             };
         } catch (e: unknown) {
-            console.error("Error in uploadFiles:", e);
-
             const { extractErrorMessage } = useErrorExtractor();
             error.value = extractErrorMessage(e, "Failed to upload files.");
             progress.value.status = "error";

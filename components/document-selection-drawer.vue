@@ -5,15 +5,15 @@
         <UButton color="neutral" variant="outline" icon="i-heroicons-document-text" :label="buttonLabel" size="sm" />
 
         <template #content>
-            <div class="flex flex-col h-full min-w-96 max-w-md">
+            <div class="flex h-full min-w-96 max-w-md flex-col">
                 <!-- Header with selected count -->
-                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-3">
+                <div class="border-gray-200 border-b p-4 dark:border-gray-700">
+                    <div class="mb-3 flex items-center justify-between">
                         <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            <h2 class="font-semibold text-gray-900 text-lg dark:text-gray-100">
                                 {{ t('chat.selectDocuments') }}
                             </h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                            <p class="text-gray-600 text-sm dark:text-gray-400">
                                 {{ t('chat.selectDocumentsDescription', { max: 5 }) }}
                             </p>
                         </div>
@@ -21,7 +21,7 @@
 
                     <!-- Selection status -->
                     <div class="flex items-center justify-between">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <div class="text-gray-600 text-sm dark:text-gray-400">
                             {{ t('chat.documentsSelected', {
                                 count: selectedDocuments.length,
                                 max: 5
@@ -32,11 +32,11 @@
                     </div>
 
                     <!-- Selected documents chips -->
-                    <div v-if="selectedDocuments.length > 0" class="mt-3">
+                    <div class="mt-3" v-if="selectedDocuments.length > 0">
                         <div class="flex flex-wrap gap-2">
                             <UBadge v-for="doc in selectedDocuments" :key="doc.id" variant="soft" color="success"
                                 class="flex items-center gap-1">
-                                <span class="truncate max-w-24">{{ doc.file_name }}</span>
+                                <span class="max-w-24 truncate">{{ doc.file_name }}</span>
                                 <UButton icon="i-heroicons-x-mark" size="xs" color="neutral" variant="ghost"
                                     @click="deselectDocument(doc.id)" class="ml-1" />
                             </UBadge>
@@ -45,7 +45,7 @@
                 </div>
 
                 <!-- Search -->
-                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="border-gray-200 border-b p-4 dark:border-gray-700">
                     <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass"
                         :placeholder="t('documents.searchPlaceholder')" :loading="searchLoading"
                         @keyup.enter="performSearch" class="w-full">
@@ -59,21 +59,21 @@
                 <!-- Documents list -->
                 <div class="flex-1 overflow-y-auto p-4">
                     <!-- Loading state -->
-                    <div v-if="loading && !documents" class="flex items-center justify-center py-12">
+                    <div class="flex items-center justify-center py-12" v-if="loading && !documents">
                         <div class="text-center">
-                            <UIcon name="i-heroicons-arrow-path"
-                                class="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+                            <UIcon class="mx-auto mb-4 h-8 w-8 animate-spin text-blue-600"
+                                name="i-heroicons-arrow-path" />
                             <p class="text-gray-600 dark:text-gray-400">{{ t('documents.loading') }}</p>
                         </div>
                     </div>
 
                     <!-- No documents -->
-                    <div v-else-if="documents?.documents?.length === 0" class="text-center py-12">
-                        <UIcon name="i-heroicons-document-text" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    <div class="py-12 text-center" v-else-if="documents?.documents?.length === 0">
+                        <UIcon class="mx-auto mb-4 h-16 w-16 text-gray-400" name="i-heroicons-document-text" />
+                        <h3 class="mb-2 font-semibold text-gray-900 text-xl dark:text-white">
                             {{ searchQuery ? t('documents.noResultsTitle') : t('documents.noDocumentsTitle') }}
                         </h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        <p class="mb-6 text-gray-600 dark:text-gray-400">
                             {{ searchQuery
                                 ? t('documents.noResultsDescription', { query: searchQuery })
                                 : t('documents.noDocumentsDescription')
@@ -84,7 +84,7 @@
                     </div>
 
                     <!-- Documents grid -->
-                    <div v-else-if="documents && documents.documents?.length > 0" class="space-y-3">
+                    <div class="space-y-3" v-else-if="documents && documents.documents?.length > 0">
                         <DocumentSelectionItem v-for="document in documents.documents" :key="document.id"
                             :document="document" :is-selected="isDocumentSelected(document.id)"
                             :can-select="canSelectMore || isDocumentSelected(document.id)" @select="selectDocument"
@@ -93,7 +93,7 @@
                 </div>
 
                 <!-- Footer with action buttons -->
-                <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="border-gray-200 border-t p-4 dark:border-gray-700">
                     <div class="flex gap-2">
                         <UButton color="neutral" variant="outline" :label="t('common.close')" @click="isOpen = false"
                             class="flex-1" />

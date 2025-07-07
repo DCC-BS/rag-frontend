@@ -1,45 +1,3 @@
-<template>
-    <div class="group relative">
-        <div @click="handleDocumentClick"
-            class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-600 cursor-pointer">
-            <!-- Header -->
-            <div class="flex items-start justify-between mb-3">
-                <div class="flex items-center gap-2">
-                    <div class="p-1.5 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                        <UIcon name="i-heroicons-document-text" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide break-all">
-                        {{ getDocumentTitle() }}
-                    </div>
-                </div>
-            </div>
-            <!-- Content -->
-            <p class="text-xs text-gray-600 dark:text-gray-300 line-clamp-5 leading-relaxed mb-3">
-                {{ props.document.page_content || t('documents.noContent') }}
-            </p>
-
-            <!-- Footer -->
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <!-- Metadata -->
-                    <div class="text-xs text-gray-400 dark:text-gray-500">
-                        {{ formatMetadata(props.document.metadata) }}
-                    </div>
-                </div>
-
-                <!-- Page info if available -->
-                <div v-if="getPageInfo()" class="text-xs text-gray-400 dark:text-gray-500">
-                    {{ getPageInfo() }}
-                </div>
-            </div>
-        </div>
-
-        <!-- Document Viewer Modal -->
-        <DocumentViewer v-model:isOpen="isViewerOpen" :file="documentFile" :fileName="documentFileName"
-            :page="getDocumentPage()" />
-    </div>
-</template>
-
 <script lang="ts" setup>
 import type { Document, UserDocument } from "@/models/message";
 
@@ -109,7 +67,7 @@ const isPdfFile = (): boolean => {
 
 // Helper function to find UserDocument by filename
 const findUserDocument = async (
-    fileName: string,
+    fileName: string
 ): Promise<UserDocument | undefined> => {
     // Ensure documents are loaded
     if (!documents.value) {
@@ -117,7 +75,7 @@ const findUserDocument = async (
     }
 
     return documents.value?.documents?.find(
-        (doc: UserDocument) => doc.file_name === fileName,
+        (doc: UserDocument) => doc.file_name === fileName
     );
 };
 
@@ -137,7 +95,7 @@ async function handleDocumentClick(): Promise<void> {
                 title: t("documents.operationFailed"),
                 description: t("documents.failedTo", {
                     operation: t("documents.load"),
-                    fileName: fileName,
+                    fileName,
                 }),
                 icon: "i-heroicons-exclamation-triangle",
                 color: "warning",
@@ -152,7 +110,7 @@ async function handleDocumentClick(): Promise<void> {
             toast.add({
                 title: t("documents.failedToLoad"),
                 description: t("documents.unableToLoad", {
-                    fileName: fileName,
+                    fileName,
                 }),
                 icon: "i-heroicons-exclamation-triangle",
                 color: "error",
@@ -163,7 +121,7 @@ async function handleDocumentClick(): Promise<void> {
         // Fetch and show document in viewer
         const result = await fetchDocument(
             userDocument.id,
-            userDocument.file_name,
+            userDocument.file_name
         );
 
         if (result) {
@@ -177,7 +135,7 @@ async function handleDocumentClick(): Promise<void> {
                 description:
                     viewerError.value ||
                     t("documents.unableToLoad", {
-                        fileName: fileName,
+                        fileName,
                     }),
                 icon: "i-heroicons-exclamation-triangle",
                 color: "error",
@@ -205,7 +163,7 @@ const formatMetadata = (metadata: Record<string, unknown>): string => {
     }
     if (metadata?.created_at && typeof metadata.created_at === "string") {
         metadata_strings.push(
-            `${t("chat.created_at")}: ${new Date(metadata.created_at).toLocaleDateString()}`,
+            `${t("chat.created_at")}: ${new Date(metadata.created_at).toLocaleDateString()}`
         );
     }
 
@@ -213,4 +171,6 @@ const formatMetadata = (metadata: Record<string, unknown>): string => {
 };
 </script>
 
-<style></style>
+<template>
+
+</template>

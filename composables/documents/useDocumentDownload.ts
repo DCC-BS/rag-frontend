@@ -60,11 +60,7 @@ export const useDocumentDownload = (): UseDocumentDownloadReturn => {
                         "width=800,height=600,scrollbars=yes,resizable=yes",
                     );
 
-                    if (!newWindow) {
-                        // Fallback to download if popup blocked
-                        downloadBlob(blob, finalFileName);
-                        URL.revokeObjectURL(blobUrl);
-                    } else {
+                    if (newWindow) {
                         // Clean up blob URL after window loads
                         newWindow.onload = () => {
                             setTimeout(
@@ -72,12 +68,12 @@ export const useDocumentDownload = (): UseDocumentDownloadReturn => {
                                 1000,
                             );
                         };
+                    } else {
+                        // Fallback to download if popup blocked
+                        downloadBlob(blob, finalFileName);
+                        URL.revokeObjectURL(blobUrl);
                     }
-                } catch (e) {
-                    console.warn(
-                        "Failed to open popup, falling back to download:",
-                        e,
-                    );
+                } catch {
                     downloadBlob(blob, finalFileName);
                     URL.revokeObjectURL(blobUrl);
                 }
@@ -87,23 +83,11 @@ export const useDocumentDownload = (): UseDocumentDownloadReturn => {
                 URL.revokeObjectURL(blobUrl);
             }
         } catch (e: unknown) {
-            console.error("Error downloading document:", e);
-            let errorMessage = "Failed to download document.";
-
-            if (e instanceof Error) {
-                errorMessage = e.message;
-            } else if (typeof e === "string") {
-                errorMessage = e;
-            } else if (
-                typeof e === "object" &&
-                e !== null &&
-                "message" in e &&
-                typeof (e as { message: unknown }).message === "string"
-            ) {
-                errorMessage = (e as { message: string }).message;
-            }
-
-            error.value = errorMessage;
+            const { extractErrorMessage } = useErrorExtractor();
+            error.value = extractErrorMessage(
+                e,
+                "Failed to download document.",
+            );
         } finally {
             loading.value = false;
         }
@@ -122,8 +106,7 @@ export const useDocumentDownload = (): UseDocumentDownloadReturn => {
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-        } catch (e) {
-            console.error("Failed to download file:", e);
+        } catch {
             throw new Error("Failed to download document");
         }
     }

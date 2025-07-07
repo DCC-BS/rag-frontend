@@ -49,24 +49,9 @@ export const useDocumentViewer = (): UseDocumentViewerReturn => {
                 fileName: finalFileName,
             };
         } catch (e: unknown) {
-            console.error("Error fetching document:", e);
-            let errorMessage = "Failed to fetch document.";
-
-            if (e instanceof Error) {
-                errorMessage = e.message;
-            } else if (typeof e === "string") {
-                errorMessage = e;
-            } else if (
-                typeof e === "object" &&
-                e !== null &&
-                "message" in e &&
-                typeof (e as { message: unknown }).message === "string"
-            ) {
-                errorMessage = (e as { message: string }).message;
-            }
-
-            error.value = errorMessage;
-            return undefined;
+            const { extractErrorMessage } = useErrorExtractor();
+            error.value = extractErrorMessage(e, "Failed to fetch document.");
+            return;
         } finally {
             loading.value = false;
         }
