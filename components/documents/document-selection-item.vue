@@ -78,9 +78,9 @@ function handleClick(): void {
     }
 
     if (props.isSelected) {
-        emit('deselect', props.document.id);
+        emit("deselect", props.document.id);
     } else {
-        emit('select', props.document);
+        emit("select", props.document);
     }
 }
 
@@ -88,20 +88,20 @@ function handleClick(): void {
  * Get appropriate file icon based on MIME type
  */
 function getFileIcon(): string {
-    const mimeType = props.document.mime_type?.toLowerCase() || '';
+    const mimeType = props.document.mime_type?.toLowerCase() || "";
 
-    if (mimeType.includes('pdf')) {
-        return 'i-heroicons-document-text';
-    } else if (mimeType.includes('image')) {
-        return 'i-heroicons-photo';
-    } else if (mimeType.includes('text')) {
-        return 'i-heroicons-document';
-    } else if (mimeType.includes('video')) {
-        return 'i-heroicons-film';
-    } else if (mimeType.includes('audio')) {
-        return 'i-heroicons-musical-note';
+    if (mimeType.includes("pdf")) {
+        return "i-heroicons-document-text";
+    } else if (mimeType.includes("image")) {
+        return "i-heroicons-photo";
+    } else if (mimeType.includes("text")) {
+        return "i-heroicons-document";
+    } else if (mimeType.includes("video")) {
+        return "i-heroicons-film";
+    } else if (mimeType.includes("audio")) {
+        return "i-heroicons-musical-note";
     } else {
-        return 'i-heroicons-document';
+        return "i-heroicons-document";
     }
 }
 
@@ -109,7 +109,7 @@ function getFileIcon(): string {
  * Format file type from MIME type
  */
 function formatFileType(mimeType: string): string {
-    const type = mimeType.split('/')[1] || mimeType;
+    const type = mimeType.split("/")[1] || mimeType;
     return type.toUpperCase();
 }
 
@@ -120,12 +120,12 @@ function formatDate(dateString: string): string {
     try {
         const date = new Date(dateString);
         if (Number.isNaN(date.getTime())) {
-            return 'Invalid date';
+            return "Invalid date";
         }
         return date.toLocaleDateString();
     } catch (error) {
-        console.warn('Error parsing date:', dateString);
-        return 'Invalid date';
+        console.warn("Error parsing date:", dateString);
+        return "Invalid date";
     }
 }
 </script>

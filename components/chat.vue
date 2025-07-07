@@ -5,8 +5,8 @@ const { resetThreadId } = useThread();
 
 // Document selection functionality
 const documentSelectionDrawer = ref();
-const selectedDocumentIds = computed(() =>
-    documentSelectionDrawer.value?.selectedDocumentIds || []
+const selectedDocumentIds = computed(
+    () => documentSelectionDrawer.value?.selectedDocumentIds || [],
 );
 
 const {
@@ -69,7 +69,7 @@ function startNewChat(): void {
         try {
             documentSelectionDrawer.value?.clearSelection();
         } catch (error) {
-            console.warn('Error clearing document selection:', error);
+            console.warn("Error clearing document selection:", error);
         }
     } catch (error) {
         // Display error toast

@@ -1,6 +1,6 @@
 {
-  "extends": "./.nuxt/tsconfig.json",
-  "compilerOptions": {
-    "strictNullChecks": true
-  }
+    "extends": "./.nuxt/tsconfig.json",
+    "compilerOptions": {
+        "strictNullChecks": true
+    }
 }

@@ -157,10 +157,11 @@ const maxFileSize = 50 * 1024 * 1024; // 50MB per file
 
 // Check if any selected file is a zip file
 const isZipFile = computed(() => {
-    return selectedFiles.value.length === 1 && (
-        selectedFiles.value[0]?.name.toLowerCase().endsWith(".zip") ||
-        selectedFiles.value[0]?.type === "application/zip" ||
-        selectedFiles.value[0]?.type === "application/x-zip-compressed"
+    return (
+        selectedFiles.value.length === 1 &&
+        (selectedFiles.value[0]?.name.toLowerCase().endsWith(".zip") ||
+            selectedFiles.value[0]?.type === "application/zip" ||
+            selectedFiles.value[0]?.type === "application/x-zip-compressed")
     );
 });
 
@@ -185,7 +186,9 @@ function handleFileChange(event: Event): void {
     if (files.length > maxFiles) {
         toast.add({
             title: t("documents.tooManyFilesError"),
-            description: t("documents.tooManyFilesErrorDescription", { maxFiles }),
+            description: t("documents.tooManyFilesErrorDescription", {
+                maxFiles,
+            }),
             icon: "i-heroicons-exclamation-triangle",
             color: "error",
         });
@@ -200,18 +203,22 @@ function handleFileChange(event: Event): void {
     for (const file of files) {
         // Check file size
         if (file.size > maxFileSize) {
-            errors.push(t("documents.fileSizeErrorForFile", {
-                fileName: file.name,
-                maxSize: formatFileSize(maxFileSize)
-            }));
+            errors.push(
+                t("documents.fileSizeErrorForFile", {
+                    fileName: file.name,
+                    maxSize: formatFileSize(maxFileSize),
+                }),
+            );
             continue;
         }
 
         // Check file type
-        const allowedExtensions = ['.pdf', '.zip', '.docx', '.pptx', '.html'];
-        const fileExtension = '.' + file.name.toLowerCase().split('.').pop();
+        const allowedExtensions = [".pdf", ".zip", ".docx", ".pptx", ".html"];
+        const fileExtension = "." + file.name.toLowerCase().split(".").pop();
         if (!allowedExtensions.includes(fileExtension)) {
-            errors.push(t("documents.invalidFileTypeError", { fileName: file.name }));
+            errors.push(
+                t("documents.invalidFileTypeError", { fileName: file.name }),
+            );
             continue;
         }
 
@@ -222,7 +229,9 @@ function handleFileChange(event: Event): void {
     if (errors.length > 0) {
         toast.add({
             title: t("documents.fileValidationError"),
-            description: errors.slice(0, 3).join('\n') + (errors.length > 3 ? '\n...' : ''),
+            description:
+                errors.slice(0, 3).join("\n") +
+                (errors.length > 3 ? "\n..." : ""),
             icon: "i-heroicons-exclamation-triangle",
             color: "error",
         });
@@ -251,7 +260,10 @@ function clearFileSelection(): void {
  * Format total size of all selected files
  */
 function formatTotalFileSize(): string {
-    const totalSize = selectedFiles.value.reduce((sum, file) => sum + file.size, 0);
+    const totalSize = selectedFiles.value.reduce(
+        (sum, file) => sum + file.size,
+        0,
+    );
     return formatFileSize(totalSize);
 }
 
@@ -325,7 +337,9 @@ function getUploadButtonText(): string {
         return t("documents.uploadDocument");
     }
 
-    return t("documents.uploadMultipleFiles", { count: selectedFiles.value.length });
+    return t("documents.uploadMultipleFiles", {
+        count: selectedFiles.value.length,
+    });
 }
 
 /**
@@ -366,7 +380,9 @@ async function handleSubmit(): Promise<void> {
     try {
         // For single ZIP file, pass the file directly
         // For multiple files, pass the array
-        const filesToUpload = isZipFile.value ? selectedFiles.value[0] : selectedFiles.value;
+        const filesToUpload = isZipFile.value
+            ? selectedFiles.value[0]
+            : selectedFiles.value;
 
         const result = await uploadFiles(
             filesToUpload,
@@ -402,9 +418,12 @@ async function handleSubmit(): Promise<void> {
                 } else {
                     toast.add({
                         title: t("documents.multipleUploadSuccessTitle"),
-                        description: t("documents.multipleUploadSuccessDescription", {
-                            count: result.success,
-                        }),
+                        description: t(
+                            "documents.multipleUploadSuccessDescription",
+                            {
+                                count: result.success,
+                            },
+                        ),
                         icon: "i-heroicons-check-circle",
                         color: "success",
                     });
@@ -447,8 +466,8 @@ async function handleSubmit(): Promise<void> {
             const serverErrorMessage = uploadError.value;
             let description = serverErrorMessage
                 ? t("documents.uploadErrorWithDetails", {
-                    details: serverErrorMessage,
-                })
+                      details: serverErrorMessage,
+                  })
                 : t("documents.uploadErrorDescription");
 
             // For multiple files, add list of failed files
@@ -469,9 +488,10 @@ async function handleSubmit(): Promise<void> {
             }
 
             toast.add({
-                title: isZipFile.value || selectedFiles.value.length > 1
-                    ? t("documents.batchUploadFailedTitle")
-                    : t("documents.uploadFailed"),
+                title:
+                    isZipFile.value || selectedFiles.value.length > 1
+                        ? t("documents.batchUploadFailedTitle")
+                        : t("documents.uploadFailed"),
                 description,
                 icon: "i-heroicons-exclamation-triangle",
                 color: "error",

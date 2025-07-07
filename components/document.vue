@@ -67,7 +67,7 @@ const isPdfFile = (): boolean => {
 
 // Helper function to find UserDocument by filename
 const findUserDocument = async (
-    fileName: string
+    fileName: string,
 ): Promise<UserDocument | undefined> => {
     // Ensure documents are loaded
     if (!documents.value) {
@@ -75,7 +75,7 @@ const findUserDocument = async (
     }
 
     return documents.value?.documents?.find(
-        (doc: UserDocument) => doc.file_name === fileName
+        (doc: UserDocument) => doc.file_name === fileName,
     );
 };
 
@@ -121,7 +121,7 @@ async function handleDocumentClick(): Promise<void> {
         // Fetch and show document in viewer
         const result = await fetchDocument(
             userDocument.id,
-            userDocument.file_name
+            userDocument.file_name,
         );
 
         if (result) {
@@ -163,7 +163,7 @@ const formatMetadata = (metadata: Record<string, unknown>): string => {
     }
     if (metadata?.created_at && typeof metadata.created_at === "string") {
         metadata_strings.push(
-            `${t("chat.created_at")}: ${new Date(metadata.created_at).toLocaleDateString()}`
+            `${t("chat.created_at")}: ${new Date(metadata.created_at).toLocaleDateString()}`,
         );
     }
 

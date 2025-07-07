@@ -111,7 +111,8 @@ const { t } = useI18n();
 const toast = useToast();
 
 // Document management
-const { documents, loading, error, fetchDocuments, searchDocuments } = useDocuments();
+const { documents, loading, error, fetchDocuments, searchDocuments } =
+    useDocuments();
 const {
     selectedDocuments,
     selectedDocumentIds,
@@ -119,7 +120,7 @@ const {
     deselectDocument,
     clearSelection,
     isDocumentSelected,
-    canSelectMore
+    canSelectMore,
 } = useDocumentSelection();
 
 // Drawer state
@@ -135,11 +136,11 @@ const searchPerformed = ref<boolean>(false);
  */
 const buttonLabel = computed<string>(() => {
     if (selectedDocuments.value.length === 0) {
-        return t('chat.selectDocuments');
+        return t("chat.selectDocuments");
     }
-    return t('chat.documentsSelected', {
+    return t("chat.documentsSelected", {
         count: selectedDocuments.value.length,
-        max: 5
+        max: 5,
     });
 });
 
@@ -153,7 +154,7 @@ async function performSearch(): Promise<void> {
         try {
             await fetchDocuments();
         } catch (error) {
-            console.error('Error fetching documents:', error);
+            console.error("Error fetching documents:", error);
         }
         return;
     }
@@ -163,7 +164,7 @@ async function performSearch(): Promise<void> {
         await searchDocuments(query, 20);
         searchPerformed.value = true;
     } catch (error) {
-        console.error('Error searching documents:', error);
+        console.error("Error searching documents:", error);
     } finally {
         searchLoading.value = false;
     }
@@ -187,12 +188,12 @@ function handleChatWithSelected(): void {
     }
 
     toast.add({
-        title: t('chat.documentSelectionUpdated'),
-        description: t('chat.documentSelectionUpdatedDescription', {
-            count: selectedDocuments.value.length
+        title: t("chat.documentSelectionUpdated"),
+        description: t("chat.documentSelectionUpdatedDescription", {
+            count: selectedDocuments.value.length,
         }),
-        color: 'success',
-        icon: 'i-heroicons-check-circle',
+        color: "success",
+        icon: "i-heroicons-check-circle",
     });
 
     isOpen.value = false;

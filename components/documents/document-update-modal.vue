@@ -174,8 +174,8 @@ async function handleSubmit(): Promise<void> {
         const serverErrorMessage = updateError.value;
         const errorMessage = serverErrorMessage
             ? t("documents.updateFailedWithDetails", {
-                details: serverErrorMessage,
-            })
+                  details: serverErrorMessage,
+              })
             : t("documents.updateFailedDescription");
 
         // Show error toast

@@ -25,21 +25,21 @@ export const useDocumentSelection = (): UseDocumentSelectionReturn => {
      * Computed array of selected document IDs for API calls
      */
     const selectedDocumentIds = computed<number[]>(() =>
-        selectedDocuments.value.map((doc) => doc.id)
+        selectedDocuments.value.map((doc) => doc.id),
     );
 
     /**
      * Check if maximum selection has been reached
      */
     const maxSelectionReached = computed<boolean>(
-        () => selectedDocuments.value.length >= MAX_SELECTION
+        () => selectedDocuments.value.length >= MAX_SELECTION,
     );
 
     /**
      * Check if more documents can be selected
      */
     const canSelectMore = computed<boolean>(
-        () => selectedDocuments.value.length < MAX_SELECTION
+        () => selectedDocuments.value.length < MAX_SELECTION,
     );
 
     /**
@@ -68,7 +68,7 @@ export const useDocumentSelection = (): UseDocumentSelectionReturn => {
      */
     function deselectDocument(documentId: number): void {
         const index = selectedDocuments.value.findIndex(
-            (doc) => doc.id === documentId
+            (doc) => doc.id === documentId,
         );
         if (index > -1) {
             selectedDocuments.value.splice(index, 1);
