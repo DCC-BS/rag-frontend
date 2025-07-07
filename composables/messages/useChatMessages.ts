@@ -152,7 +152,7 @@ export const useChatMessages = (
             currentAiMessage.content = "Failed to send message.";
             currentAiMessage.statusParts = [
                 {
-                    text: "Error",
+                    text: "Error: Failed to process message",
                     highlight: "error",
                 },
             ];

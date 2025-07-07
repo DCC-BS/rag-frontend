@@ -137,7 +137,7 @@ async function handleDocumentClick(): Promise<void> {
                 title: t("documents.operationFailed"),
                 description: t("documents.failedTo", {
                     operation: t("documents.load"),
-                    fileName: fileName,
+                    fileName,
                 }),
                 icon: "i-heroicons-exclamation-triangle",
                 color: "warning",
@@ -208,9 +208,6 @@ const formatMetadata = (metadata: Record<string, unknown>): string => {
             `${t("chat.created_at")}: ${new Date(metadata.created_at).toLocaleDateString()}`,
         );
     }
-
     return metadata_strings.join(", ");
 };
 </script>
-
-<style></style>
