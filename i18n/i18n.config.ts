@@ -52,6 +52,18 @@ export default defineI18nConfig(() => ({
                 chatWithSelected: "Chat with Selected",
                 chatWithDocuments: "Chatting with {count} documents",
                 maxReached: "Max",
+                decision: {
+                    retrieve: "Retrieve",
+                    answer: "Answer",
+                    truthful: "Answer based on documents",
+                    notTruthful: "Answer not based on documents",
+                },
+                status: {
+                    generatingAnswer: "Generating answer...",
+                    gradingAnswer: "Is the answer grounded in the documents?",
+                    gradingHallucination: "Assessing hallucination...",
+                    routingQuestion: "Should we retrieve documents?",
+                },
             },
             common: {
                 // Basic actions
@@ -73,6 +85,8 @@ export default defineI18nConfig(() => ({
                 page: "page",
                 pageCount: "{count} page | {count} pages",
                 file: "File",
+                yes: "Yes",
+                no: "No",
 
                 // Common phrases
                 tryAgain: "Try Again",
@@ -328,10 +342,22 @@ export default defineI18nConfig(() => ({
                 chatWithSelected: "Mit Auswahl chatten",
                 chatWithDocuments: "Chatte mit {count} Dokumenten",
                 maxReached: "Max",
+                decision: {
+                    retrieve: "Dokumente suchen",
+                    answer: "antworten",
+                    truthful: "Antwort basiert auf Dokumenten",
+                    notTruthful: "Antwort basiert nicht auf Dokumenten",
+                },
+                status: {
+                    generatingAnswer: "Antwort generieren...",
+                    gradingAnswer: "Ist die Antwort faktenbasiert?",
+                    gradingHallucination: "Halluzination prüfen...",
+                    routingQuestion: "Müssen wir Dokumente suchen?",
+                },
             },
             common: {
                 // Basic actions
-                close: "Schließen",
+                close: "Schliessen",
                 cancel: "Abbrechen",
                 delete: "Löschen",
                 refresh: "Aktualisieren",
@@ -349,6 +375,8 @@ export default defineI18nConfig(() => ({
                 page: "Seite",
                 pageCount: "{count} Seite | {count} Seiten",
                 file: "Datei",
+                yes: "Ja",
+                no: "Nein",
 
                 // Common phrases
                 tryAgain: "Erneut versuchen",

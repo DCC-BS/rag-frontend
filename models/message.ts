@@ -16,41 +16,65 @@ export interface ChatMessage {
     document_ids: number[] | null;
 }
 
-export interface StreamChunk {
-    type: "status" | "documents" | "answer" | "interrupt" | "clear";
-    sender?:
-        | "RetrieveAction"
-        | "GenerateAnswerAction"
-        | "GradeAnswerAction"
-        | "GradeHallucinationAction"
-        | "RouteQuestionAction"
-        | null;
-    message?: string;
-    decision?: string | null;
-    documents?: Document[] | null;
-    answer?: string | null;
-    metadata?: Record<string, string> | null;
+// Base StreamChunk interface
+export interface BaseStreamChunk {
+    type: "status" | "documents" | "answer" | "decision";
+    sender:
+        | "retrieve_action"
+        | "should_retrieve"
+        | "answer_action"
+        | "is_truthful"
+        | "backoff"
+        | "status";
 }
+
+// Status message chunk
+export interface StatusStreamChunk extends BaseStreamChunk {
+    type: "status";
+    sender: "status";
+    metadata: {
+        translation_key: string;
+    };
+}
+
+// Documents message chunk
+export interface DocumentsStreamChunk extends BaseStreamChunk {
+    type: "documents";
+    sender: "retrieve_action";
+    metadata: {
+        documents: Document[];
+    };
+}
+
+// Answer message chunk
+export interface AnswerStreamChunk extends BaseStreamChunk {
+    type: "answer";
+    sender: "answer_action" | "backoff";
+    metadata: {
+        answer: string;
+    };
+}
+
+// Decision message chunk
+export interface DecisionStreamChunk extends BaseStreamChunk {
+    type: "decision";
+    sender: "should_retrieve" | "is_truthful";
+    metadata: {
+        decision: boolean;
+        reason: string;
+    };
+}
+
+// Union type for all stream chunks
+export type StreamChunk =
+    | StatusStreamChunk
+    | DocumentsStreamChunk
+    | AnswerStreamChunk
+    | DecisionStreamChunk;
 
 export interface Document {
     page_content: string;
     metadata: Record<string, unknown>;
-}
-
-export interface UserDocument {
-    id: number;
-    file_name: string;
-    document_path: string;
-    mime_type: string;
-    num_pages: number;
-    created_at: string;
-    access_roles: string[];
-    page?: number;
-}
-
-export interface DocumentsResponse {
-    documents: UserDocument[];
-    total_count: number;
 }
 
 export interface StatusPart {

@@ -1,5 +1,8 @@
-import type { ChatMessage, Document, StreamChunk } from "~/models/message";
+import type { ChatMessage, StreamChunk } from "~/models/message";
 
+/**
+ * Parse a line containing JSON data separated by null bytes
+ */
 function parseLine(line: string): StreamChunk[] {
     try {
         const jsons = line.split("\0");
@@ -8,7 +11,7 @@ function parseLine(line: string): StreamChunk[] {
             if (json.length === 0) {
                 continue;
             }
-            const jsonData = JSON.parse(`${json}`);
+            const jsonData = JSON.parse(json);
             result.push(jsonData);
         }
         return result;
@@ -17,12 +20,15 @@ function parseLine(line: string): StreamChunk[] {
     }
 }
 
+/**
+ * Parse a stream line and validate the chunks
+ */
 function parseStreamLine(line: string): StreamChunk[] {
     try {
         const jsonData = parseLine(line);
         const result: StreamChunk[] = [];
         for (const data of jsonData) {
-            const chunk = processDataChunk(data);
+            const chunk = validateStreamChunk(data);
             if (chunk) {
                 result.push(chunk);
             }
@@ -33,58 +39,70 @@ function parseStreamLine(line: string): StreamChunk[] {
     }
 }
 
-function processDataChunk(data: any): StreamChunk | null {
-    const type = data.type as string;
+/**
+ * Validate and type-guard a data chunk to ensure it matches StreamChunk structure
+ */
+function validateStreamChunk(data: any): StreamChunk | null {
+    if (!data || typeof data !== "object") {
+        return null;
+    }
 
+    const { type, sender, metadata } = data;
+
+    // Validate basic structure
+    if (!type || !sender || !metadata || typeof metadata !== "object") {
+        return null;
+    }
+
+    // Validate each type has the required metadata structure
     switch (type) {
-        case "interrupt":
-            return { type: "status", message: "Bla" };
+        case "status":
+            if (
+                sender === "status" &&
+                typeof metadata.translation_key === "string"
+            ) {
+                return data as StreamChunk;
+            }
+            break;
 
         case "documents":
-            return {
-                type: "documents",
-                documents: data.documents as Document[],
-            };
-
-        case "status":
-            return processStatusChunk(data);
+            if (
+                sender === "retrieve_action" &&
+                Array.isArray(metadata.documents)
+            ) {
+                return data as StreamChunk;
+            }
+            break;
 
         case "answer":
-            return { type: "answer", answer: data.answer };
+            if (
+                (sender === "answer_action" || sender === "backoff") &&
+                typeof metadata.answer === "string"
+            ) {
+                return data as StreamChunk;
+            }
+            break;
+
+        case "decision":
+            if (
+                (sender === "should_retrieve" || sender === "is_truthful") &&
+                typeof metadata.decision === "boolean" &&
+                typeof metadata.reason === "string"
+            ) {
+                return data as StreamChunk;
+            }
+            break;
 
         default:
             return null;
     }
+
+    return null;
 }
 
-function processStatusChunk(data: any): StreamChunk {
-    const sender = data.sender as string;
-
-    if (shouldClearText(sender, data.decision)) {
-        return {
-            type: "clear",
-            message: "Text cleared due to detector decision",
-        };
-    }
-
-    let message = data.message;
-    if (data.decision) {
-        message += `: ${data.decision}`;
-    }
-
-    return {
-        type: "status",
-        message,
-        sender: sender as StreamChunk["sender"],
-        decision: data.decision ?? undefined,
-    };
-}
-
-function shouldClearText(sender: string, decision: string): boolean {
-    const clearSenders = ["GradeAnswerAction", "GradeHallucinationAction"];
-    return clearSenders.includes(sender) && decision === "Ja";
-}
-
+/**
+ * Send a chat message and handle the streaming response
+ */
 export async function sendMessage(
     message: string,
     thread_id: string,
@@ -93,13 +111,14 @@ export async function sendMessage(
     onComplete: () => void,
     onError: (error: Error) => void,
 ): Promise<void> {
-    if (document_ids && document_ids.length === 0) {
-        document_ids = null;
-    }
+    // Normalize empty array to null
+    const normalizedDocumentIds =
+        document_ids && document_ids.length === 0 ? null : document_ids;
+
     const body: ChatMessage = {
         message,
         thread_id,
-        document_ids,
+        document_ids: normalizedDocumentIds,
     };
 
     try {
@@ -111,18 +130,21 @@ export async function sendMessage(
 
         const reader = response.getReader();
         const decoder = new TextDecoder();
+
         while (true) {
             const { done, value } = await reader.read();
             if (done) {
                 break;
             }
 
-            for (const chunk of parseStreamLine(
+            const chunks = parseStreamLine(
                 decoder.decode(value, { stream: true }),
-            )) {
+            );
+            for (const chunk of chunks) {
                 onChunk(chunk);
             }
         }
+
         onComplete();
     } catch (e: unknown) {
         const { extractErrorMessage } = useErrorExtractor();
@@ -130,7 +152,6 @@ export async function sendMessage(
             e,
             "Failed to send message or process stream.",
         );
-        // Ensure error passed to onError is an Error instance
         onError(new Error(errorMessage));
     }
 }

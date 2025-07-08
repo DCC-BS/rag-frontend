@@ -8,6 +8,7 @@ export const useChatMessages = (
 ) => {
     const { data: authData } = useAuth();
     const { thread_id } = useThread();
+    const { t } = useI18n();
 
     const messages = ref<Message[]>([]);
     const isLoading = ref(false);
@@ -66,7 +67,10 @@ export const useChatMessages = (
                 handleAnswerChunk(currentAiMessage, chunk);
                 break;
             case "documents":
-                currentAiMessage.documents = chunk.documents;
+                handleDocumentsChunk(currentAiMessage, chunk);
+                break;
+            case "decision":
+                handleDecisionChunk(currentAiMessage, chunk);
                 break;
         }
     }
@@ -75,56 +79,87 @@ export const useChatMessages = (
      * Handle status chunk updates
      */
     function handleStatusChunk(message: Message, chunk: StreamChunk): void {
-        const statusPart = createStatusPart(chunk);
+        if (chunk.type !== "status") return;
+
+        const statusPart: StatusPart = {
+            text: t(chunk.metadata.translation_key),
+            sender: chunk.sender,
+        };
 
         message.statusParts ??= [];
         message.statusParts.push(statusPart);
-
-        if (message.content === "") {
-            message.content = "…";
-        }
-    }
-
-    /**
-     * Create status part with highlighting
-     */
-    function createStatusPart(chunk: StreamChunk): StatusPart {
-        const statusPart: StatusPart = {
-            text: chunk.message ?? "",
-            sender: chunk.sender ?? undefined,
-        };
-
-        if (chunk.decision) {
-            const decisionText = ` (Decision: ${chunk.decision})`;
-            if (
-                chunk.sender === "GradeAnswerAction" &&
-                chunk.decision.startsWith("Nein")
-            ) {
-                statusPart.highlight = "error";
-            } else if (
-                chunk.sender === "GradeAnswerAction" &&
-                chunk.decision.startsWith("Ja")
-            ) {
-                statusPart.highlight = "success";
-            }
-
-            statusPart.text += decisionText;
-        }
-
-        return statusPart;
     }
 
     /**
      * Handle answer chunk updates
      */
     function handleAnswerChunk(message: Message, chunk: StreamChunk): void {
-        const answer = chunk.answer ?? "";
+        if (chunk.type !== "answer") return;
+
+        const answer = chunk.metadata.answer;
 
         if (message.content === "…" || message.content === "") {
             message.content = answer;
         } else {
             message.content += answer;
         }
+    }
+
+    /**
+     * Handle documents chunk updates
+     */
+    function handleDocumentsChunk(message: Message, chunk: StreamChunk): void {
+        if (chunk.type !== "documents") return;
+
+        message.documents = chunk.metadata.documents;
+    }
+
+    /**
+     * Handle decision chunk updates
+     */
+    function handleDecisionChunk(message: Message, chunk: StreamChunk): void {
+        if (chunk.type !== "decision") return;
+
+        const statusPart = createDecisionStatusPart(chunk);
+
+        message.statusParts ??= [];
+        message.statusParts.push(statusPart);
+    }
+
+    /**
+     * Create status part for decision chunks with appropriate highlighting
+     */
+    function createDecisionStatusPart(chunk: StreamChunk): StatusPart {
+        if (chunk.type !== "decision") {
+            throw new Error("Invalid chunk type for decision status part");
+        }
+
+        const { decision, reason } = chunk.metadata;
+
+        let text = "";
+        let highlight: "success" | "error" | "warning" | null | undefined =
+            null;
+        switch (chunk.sender) {
+            case "is_truthful":
+                text = decision
+                    ? t("common.yes")
+                    : `${t("common.no")} (${reason})`;
+                highlight = decision ? "success" : "error";
+                break;
+            case "should_retrieve":
+                text = decision
+                    ? t("chat.decision.retrieve")
+                    : t("chat.decision.answer");
+                break;
+        }
+
+        const statusPart: StatusPart = {
+            text,
+            sender: chunk.sender,
+            highlight,
+        };
+
+        return statusPart;
     }
 
     /**

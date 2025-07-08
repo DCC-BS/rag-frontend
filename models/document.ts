@@ -1,4 +1,3 @@
-// Document types for documents page
 export interface UserDocument {
     id: number;
     file_name: string;
@@ -9,7 +8,6 @@ export interface UserDocument {
     access_roles: string[];
     page?: number;
 }
-
 export interface DocumentsResponse {
     documents: UserDocument[];
     total_count: number;
