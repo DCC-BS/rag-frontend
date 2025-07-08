@@ -27,13 +27,10 @@ export const useDocumentViewer = (): UseDocumentViewerReturn => {
 
         try {
             // Fetch document as blob
-            const response = await $fetch.raw(
-                `/api/backend/documents/${documentId}`,
-                {
-                    method: "GET",
-                    responseType: "blob",
-                },
-            );
+            const response = await $fetch.raw(`/api/documents/${documentId}`, {
+                method: "GET",
+                responseType: "blob",
+            });
 
             if (!response._data) {
                 throw new Error("No document data received");

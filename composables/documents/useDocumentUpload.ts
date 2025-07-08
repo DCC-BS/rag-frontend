@@ -1,4 +1,5 @@
 import { unzip } from "fflate";
+import type { DocumentUploadResponse } from "~/models/document";
 
 interface UploadProgress {
     current: number;
@@ -171,19 +172,13 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
         formData.append("access_role", accessRole);
 
         try {
-            const response = await $fetch<{
-                message: string;
-                document_id?: string;
-                file_name?: string;
-                additional_info?: {
-                    success: number;
-                    failed: number;
-                    failed_files?: string[];
-                };
-            }>("/api/backend/documents", {
-                method: "POST",
-                body: formData,
-            });
+            const response = await $fetch<DocumentUploadResponse>(
+                "/api/documents",
+                {
+                    method: "POST",
+                    body: formData,
+                },
+            );
 
             // Extract success/failed counts from response
             const additionalInfo = response.additional_info;

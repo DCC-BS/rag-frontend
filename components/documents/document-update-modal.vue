@@ -40,12 +40,12 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ t('documents.accessRole') }}
                     </label>
-                    <USelect v-model="selectedAccessRole" :items="organizations"
-                        :placeholder="t('documents.selectAccessRole')" :disabled="isLoading" />
+                    <USelect v-model="selectedAccessRole" :items="roles" :placeholder="t('documents.selectAccessRole')"
+                        :disabled="isLoading" />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {{ (organizations.length || 0) > 0
-                            ? t('documents.availableOrganizations')
-                            : t('documents.noOrganizations') }}
+                        {{ (roles.length || 0) > 0
+                            ? t('documents.availableRoles')
+                            : t('documents.noRoles') }}
                     </p>
                 </div>
             </form>
@@ -95,7 +95,7 @@ const {
     selectedFile,
     selectedAccessRole,
     fileInputRef,
-    organizations,
+    roles,
     handleFileChange,
     formatFileSize,
     resetForm,
@@ -124,13 +124,13 @@ watch(
 
 // Watch for session data changes to ensure access role is set when available
 watch(
-    () => session.value?.user?.organizations,
-    (organizations) => {
+    () => session.value?.user?.roles,
+    (roles) => {
         // If session data loads and we have a current access role, make sure it's still valid
         if (
-            organizations &&
+            roles &&
             props.currentAccessRole &&
-            organizations.includes(props.currentAccessRole)
+            roles.includes(props.currentAccessRole)
         ) {
             selectedAccessRole.value = props.currentAccessRole;
         }
@@ -174,8 +174,8 @@ async function handleSubmit(): Promise<void> {
         const serverErrorMessage = updateError.value;
         const errorMessage = serverErrorMessage
             ? t("documents.updateFailedWithDetails", {
-                  details: serverErrorMessage,
-              })
+                details: serverErrorMessage,
+            })
             : t("documents.updateFailedDescription");
 
         // Show error toast

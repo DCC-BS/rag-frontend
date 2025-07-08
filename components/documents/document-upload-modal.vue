@@ -59,7 +59,8 @@
                         <p class="text-xs text-gray-500 dark:text-gray-400">
                             {{ t('documents.chooseMultipleFiles') }} ({{ t('documents.maxFileSize', {
                                 size:
-                            formatMaxFileSize }) }})
+                                    formatMaxFileSize
+                            }) }})
                             <span class="block mt-1">
                                 {{ t('documents.supportedFormats') }}: PDF, DOCX, PPTX, HTML, ZIP
                             </span>
@@ -75,12 +76,12 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ t('documents.accessRole') }}
                     </label>
-                    <USelect v-model="selectedAccessRole" :items="organizations"
-                        :placeholder="t('documents.selectAccessRole')" :disabled="isLoading" />
+                    <USelect v-model="selectedAccessRole" :items="roles" :placeholder="t('documents.selectAccessRole')"
+                        :disabled="isLoading" />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {{ (organizations.length || 0) > 0
-                            ? t('documents.availableOrganizations')
-                            : t('documents.noOrganizations') }}
+                        {{ (roles.length || 0) > 0
+                            ? t('documents.availableRoles')
+                            : t('documents.noRoles') }}
                     </p>
                 </div>
 
@@ -140,7 +141,7 @@ const {
     session,
     selectedAccessRole,
     fileInputRef,
-    organizations,
+    roles,
     formatMaxFileSize,
     refreshSession,
     formatFileSize,
@@ -466,8 +467,8 @@ async function handleSubmit(): Promise<void> {
             const serverErrorMessage = uploadError.value;
             let description = serverErrorMessage
                 ? t("documents.uploadErrorWithDetails", {
-                      details: serverErrorMessage,
-                  })
+                    details: serverErrorMessage,
+                })
                 : t("documents.uploadErrorDescription");
 
             // For multiple files, add list of failed files

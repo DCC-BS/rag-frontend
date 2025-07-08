@@ -129,7 +129,7 @@ export default defineI18nConfig(() => ({
                 // Search and Filter
                 searchPlaceholder: "Search documents...",
                 searchLimit: "Limit",
-                searchLimitPlaceholder: "Max results",
+                searchLimitPlaceholder: "results",
                 searchResultsCount:
                     "{count} document found | {count} documents found",
                 searchResultsCountWithLimit:
@@ -246,10 +246,8 @@ export default defineI18nConfig(() => ({
                     "You can select multiple files at once (max 10)",
                 accessRole: "Access Role *",
                 selectAccessRole: "Select an access role",
-                availableOrganizations:
-                    "Choose from your available organizations",
-                noOrganizations:
-                    "No organizations available for access control",
+                availableRoles: "Choose from your available roles",
+                noRoles: "No roles available for access control",
                 uploadDocument: "Upload Document",
                 uploadMultipleFiles: "Upload {count} Files",
                 supportedFormats: "Supported formats",
@@ -420,7 +418,7 @@ export default defineI18nConfig(() => ({
                 // Search and Filter
                 searchPlaceholder: "Dokumente durchsuchen...",
                 searchLimit: "Limit",
-                searchLimitPlaceholder: "Max. Ergebnisse",
+                searchLimitPlaceholder: "Ergebnisse",
                 searchResultsCount:
                     "{count} Dokument gefunden | {count} Dokumente gefunden",
                 searchResultsCountWithLimit:
@@ -546,9 +544,9 @@ export default defineI18nConfig(() => ({
                     "Sie können mehrere Dateien auf einmal auswählen (max. 10)",
                 accessRole: "Zugriffsrolle *",
                 selectAccessRole: "Wählen Sie eine Zugriffsrolle",
-                availableOrganizations:
+                availableRoles:
                     "Wählen Sie aus Ihren verfügbaren Organisationen",
-                noOrganizations:
+                noRoles:
                     "Keine Organisationen für die Zugriffskontrolle verfügbar",
                 uploadDocument: "Dokument hochladen",
                 uploadMultipleFiles: "{count} Dateien hochladen",

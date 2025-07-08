@@ -33,7 +33,7 @@ export const useDocumentUpdate = (): UseDocumentUpdateReturn => {
             formData.append("file", file);
             formData.append("access_role", accessRole);
 
-            await $fetch(`/api/backend/documents/${documentId}`, {
+            await $fetch(`/api/documents/${documentId}`, {
                 method: "PUT",
                 body: formData,
             });

@@ -23,7 +23,7 @@ export const useDocumentDeletion = (): UseDocumentDeletionReturn => {
         error.value = undefined;
 
         try {
-            await $fetch(`/api/backend/documents/${documentId}`, {
+            await $fetch(`/api/documents/${documentId}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -56,7 +56,7 @@ export const useDocumentDeletion = (): UseDocumentDeletionReturn => {
             // Process deletions in parallel for better performance
             const deletePromises = documentIds.map(async (id) => {
                 try {
-                    await $fetch(`/api/backend/documents/${id}`, {
+                    await $fetch(`/api/documents/${id}`, {
                         method: "DELETE",
                         headers: {
                             "Content-Type": "application/json",

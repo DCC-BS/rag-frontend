@@ -19,7 +19,7 @@ A modern Vue.js/Nuxt.js frontend for document management and RAG (Retrieval-Augm
 
 ### Document Management
 - View, download, and manage uploaded documents
-- Access control with organization-based permissions
+- Access control with role-based permissions
 - Document metadata and search functionality
 
 ## Bulk Upload Usage

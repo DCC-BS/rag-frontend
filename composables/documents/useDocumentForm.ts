@@ -23,9 +23,9 @@ export function useDocumentForm() {
     const toast = useToast();
     const { t } = useI18n();
 
-    // Computed property for organizations from session data
-    const organizations: ComputedRef<string[]> = computed(
-        () => session.value?.user?.organizations ?? [],
+    // Computed property for roles from session data
+    const roles: ComputedRef<string[]> = computed(
+        () => session.value?.user?.roles ?? [],
     );
 
     /**
@@ -99,7 +99,7 @@ export function useDocumentForm() {
         selectedFile,
         selectedAccessRole,
         fileInputRef,
-        organizations,
+        roles,
         maxFileSize,
         formatMaxFileSize,
         refreshSession: refresh,

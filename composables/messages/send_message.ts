@@ -122,7 +122,7 @@ export async function sendMessage(
     };
 
     try {
-        const response = (await $fetch("/api/backend/chat", {
+        const response = (await $fetch("/api/chat", {
             method: "POST",
             body,
             responseType: "stream",

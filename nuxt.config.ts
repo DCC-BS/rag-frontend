@@ -55,9 +55,8 @@ export default defineNuxtConfig({
             logger_bs: {
                 loglevel: process.env.LOG_LEVEL ?? "debug",
             },
-            apiBaseUrl: "/api/backend",
         },
-        fastapiUrl: process.env.FASTAPI_URL,
+        apiUrl: process.env.FASTAPI_URL,
         authSecret: process.env.NUXT_AUTH_SECRET,
         azureAdTenantId: process.env.AZURE_AD_TENANT_ID,
         azureAdClientId: process.env.AZURE_AD_CLIENT_ID,

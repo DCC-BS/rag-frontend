@@ -18,7 +18,7 @@ export const useChatMessages = (
      */
     function addUserMessage(content: string): void {
         const userAvatar =
-            authData.value?.user?.picture ?? "https://i.pravatar.cc/150?img=1";
+            authData.value?.user?.image ?? "https://i.pravatar.cc/150?img=1";
 
         messages.value.push({
             id: `user-${Date.now()}`,

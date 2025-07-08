@@ -1,4 +1,4 @@
-import type { DocumentsResponse } from "~/models/message";
+import type { DocumentsResponse } from "~/models/document";
 
 interface UseDocumentsReturn {
     documents: Ref<DocumentsResponse | undefined>;
@@ -44,8 +44,8 @@ export const useDocuments = (): UseDocumentsReturn => {
 
             const queryString = searchParams.toString();
             const url = queryString
-                ? `/api/backend/documents?${queryString}`
-                : "/api/backend/documents";
+                ? `api/documents?${queryString}`
+                : "api/documents";
 
             const response = await $fetch<DocumentsResponse>(url, {
                 method: "GET",
