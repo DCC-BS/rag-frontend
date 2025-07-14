@@ -27,6 +27,7 @@ export default defineNuxtConfig({
         colorMode: false,
     },
     modules: [
+        "@dcc-bs/authentication.bs.js",
         "@nuxt/ui",
         "@nuxtjs/i18n",
         "@nuxtjs/mdc",
