@@ -38,7 +38,7 @@ export default defineNuxtConfig({
     ],
     devtools: { enabled: true },
     css: ["~/assets/css/main.css"],
-    // Configure components to scan nested directories
+    // // Configure components to scan nested directories
     components: [
         {
             path: "~/components",
@@ -65,9 +65,6 @@ export default defineNuxtConfig({
     },
     // localization
     i18n: {
-        bundle: {
-            optimizeTranslationDirective: false,
-        },
         locales: [
             {
                 code: "en",
@@ -80,7 +77,6 @@ export default defineNuxtConfig({
         ],
         defaultLocale: "de",
         vueI18n: "./i18n.config.ts",
-        lazy: true,
         strategy: "prefix_except_default",
     },
     auth: {
@@ -97,10 +93,10 @@ export default defineNuxtConfig({
             enableOnWindowFocus: true,
         },
     },
-    typescript: {
-        shim: false, // Recommended for Nuxt 3
-    },
-    // Configure auto-imports for nested directories
+    // typescript: {
+    //     shim: false, // Recommended for Nuxt 3
+    // },
+    // // Configure auto-imports for nested directories
     imports: {
         dirs: [
             "composables",
