@@ -12,7 +12,7 @@
         <div :class="[
           'rounded-2xl px-4 py-3 shadow-md transition-all duration-200 hover:shadow-lg',
           props.message.isUser
-            ? 'bg-blue-500 dark:bg-blue-800 text-white rounded-br-md'
+            ? 'bg-blue-200 dark:bg-blue-600 text-white rounded-br-md'
             : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-bl-md'
         ]">
           <!-- Error state -->
@@ -22,7 +22,8 @@
           </div>
 
           <!-- Message text -->
-          <div class="prose prose-sm max-w-none" :class="props.message.isUser ? 'prose-invert' : 'dark:prose-invert'">
+          <div class="prose prose-sm max-w-none" :class="props.message.isUser ? 'prose-invert' : 'dark:prose-invert'"
+            @click="handleContentClick">
             <MDCRenderer v-if="body" :body="body.body" />
           </div>
 
@@ -30,9 +31,9 @@
           <div v-if="(props.message.statusParts && props.message.statusParts.length > 0) && !props.message.isUser"
             class="flex items-center gap-2 mt-3 pt-2 border-t border-gray-200 dark:border-gray-600">
             <div v-if="props.message.streaming" class="flex space-x-1">
-              <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
-              <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-              <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+              <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+              <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.2s" />
+              <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.4s" />
             </div>
 
             <!-- Render structured status parts -->
@@ -57,36 +58,20 @@
     </div>
 
     <!-- Documents/Sources Section -->
-    <div v-if="props.message.documents && props.message.documents.length > 0"
-      :class="['mt-4 w-full max-w-[85%]', { 'self-end': props.message.isUser }]">
-      <UAccordion :items="accordionItems" :default-open="false"
-        class="border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden shadow-sm">
-        <template #default="{ item, index, open }">
-          <UButton variant="ghost"
-            class="w-full flex justify-between items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <UIcon name="i-heroicons-document-text" class="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div class="text-left">
-                <span class="font-medium text-gray-900 dark:text-gray-100">{{ item.label }}</span>
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                  {{ t('chat.sourcesCount', { count: props.message.documents.length }) }}
-                </div>
-              </div>
-            </div>
-          </UButton>
-        </template>
+    <div v-if="props.message.documents && props.message.documents.length > 0">
+      <UAccordion :items="accordionItems" :default-open="false">
         <template #item="{ item }">
-          <div class="bg-gray-50 dark:bg-gray-800 p-4 border-t border-gray-200 dark:border-gray-600">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <Document v-for="(document, docIndex) in props.message.documents" :key="docIndex" :document="document"
-                :index="docIndex" />
-            </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Document v-for="(document, docIndex) in props.message.documents" :key="docIndex" :document="document"
+              :index="docIndex" />
           </div>
         </template>
       </UAccordion>
     </div>
+
+    <!-- Document Viewer Modal for Reference Clicks -->
+    <DocumentViewer v-model:isOpen="isDocumentViewerOpen" :file="selectedDocumentFile"
+      :fileName="selectedDocumentFileName" :page="selectedDocumentPage" />
   </div>
 </template>
 
@@ -101,11 +86,139 @@ const props = defineProps<{
 
 const body = ref<MDCParserResult | null>(null);
 
+// Document viewer state
+const isDocumentViewerOpen = ref<boolean>(false);
+const selectedDocumentFile = ref<Blob | undefined>(undefined);
+const selectedDocumentFileName = ref<string>("");
+const selectedDocumentPage = ref<number>(1);
+
+// Document viewer composable
+const {
+  fetchDocument,
+  loading: isLoadingDocument,
+  error: documentError,
+} = useDocumentViewer();
+
+// Toast for notifications
+const toast = useToast();
+
+/**
+ * Transform content to replace document references with clickable superscripts
+ */
+function transformContentWithReferences(content: string): string {
+  if (!props.message.documents || props.message.documents.length === 0) {
+    return content;
+  }
+
+  // Replace [number] patterns with clickable superscript links
+  return content.replace(/\[(\d+)\]/g, (match, number) => {
+    const docIndex = parseInt(number, 10) - 1; // Convert to 0-based index
+    if (docIndex >= 0 && props.message.documents && docIndex < props.message.documents.length) {
+      return `<sup><a href="#" class="document-reference text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold no-underline" data-doc-index="${docIndex}">${number}</a></sup>`;
+    }
+    return match; // Return original if no matching document
+  });
+}
+
 watch(() => props.message.content, async () => {
-  const result = await parseMarkdown(props.message.content)
-  body.value = result
+  const transformedContent = transformContentWithReferences(props.message.content);
+  const result = await parseMarkdown(transformedContent);
+  body.value = result;
 }, { immediate: true });
 
+/**
+ * Handle document reference click
+ */
+async function handleDocumentReferenceClick(docIndex: number): Promise<void> {
+  if (!props.message.documents || docIndex >= props.message.documents.length) {
+    return;
+  }
+
+  const document = props.message.documents[docIndex];
+  if (!document) {
+    return;
+  }
+
+  // Get document title from metadata
+  const fileName = (typeof document.metadata?.file_name === 'string' ? document.metadata.file_name : null) || `document_${docIndex + 1}`;
+
+  try {
+
+    // Only handle PDF files for viewer
+    const isPdf = document.metadata?.mime_type === "application/pdf";
+    if (!isPdf) {
+      toast.add({
+        title: t("documents.operationFailed"),
+        description: t("documents.failedTo", {
+          operation: "view",
+          fileName: fileName
+        }) + " Only PDF files are supported.",
+        icon: "i-heroicons-exclamation-triangle",
+        color: "warning",
+      });
+      return;
+    }
+
+    // Find the corresponding user document to get the ID
+    const { documents: userDocuments, fetchDocuments } = useDocuments();
+    if (!userDocuments.value) {
+      await fetchDocuments(); // Ensure documents are loaded
+    }
+
+    const userDocument = userDocuments.value?.documents?.find(
+      (doc: any) => doc.file_name === fileName
+    );
+
+    if (!userDocument) {
+      toast.add({
+        title: t("documents.failedToLoad"),
+        description: t("documents.unableToLoad", { fileName }),
+        icon: "i-heroicons-exclamation-triangle",
+        color: "error",
+      });
+      return;
+    }
+
+    // Fetch and display document
+    const result = await fetchDocument(userDocument.id, fileName);
+    if (result) {
+      selectedDocumentFile.value = result.blob;
+      selectedDocumentFileName.value = result.fileName;
+      selectedDocumentPage.value = (document.metadata?.page as number) || 1;
+      isDocumentViewerOpen.value = true;
+    } else if (documentError.value) {
+      toast.add({
+        title: t("documents.failedToLoad"),
+        description: documentError.value,
+        icon: "i-heroicons-exclamation-triangle",
+        color: "error",
+      });
+    }
+  } catch (error) {
+    console.error("Failed to open document:", error);
+    toast.add({
+      title: t("documents.operationFailed"),
+      description: t("documents.failedTo", {
+        operation: "open",
+        fileName: fileName
+      }),
+      icon: "i-heroicons-exclamation-triangle",
+      color: "error",
+    });
+  }
+}
+
+/**
+ * Handle clicks on document references in the rendered content
+ */
+function handleContentClick(event: Event): void {
+  const target = event.target as HTMLElement;
+  if (target.classList.contains('document-reference')) {
+    event.preventDefault();
+    const docIndex = parseInt(target.getAttribute('data-doc-index') || '0', 10);
+    handleDocumentReferenceClick(docIndex);
+  }
+}
 
 const { t } = useI18n();
 

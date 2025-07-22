@@ -174,6 +174,9 @@ export const useChatMessages = (
                 currentAiMessage.content === ""
             ) {
                 currentAiMessage.content = "No response or stream ended.";
+            } else {
+                // Replace German ß with Swiss German ss
+                currentAiMessage.content = currentAiMessage.content.replace(/ß/g, 'ss');
             }
         }
     }

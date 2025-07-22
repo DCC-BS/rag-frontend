@@ -24,7 +24,7 @@
         "@types/uuid": "^10.0.0",
         "better-sqlite3": "^12.2.0",
         "fflate": "^0.8.2",
-        "nuxt": "^4.0.0",
+        "nuxt": "^4.0.1",
         "uuid": "^11.1.0",
         "vue": "latest",
         "vue-pdf-embed": "^2.1.3",

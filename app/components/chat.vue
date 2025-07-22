@@ -109,8 +109,7 @@ const handleKeydown = createKeydownHandler(sendChat);
 </script>
 
 <template>
-    <div
-        class="flex flex-col h-full overscroll-contain bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div class="flex flex-col h-full overscroll-contain">
         <!-- Chat History -->
         <div class="flex-1 overflow-y-auto px-4 py-6" ref="chatHistoryRef">
             <div class="max-w-4xl mx-auto">
