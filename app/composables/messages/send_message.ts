@@ -147,11 +147,8 @@ export async function sendMessage(
 
         onComplete();
     } catch (e: unknown) {
-        const { extractErrorMessage } = useErrorExtractor();
-        const errorMessage = extractErrorMessage(
-            e,
-            "Failed to send message or process stream.",
-        );
+        const { extractErrorMessage } = useApiError();
+        const errorMessage = extractErrorMessage(e, "Failed to send message or process stream.");
         onError(new Error(errorMessage));
     }
 }

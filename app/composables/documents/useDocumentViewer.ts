@@ -46,8 +46,8 @@ export const useDocumentViewer = (): UseDocumentViewerReturn => {
                 fileName: finalFileName,
             };
         } catch (e: unknown) {
-            const { extractErrorMessage } = useErrorExtractor();
-            error.value = extractErrorMessage(e, "Failed to fetch document.");
+            const { handleApiError } = useApiError();
+            error.value = handleApiError(e, "Failed to fetch document.");
             return;
         } finally {
             loading.value = false;

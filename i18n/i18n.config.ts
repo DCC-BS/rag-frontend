@@ -92,6 +92,24 @@ export default defineI18nConfig(() => ({
                 tryAgain: "Try Again",
                 clearSelection: "Clear Selection",
             },
+            errors: {
+                // Generic error title
+                title: "Error",
+                
+                // HTTP status code errors
+                badRequest: "Invalid request. Please check your input.",
+                unauthorized: "You are not authorized to perform this action.",
+                forbidden: "Access denied. You don't have permission for this action.",
+                notFound: "The requested item could not be found.",
+                conflict: "This action conflicts with the current state.",
+                validationError: "Validation failed. Please check your input.",
+                tooManyRequests: "Too many requests. Please try again later.",
+                serverError: "Oops, something went wrong on our end.",
+                badGateway: "Service temporarily unavailable.",
+                serviceUnavailable: "Service is currently unavailable.",
+                gatewayTimeout: "Request timed out. Please try again.",
+                generic: "An unexpected error occurred.",
+            },
             navigation: {
                 title: "AI Chat Bot",
                 documents: "Documents",
@@ -379,6 +397,24 @@ export default defineI18nConfig(() => ({
                 // Common phrases
                 tryAgain: "Erneut versuchen",
                 clearSelection: "Auswahl löschen",
+            },
+            errors: {
+                // Generic error title
+                title: "Fehler",
+                
+                // HTTP status code errors
+                badRequest: "Ungültige Anfrage. Bitte überprüfen Sie Ihre Eingabe.",
+                unauthorized: "Sie sind nicht berechtigt, diese Aktion durchzuführen.",
+                forbidden: "Zugriff verweigert. Sie haben keine Berechtigung für diese Aktion.",
+                notFound: "Das angeforderte Element konnte nicht gefunden werden.",
+                conflict: "Diese Aktion steht im Konflikt mit dem aktuellen Zustand.",
+                validationError: "Validierung fehlgeschlagen. Bitte überprüfen Sie Ihre Eingabe.",
+                tooManyRequests: "Zu viele Anfragen. Bitte versuchen Sie es später erneut.",
+                serverError: "Ups, etwas ist auf unserer Seite schiefgelaufen.",
+                badGateway: "Service vorübergehend nicht verfügbar.",
+                serviceUnavailable: "Service ist derzeit nicht verfügbar.",
+                gatewayTimeout: "Anfrage-Zeitüberschreitung. Bitte versuchen Sie es erneut.",
+                generic: "Ein unerwarteter Fehler ist aufgetreten.",
             },
             navigation: {
                 title: "KI-Chatbot",

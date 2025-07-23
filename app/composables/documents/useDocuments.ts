@@ -56,8 +56,8 @@ export const useDocuments = (): UseDocumentsReturn => {
 
             documents.value = response;
         } catch (e: unknown) {
-            const { extractErrorMessage } = useErrorExtractor();
-            error.value = extractErrorMessage(e, "Failed to fetch documents.");
+            const { handleApiError } = useApiError();
+            error.value = handleApiError(e, "Failed to fetch documents.");
         } finally {
             loading.value = false;
         }

@@ -40,8 +40,8 @@ export const useDocumentUpdate = (): UseDocumentUpdateReturn => {
 
             return true;
         } catch (e: unknown) {
-            const { extractErrorMessage } = useErrorExtractor();
-            error.value = extractErrorMessage(e, "Failed to update document.");
+            const { handleApiError } = useApiError();
+            error.value = handleApiError(e, "Failed to update document.");
             return false;
         } finally {
             loading.value = false;

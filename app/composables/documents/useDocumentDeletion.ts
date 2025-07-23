@@ -32,8 +32,8 @@ export const useDocumentDeletion = (): UseDocumentDeletionReturn => {
 
             return true;
         } catch (e: unknown) {
-            const { extractErrorMessage } = useErrorExtractor();
-            error.value = extractErrorMessage(e, "Failed to delete document.");
+            const { handleApiError } = useApiError();
+            error.value = handleApiError(e, "Failed to delete document.");
             return false;
         } finally {
             loading.value = false;
@@ -85,8 +85,9 @@ export const useDocumentDeletion = (): UseDocumentDeletionReturn => {
             }
 
             return { success: successCount, failed: failedCount };
-        } catch {
-            error.value = "Failed to delete documents.";
+        } catch (e: unknown) {
+            const { handleApiError } = useApiError();
+            error.value = handleApiError(e, "Failed to delete documents.");
             return { success: 0, failed: documentIds.length };
         } finally {
             loading.value = false;

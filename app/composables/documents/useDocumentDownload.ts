@@ -80,11 +80,8 @@ export const useDocumentDownload = (): UseDocumentDownloadReturn => {
                 URL.revokeObjectURL(blobUrl);
             }
         } catch (e: unknown) {
-            const { extractErrorMessage } = useErrorExtractor();
-            error.value = extractErrorMessage(
-                e,
-                "Failed to download document.",
-            );
+            const { handleApiError } = useApiError();
+            error.value = handleApiError(e, "Failed to download document.");
         } finally {
             loading.value = false;
         }

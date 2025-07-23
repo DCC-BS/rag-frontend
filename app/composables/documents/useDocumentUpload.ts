@@ -189,11 +189,8 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
                 failedFiles: additionalInfo?.failed_files ?? [],
             };
         } catch (e: unknown) {
-            const { extractErrorMessage } = useErrorExtractor();
-            const errorMessage = extractErrorMessage(
-                e,
-                "Failed to upload files.",
-            );
+            const { extractErrorMessage } = useApiError();
+            const errorMessage = extractErrorMessage(e, "Failed to upload files.");
             throw new Error(errorMessage);
         }
     }
@@ -292,8 +289,8 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
                 failedFiles: allFailedFiles,
             };
         } catch (e: unknown) {
-            const { extractErrorMessage } = useErrorExtractor();
-            error.value = extractErrorMessage(e, "Failed to upload files.");
+            const { handleApiError } = useApiError();
+            error.value = handleApiError(e, "Failed to upload files.");
             progress.value.status = "error";
 
             return {

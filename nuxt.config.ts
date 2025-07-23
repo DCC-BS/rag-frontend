@@ -61,6 +61,7 @@ export default defineNuxtConfig({
         authSecret: process.env.NUXT_AUTH_SECRET,
         azureAdTenantId: process.env.AZURE_AD_TENANT_ID,
         azureAdClientId: process.env.AZURE_AD_CLIENT_ID,
+        azureAdAPIClientId: process.env.AZURE_AD_API_CLIENT_ID,
         azureAdClientSecret: process.env.AZURE_AD_CLIENT_SECRET,
     },
     // localization
