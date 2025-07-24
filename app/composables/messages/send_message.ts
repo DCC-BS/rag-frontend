@@ -42,54 +42,57 @@ function parseStreamLine(line: string): StreamChunk[] {
 /**
  * Validate and type-guard a data chunk to ensure it matches StreamChunk structure
  */
-function validateStreamChunk(data: any): StreamChunk | null {
+function validateStreamChunk(data: unknown): StreamChunk | null {
     if (!data || typeof data !== "object") {
         return null;
     }
 
-    const { type, sender, metadata } = data;
+    const obj = data as Record<string, unknown>;
+    const { type, sender, metadata } = obj;
 
     // Validate basic structure
     if (!type || !sender || !metadata || typeof metadata !== "object") {
         return null;
     }
 
+    const metaObj = metadata as Record<string, unknown>;
+
     // Validate each type has the required metadata structure
     switch (type) {
         case "status":
             if (
                 sender === "status" &&
-                typeof metadata.translation_key === "string"
+                typeof metaObj.translation_key === "string"
             ) {
-                return data as StreamChunk;
+                return obj as unknown as StreamChunk;
             }
             break;
 
         case "documents":
             if (
                 sender === "retrieve_action" &&
-                Array.isArray(metadata.documents)
+                Array.isArray(metaObj.documents)
             ) {
-                return data as StreamChunk;
+                return obj as unknown as StreamChunk;
             }
             break;
 
         case "answer":
             if (
                 (sender === "answer_action" || sender === "backoff") &&
-                typeof metadata.answer === "string"
+                typeof metaObj.answer === "string"
             ) {
-                return data as StreamChunk;
+                return obj as unknown as StreamChunk;
             }
             break;
 
         case "decision":
             if (
                 (sender === "should_retrieve" || sender === "is_truthful") &&
-                typeof metadata.decision === "boolean" &&
-                typeof metadata.reason === "string"
+                typeof metaObj.decision === "boolean" &&
+                typeof metaObj.reason === "string"
             ) {
-                return data as StreamChunk;
+                return obj as unknown as StreamChunk;
             }
             break;
 
@@ -148,7 +151,10 @@ export async function sendMessage(
         onComplete();
     } catch (e: unknown) {
         const { extractErrorMessage } = useApiError();
-        const errorMessage = extractErrorMessage(e, "Failed to send message or process stream.");
+        const errorMessage = extractErrorMessage(
+            e,
+            "Failed to send message or process stream.",
+        );
         onError(new Error(errorMessage));
     }
 }

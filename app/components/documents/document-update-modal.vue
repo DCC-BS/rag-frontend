@@ -73,6 +73,7 @@ interface Props {
     documentId?: number;
     documentName?: string;
     currentAccessRole?: string;
+    documentPath: string;
 }
 
 const props = defineProps<Props>();
@@ -124,13 +125,13 @@ watch(
 
 // Watch for session data changes to ensure access role is set when available
 watch(
-    () => session.value?.user?.roles,
-    (roles) => {
+    () => roles.value,
+    (rolesList) => {
         // If session data loads and we have a current access role, make sure it's still valid
         if (
-            roles &&
+            rolesList &&
             props.currentAccessRole &&
-            roles.includes(props.currentAccessRole)
+            rolesList.includes(props.currentAccessRole)
         ) {
             selectedAccessRole.value = props.currentAccessRole;
         }
@@ -151,6 +152,7 @@ async function handleSubmit(): Promise<void> {
             props.documentId,
             selectedFile.value,
             selectedAccessRole.value,
+            props.documentPath,
         );
 
         if (success) {

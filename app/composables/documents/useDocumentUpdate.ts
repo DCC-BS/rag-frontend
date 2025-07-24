@@ -3,6 +3,7 @@ interface UseDocumentUpdateReturn {
         documentId: number,
         file: File,
         accessRole: string,
+        documentPath: string,
     ) => Promise<boolean>;
     loading: Ref<boolean>;
     error: Ref<string | undefined>;
@@ -23,6 +24,7 @@ export const useDocumentUpdate = (): UseDocumentUpdateReturn => {
         documentId: number,
         file: File,
         accessRole: string,
+        documentPath: string,
     ): Promise<boolean> {
         loading.value = true;
         error.value = undefined;
@@ -32,6 +34,7 @@ export const useDocumentUpdate = (): UseDocumentUpdateReturn => {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("access_role", accessRole);
+            formData.append("document_path", documentPath);
 
             await $fetch(`/api/documents/${documentId}`, {
                 method: "PUT",

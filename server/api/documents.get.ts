@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     if (limit && typeof limit === "string") {
         queryParams += `&limit=${limit}`;
     }
-    
+
     const handler = defineBackendHandler({
         url: `/documents${queryParams}`,
         method: "GET",

@@ -89,6 +89,12 @@
                                 v-if="documents.documents && documents.documents.length > 0">
                                 <template v-if="selectedDocuments.length === 0">
                                     <UButtonGroup size="md">
+                                        <!-- View Mode Toggle -->
+                                        <UButton
+                                            :icon="viewMode === 'tree' ? 'i-heroicons-list-bullet' : 'i-heroicons-squares-2x2'"
+                                            :label="viewMode === 'tree' ? t('documents.gridView') : t('documents.treeView')"
+                                            color="neutral" variant="outline"
+                                            @click="viewMode = viewMode === 'tree' ? 'grid' : 'tree'" />
                                         <UButton
                                             :icon="allSelected ? 'i-heroicons-minus-circle' : 'i-heroicons-check-circle'"
                                             :label="allSelected ? t('documents.deselectAll') : t('documents.selectAll')"
@@ -141,9 +147,19 @@
                             </template>
                         </div>
 
-                        <!-- Documents Grid -->
+                        <!-- Documents Display -->
                         <div v-else-if="documents.documents && documents.documents.length > 0" class="space-y-6">
-                            <div class="documents-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <!-- Tree View -->
+                            <div v-if="viewMode === 'tree'">
+                                <DocumentTree :documents="documents.documents" :selectedDocuments="selectedDocuments"
+                                    :deletingDocumentIds="deletingDocumentIds"
+                                    :updatingDocumentIds="updatingDocumentIds"
+                                    @update:selected="handleDocumentSelection" @delete="showSingleDeleteConfirmation"
+                                    @update="showUpdateModal" />
+                            </div>
+
+                            <!-- Grid View -->
+                            <div v-else class="documents-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                                 <UserDocument v-for="document in documents.documents" :key="document.id"
                                     :document="document" :isSelected="selectedDocuments.includes(document.id)"
                                     :isDeletingDocument="deletingDocumentIds.includes(document.id)"
@@ -171,7 +187,7 @@
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                             {{ deleteModalData.title }}
                         </h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">
                             {{ deleteModalData.message }}
                         </p>
                     </div>
@@ -197,7 +213,7 @@
         <!-- Document Update Modal -->
         <DocumentUpdateModal v-model:isOpen="showUpdateModalState" :documentId="updateModalData.documentId"
             :documentName="updateModalData.documentName" :currentAccessRole="updateModalData.currentAccessRole"
-            @updated="handleDocumentUpdated" />
+            :documentPath="updateModalData.documentPath" @updated="handleDocumentUpdated" />
 
         <!-- Document Upload Modal -->
         <DocumentUploadModal v-model:isOpen="showUploadModal" @uploaded="handleDocumentUploaded" />
@@ -241,14 +257,19 @@ const updateModalData = ref<{
     documentId: number;
     documentName: string;
     currentAccessRole: string;
+    documentPath: string;
 }>({
     documentId: 0,
     documentName: "",
     currentAccessRole: "",
+    documentPath: "",
 });
 
 // Upload functionality
 const showUploadModal = ref<boolean>(false);
+
+// View mode functionality
+const viewMode = ref<"tree" | "grid">("tree");
 
 // Delete confirmation modal
 const showDeleteModal = ref<boolean>(false);
@@ -367,6 +388,7 @@ function showUpdateModal(documentId: number): void {
         documentId: documentId,
         documentName: document.file_name,
         currentAccessRole: document.access_roles[0] || "", // Use first access role as current
+        documentPath: document.document_path,
     };
     showUpdateModalState.value = true;
 }
@@ -466,6 +488,151 @@ function cancelDelete(): void {
 }
 
 /**
+ * Show success toast notification for document deletion
+ */
+function showDeleteSuccessToast(documentName: string): void {
+    toast.add({
+        title: t("documents.deleteSuccessTitle"),
+        description: t("documents.deleteSuccessDescription", {
+            fileName: documentName,
+        }),
+        icon: "i-heroicons-trash",
+        color: "success",
+    });
+}
+
+/**
+ * Show error toast notification for document deletion
+ */
+function showDeleteErrorToast(documentName: string): void {
+    toast.add({
+        title: t("documents.deleteErrorTitle"),
+        description:
+            deletionError.value ||
+            t("documents.deleteErrorDescription", {
+                fileName: documentName,
+            }),
+        icon: "i-heroicons-exclamation-triangle",
+        color: "error",
+    });
+}
+
+/**
+ * Show toast notifications for bulk deletion results
+ */
+function showBulkDeleteToast(result: {
+    success: number;
+    failed: number;
+}): void {
+    if (result.failed === 0) {
+        // Complete success
+        toast.add({
+            title: t("documents.deleteMultipleSuccessTitle"),
+            description: t("documents.deleteMultipleSuccessDescription", {
+                count: result.success,
+            }),
+            icon: "i-heroicons-trash",
+            color: "success",
+        });
+    } else if (result.success > 0) {
+        // Partial success
+        toast.add({
+            title: t("documents.deleteMultiplePartialSuccessTitle"),
+            description: t(
+                "documents.deleteMultiplePartialSuccessDescription",
+                {
+                    successCount: result.success,
+                    failedCount: result.failed,
+                },
+            ),
+            icon: "i-heroicons-exclamation-triangle",
+            color: "warning",
+        });
+    } else {
+        // Complete failure
+        toast.add({
+            title: t("documents.deleteMultipleErrorTitle"),
+            description:
+                deletionError.value ||
+                t("documents.deleteMultipleErrorDescription", {
+                    count: result.success + result.failed,
+                }),
+            icon: "i-heroicons-exclamation-triangle",
+            color: "error",
+        });
+    }
+}
+
+/**
+ * Refresh documents list after deletion
+ */
+async function refreshDocumentsAfterDelete(): Promise<void> {
+    if (searchPerformed.value && searchQuery.value.trim()) {
+        await performSearch();
+    } else {
+        await refreshDocuments();
+    }
+}
+
+/**
+ * Clean up selections after successful deletion
+ */
+function cleanupSelectionsAfterDelete(deletedDocumentIds: number[]): void {
+    selectedDocuments.value = selectedDocuments.value.filter(
+        (id) => !deletedDocumentIds.includes(id),
+    );
+}
+
+/**
+ * Clean up modal state after deletion operation
+ */
+function cleanupModalState(): void {
+    showDeleteModal.value = false;
+    deleteModalData.value = { title: "", message: "", documentIds: [] };
+}
+
+/**
+ * Handle single document deletion
+ */
+async function handleSingleDocumentDelete(
+    documentId: number,
+): Promise<boolean> {
+    const document = documents.value?.documents?.find(
+        (doc) => doc.id === documentId,
+    );
+    const documentName = document?.file_name || "Unknown document";
+
+    const success = await deleteDocument(documentId);
+
+    if (success) {
+        showDeleteSuccessToast(documentName);
+        await refreshDocumentsAfterDelete();
+        cleanupSelectionsAfterDelete([documentId]);
+        return true;
+    }
+    showDeleteErrorToast(documentName);
+    return false;
+}
+
+/**
+ * Handle bulk document deletion
+ */
+async function handleBulkDocumentDelete(
+    documentIds: number[],
+): Promise<boolean> {
+    const result = await deleteMultipleDocuments(documentIds);
+
+    if (result.success > 0) {
+        showBulkDeleteToast(result);
+        await refreshDocumentsAfterDelete();
+        cleanupSelectionsAfterDelete(documentIds);
+        return true;
+    }
+    showBulkDeleteToast(result);
+    return false;
+}
+
+/**
  * Confirm and execute delete operation
  */
 async function confirmDelete(): Promise<void> {
@@ -477,111 +644,20 @@ async function confirmDelete(): Promise<void> {
         deletingDocumentIds.value.push(...documentIds);
 
         if (documentIds.length === 1) {
-            // Single document deletion
-            const document = documents.value?.documents?.find(
-                (doc) => doc.id === documentIds[0],
-            );
-            const documentName = document?.file_name || "Unknown document";
-
-            const success = await deleteDocument(documentIds[0]);
-            if (success) {
-                // Show success toast
-                toast.add({
-                    title: t("documents.deleteSuccessTitle"),
-                    description: t("documents.deleteSuccessDescription", {
-                        fileName: documentName,
-                    }),
-                    icon: "i-heroicons-trash",
-                    color: "success",
-                });
-
-                // Refresh documents
-                if (searchPerformed.value && searchQuery.value.trim()) {
-                    await performSearch();
-                } else {
-                    await refreshDocuments();
-                }
-
-                // Remove from selection
-                selectedDocuments.value = selectedDocuments.value.filter(
-                    (id) => id !== documentIds[0],
-                );
-            } else {
-                // Show error toast
-                toast.add({
-                    title: t("documents.deleteErrorTitle"),
-                    description:
-                        deletionError.value ||
-                        t("documents.deleteErrorDescription", {
-                            fileName: documentName,
-                        }),
-                    icon: "i-heroicons-exclamation-triangle",
-                    color: "error",
-                });
+            const documentId = documentIds[0];
+            if (documentId !== undefined) {
+                await handleSingleDocumentDelete(documentId);
             }
         } else {
-            // Bulk deletion
-            const result = await deleteMultipleDocuments(documentIds);
-            if (result.success > 0) {
-                // Show success toast
-                if (result.failed === 0) {
-                    toast.add({
-                        title: t("documents.deleteMultipleSuccessTitle"),
-                        description: t(
-                            "documents.deleteMultipleSuccessDescription",
-                            { count: result.success },
-                        ),
-                        icon: "i-heroicons-trash",
-                        color: "success",
-                    });
-                } else {
-                    toast.add({
-                        title: t("documents.deleteMultiplePartialSuccessTitle"),
-                        description: t(
-                            "documents.deleteMultiplePartialSuccessDescription",
-                            {
-                                successCount: result.success,
-                                failedCount: result.failed,
-                            },
-                        ),
-                        icon: "i-heroicons-exclamation-triangle",
-                        color: "warning",
-                    });
-                }
-
-                // Refresh documents
-                if (searchPerformed.value && searchQuery.value.trim()) {
-                    await performSearch();
-                } else {
-                    await refreshDocuments();
-                }
-
-                // Clear selection for successfully deleted documents
-                selectedDocuments.value = selectedDocuments.value.filter(
-                    (id) => !documentIds.includes(id),
-                );
-            } else {
-                // Show error toast for complete failure
-                toast.add({
-                    title: t("documents.deleteMultipleErrorTitle"),
-                    description:
-                        deletionError.value ||
-                        t("documents.deleteMultipleErrorDescription", {
-                            count: documentIds.length,
-                        }),
-                    icon: "i-heroicons-exclamation-triangle",
-                    color: "error",
-                });
-            }
+            await handleBulkDocumentDelete(documentIds);
         }
     } finally {
         // Remove from deleting state
         deletingDocumentIds.value = deletingDocumentIds.value.filter(
             (id) => !documentIds.includes(id),
         );
-        // Close modal
-        showDeleteModal.value = false;
-        deleteModalData.value = { title: "", message: "", documentIds: [] };
+        // Clean up modal state
+        cleanupModalState();
     }
 }
 

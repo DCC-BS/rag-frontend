@@ -19,6 +19,7 @@ interface UseDocumentUploadReturn {
     uploadFiles: (
         files: File | File[],
         accessRole: string,
+        folderPath: string,
     ) => Promise<UploadResult>;
     loading: Ref<boolean>;
     error: Ref<string | undefined>;
@@ -162,6 +163,7 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
     async function uploadBatch(
         files: File[],
         accessRole: string,
+        folderPath: string,
     ): Promise<UploadResult> {
         const formData = new FormData();
 
@@ -170,6 +172,7 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
             formData.append("files", file);
         }
         formData.append("access_role", accessRole);
+        formData.append("folder_path", folderPath);
 
         try {
             const response = await $fetch<DocumentUploadResponse>(
@@ -190,7 +193,10 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
             };
         } catch (e: unknown) {
             const { extractErrorMessage } = useApiError();
-            const errorMessage = extractErrorMessage(e, "Failed to upload files.");
+            const errorMessage = extractErrorMessage(
+                e,
+                "Failed to upload files.",
+            );
             throw new Error(errorMessage);
         }
     }
@@ -201,6 +207,7 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
     async function uploadFiles(
         input: File | File[],
         accessRole: string,
+        folderPath: string,
     ): Promise<UploadResult> {
         loading.value = true;
         error.value = undefined;
@@ -247,10 +254,16 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
             // Upload each batch
             for (let i = 0; i < batches.length; i++) {
                 const batch = batches[i];
+                if (!batch) continue;
+
                 progress.value.status = `uploading batch ${i + 1} of ${batches.length}`;
 
                 try {
-                    const batchResult = await uploadBatch(batch, accessRole);
+                    const batchResult = await uploadBatch(
+                        batch,
+                        accessRole,
+                        folderPath,
+                    );
                     totalSuccess += batchResult.success;
                     totalFailed += batchResult.failed;
                     allFailedFiles.push(...batchResult.failedFiles);

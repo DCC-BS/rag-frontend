@@ -41,8 +41,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { Document } from "@/models/message";
 import type { UserDocument } from "@/models/document";
+import type { Document } from "@/models/message";
 
 const { t } = useI18n();
 const toast = useToast();

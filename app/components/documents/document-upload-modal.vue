@@ -71,6 +71,18 @@
                     </div>
                 </div>
 
+                <!-- Folder Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ t('documents.selectFolder') }}
+                    </label>
+                    <USelect v-model="selectedFolder" :options="folderOptions"
+                        :placeholder="t('documents.selectFolderPlaceholder')" :disabled="isLoading" />
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {{ t('documents.folderSelectionHint') }}
+                    </p>
+                </div>
+
                 <!-- Access Role Selection -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -156,6 +168,54 @@ const selectedFiles = ref<File[]>([]);
 const maxFiles = 10;
 const maxFileSize = 50 * 1024 * 1024; // 50MB per file
 
+// Folder selection state
+const selectedFolder = ref<string>("");
+
+// Get available documents for folder extraction
+const { documents: existingDocuments } = useDocuments();
+
+// Extract folder options from existing documents
+const folderOptions = computed(() => {
+    const folders = new Set<string>();
+
+    // Add root folder option
+    folders.add("");
+
+    if (existingDocuments.value?.documents && existingDocuments.value.documents.length > 0) {
+        for (const document of existingDocuments.value.documents) {
+            const fullPath = document.document_path || document.file_name;
+            let pathParts = fullPath.split("/").filter((part) => part.length > 0);
+
+            // Remove "s3:" prefix if it's the first part of the path
+            if (pathParts.length > 0 && pathParts[0] === "s3:") {
+                pathParts = pathParts.slice(1);
+            }
+
+            // Extract folder paths (exclude the filename)
+            if (pathParts.length > 1) {
+                for (let i = 1; i <= pathParts.length - 1; i++) {
+                    const folderPath = pathParts.slice(0, i).join("/");
+                    if (folderPath) {
+                        folders.add(folderPath);
+                    }
+                }
+            }
+        }
+    }
+
+    // Convert to sorted array of options
+    const sortedFolders = Array.from(folders).sort((a, b) => {
+        if (a === "") return -1; // Root folder first
+        if (b === "") return 1;
+        return a.localeCompare(b);
+    });
+
+    return sortedFolders.map((folder) => ({
+        label: folder === "" ? t('documents.rootFolder') : folder,
+        value: folder,
+    }));
+});
+
 // Check if any selected file is a zip file
 const isZipFile = computed(() => {
     return (
@@ -215,7 +275,7 @@ function handleFileChange(event: Event): void {
 
         // Check file type
         const allowedExtensions = [".pdf", ".zip", ".docx", ".pptx", ".html"];
-        const fileExtension = "." + file.name.toLowerCase().split(".").pop();
+        const fileExtension = `.${file.name.toLowerCase().split(".").pop()}`;
         if (!allowedExtensions.includes(fileExtension)) {
             errors.push(
                 t("documents.invalidFileTypeError", { fileName: file.name }),
@@ -274,6 +334,7 @@ function formatTotalFileSize(): string {
 function resetForm(): void {
     clearFileSelection();
     selectedAccessRole.value = "";
+    selectedFolder.value = "";
 }
 
 // Watch for modal open/close to reset form and ensure authentication
@@ -385,9 +446,14 @@ async function handleSubmit(): Promise<void> {
             ? selectedFiles.value[0]
             : selectedFiles.value;
 
+        if (!filesToUpload) {
+            throw new Error("No files selected for upload");
+        }
+
         const result = await uploadFiles(
             filesToUpload,
             selectedAccessRole.value,
+            selectedFolder.value || "",
         );
 
         if (result.success > 0) {
@@ -411,7 +477,7 @@ async function handleSubmit(): Promise<void> {
                     toast.add({
                         title: t("documents.uploadSuccessTitle"),
                         description: t("documents.uploadSuccessDescription", {
-                            fileName: selectedFiles.value[0].name,
+                            fileName: selectedFiles.value[0]?.name || "Unknown file",
                         }),
                         icon: "i-heroicons-check-circle",
                         color: "success",

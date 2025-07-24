@@ -92,17 +92,20 @@ function getFileIcon(): string {
 
     if (mimeType.includes("pdf")) {
         return "i-heroicons-document-text";
-    } else if (mimeType.includes("image")) {
+    }
+    if (mimeType.includes("image")) {
         return "i-heroicons-photo";
-    } else if (mimeType.includes("text")) {
-        return "i-heroicons-document";
-    } else if (mimeType.includes("video")) {
-        return "i-heroicons-film";
-    } else if (mimeType.includes("audio")) {
-        return "i-heroicons-musical-note";
-    } else {
+    }
+    if (mimeType.includes("text")) {
         return "i-heroicons-document";
     }
+    if (mimeType.includes("video")) {
+        return "i-heroicons-film";
+    }
+    if (mimeType.includes("audio")) {
+        return "i-heroicons-musical-note";
+    }
+    return "i-heroicons-document";
 }
 
 /**

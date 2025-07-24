@@ -175,16 +175,21 @@ export const useChatMessages = (
                 currentAiMessage.content === ""
             ) {
                 const error = {
-                    "message": "No response received from AI",
-                    "statusCode": 500,
-                    "statusMessage": "Failed to receive response from AI. Please try again."
-                }
+                    message: "No response received from AI",
+                    statusCode: 500,
+                    statusMessage:
+                        "Failed to receive response from AI. Please try again.",
+                };
                 // Show error toast for empty response
                 handleApiError(error);
-                currentAiMessage.content = "Failed to receive response. Please try again.";
+                currentAiMessage.content =
+                    "Failed to receive response. Please try again.";
             } else {
                 // Replace German ß with Swiss German ss
-                currentAiMessage.content = currentAiMessage.content.replace(/ß/g, 'ss');
+                currentAiMessage.content = currentAiMessage.content.replace(
+                    /ß/g,
+                    "ss",
+                );
             }
         }
     }

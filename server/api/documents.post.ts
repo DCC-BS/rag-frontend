@@ -1,4 +1,4 @@
-import { getHeader, readBody, readFormData } from "h3";
+import { getHeader, type H3Event, readBody, readFormData } from "h3";
 
 type Method = "POST" | "GET" | "PUT" | "DELETE";
 
@@ -33,11 +33,11 @@ async function formDataFetcher<T>(
 /**
  * Custom body provider that preserves FormData instead of parsing it
  */
-async function preserveFormData(event: any): Promise<FormData | unknown> {
+async function preserveFormData(event: H3Event): Promise<FormData | unknown> {
     const contentType = getHeader(event, "content-type");
 
     // If it's multipart/form-data, read as FormData
-    if (contentType && contentType.includes("multipart/form-data")) {
+    if (contentType?.includes("multipart/form-data")) {
         return await readFormData(event);
     }
 

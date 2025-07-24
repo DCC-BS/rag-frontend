@@ -95,11 +95,12 @@ export default defineI18nConfig(() => ({
             errors: {
                 // Generic error title
                 title: "Error",
-                
+
                 // HTTP status code errors
                 badRequest: "Invalid request. Please check your input.",
                 unauthorized: "You are not authorized to perform this action.",
-                forbidden: "Access denied. You don't have permission for this action.",
+                forbidden:
+                    "Access denied. You don't have permission for this action.",
                 notFound: "The requested item could not be found.",
                 conflict: "This action conflicts with the current state.",
                 validationError: "Validation failed. Please check your input.",
@@ -143,6 +144,8 @@ export default defineI18nConfig(() => ({
                 selectForDeletion: "Select for multi-delete",
                 updateDocument: "Update document",
                 deleteDocument: "Delete document",
+                treeView: "Tree View",
+                gridView: "Grid View",
 
                 // Search and Filter
                 searchPlaceholder: "Search documents...",
@@ -163,6 +166,9 @@ export default defineI18nConfig(() => ({
                 noResultsDescription:
                     'No documents found matching "{query}". Try adjusting your search terms.',
                 noContent: "No content available",
+                noDocumentsInTree: "No Documents in Tree",
+                noDocumentsInTreeDescription:
+                    "Your document tree is empty. Upload documents to see them organized by folder structure.",
 
                 // Properties
                 documentId: "Document ID",
@@ -401,19 +407,27 @@ export default defineI18nConfig(() => ({
             errors: {
                 // Generic error title
                 title: "Fehler",
-                
+
                 // HTTP status code errors
-                badRequest: "Ungültige Anfrage. Bitte überprüfen Sie Ihre Eingabe.",
-                unauthorized: "Sie sind nicht berechtigt, diese Aktion durchzuführen.",
-                forbidden: "Zugriff verweigert. Sie haben keine Berechtigung für diese Aktion.",
-                notFound: "Das angeforderte Element konnte nicht gefunden werden.",
-                conflict: "Diese Aktion steht im Konflikt mit dem aktuellen Zustand.",
-                validationError: "Validierung fehlgeschlagen. Bitte überprüfen Sie Ihre Eingabe.",
-                tooManyRequests: "Zu viele Anfragen. Bitte versuchen Sie es später erneut.",
+                badRequest:
+                    "Ungültige Anfrage. Bitte überprüfen Sie Ihre Eingabe.",
+                unauthorized:
+                    "Sie sind nicht berechtigt, diese Aktion durchzuführen.",
+                forbidden:
+                    "Zugriff verweigert. Sie haben keine Berechtigung für diese Aktion.",
+                notFound:
+                    "Das angeforderte Element konnte nicht gefunden werden.",
+                conflict:
+                    "Diese Aktion steht im Konflikt mit dem aktuellen Zustand.",
+                validationError:
+                    "Validierung fehlgeschlagen. Bitte überprüfen Sie Ihre Eingabe.",
+                tooManyRequests:
+                    "Zu viele Anfragen. Bitte versuchen Sie es später erneut.",
                 serverError: "Ups, etwas ist auf unserer Seite schiefgelaufen.",
                 badGateway: "Service vorübergehend nicht verfügbar.",
                 serviceUnavailable: "Service ist derzeit nicht verfügbar.",
-                gatewayTimeout: "Anfrage-Zeitüberschreitung. Bitte versuchen Sie es erneut.",
+                gatewayTimeout:
+                    "Anfrage-Zeitüberschreitung. Bitte versuchen Sie es erneut.",
                 generic: "Ein unerwarteter Fehler ist aufgetreten.",
             },
             navigation: {
@@ -427,7 +441,7 @@ export default defineI18nConfig(() => ({
                 title: "Dokumente",
                 description:
                     "Verwalten und betrachten Sie Ihre hinterlegten Dokumente",
-                
+
                 // States
                 loading: "Dokumente werden geladen...",
                 downloading: "Wird heruntergeladen...",
@@ -450,6 +464,8 @@ export default defineI18nConfig(() => ({
                 selectForDeletion: "Für Mehrfachlöschung auswählen",
                 updateDocument: "Dokument aktualisieren",
                 deleteDocument: "Dokument löschen",
+                treeView: "Baumansicht",
+                gridView: "Rasteransicht",
 
                 // Search and Filter
                 searchPlaceholder: "Dokumente durchsuchen...",
@@ -470,6 +486,9 @@ export default defineI18nConfig(() => ({
                 noResultsDescription:
                     'Keine Dokumente gefunden, die mit "{query}" übereinstimmen. Versuchen Sie, Ihre Suchbegriffe anzupassen.',
                 noContent: "Kein Inhalt verfügbar",
+                noDocumentsInTree: "Keine Dokumente im Baum",
+                noDocumentsInTreeDescription:
+                    "Ihr Dokumentenbaum ist leer. Laden Sie Dokumente hoch, um sie nach Ordnerstruktur organisiert zu sehen.",
 
                 // Properties
                 documentId: "Dokumenten-ID",
