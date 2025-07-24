@@ -34,7 +34,6 @@ export default defineNuxtConfig({
         "@dcc-bs/common-ui.bs.js",
         "@dcc-bs/logger.bs.js",
         "@dcc-bs/feedback-control.bs.js",
-        "@sidebase/nuxt-auth",
     ],
     devtools: { enabled: true },
     css: ["~/assets/css/main.css"],
@@ -58,11 +57,6 @@ export default defineNuxtConfig({
             },
         },
         apiUrl: process.env.FASTAPI_URL,
-        authSecret: process.env.NUXT_AUTH_SECRET,
-        azureAdTenantId: process.env.AZURE_AD_TENANT_ID,
-        azureAdClientId: process.env.AZURE_AD_CLIENT_ID,
-        azureAdAPIClientId: process.env.AZURE_AD_API_CLIENT_ID,
-        azureAdClientSecret: process.env.AZURE_AD_CLIENT_SECRET,
     },
     // localization
     i18n: {
@@ -80,24 +74,6 @@ export default defineNuxtConfig({
         vueI18n: "./i18n.config.ts",
         strategy: "prefix_except_default",
     },
-    auth: {
-        isEnabled: true,
-        globalAppMiddleware: true,
-        originEnvKey: "AUTH_ORIGIN",
-        provider: {
-            type: "authjs",
-            defaultProvider: "azureAd",
-            addDefaultCallbackUrl: true,
-        },
-        sessionRefresh: {
-            enablePeriodically: 3000,
-            enableOnWindowFocus: true,
-        },
-    },
-    // typescript: {
-    //     shim: false, // Recommended for Nuxt 3
-    // },
-    // // Configure auto-imports for nested directories
     imports: {
         dirs: [
             "composables",
