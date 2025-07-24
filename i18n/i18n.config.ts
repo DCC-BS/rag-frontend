@@ -427,7 +427,7 @@ export default defineI18nConfig(() => ({
                 title: "Dokumente",
                 description:
                     "Verwalten und betrachten Sie Ihre hinterlegten Dokumente",
-
+                
                 // States
                 loading: "Dokumente werden geladen...",
                 downloading: "Wird heruntergeladen...",

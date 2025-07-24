@@ -159,11 +159,9 @@ export const useApiError = (): UseApiErrorReturn => {
     function handleApiError(error: unknown, fallbackMessage = "An unexpected error occurred"): string {
         let statusCode = 500; // Default to server error
         let errorMessage = fallbackMessage;
-
         // Extract status code and message from API error
         if (typeof error === 'object' && error !== null) {
             const apiError = error as ApiError;
-            
             if (apiError.statusCode) {
                 statusCode = apiError.statusCode;
             }

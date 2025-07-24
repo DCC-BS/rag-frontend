@@ -44,29 +44,18 @@
 
                     <!-- Search and Actions -->
                     <div v-else-if="documents" class="space-y-6">
-                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                             <!-- Search and Limit Controls -->
-                            <div class="flex items-center gap-3 flex-shrink-0">
+                            <div class="flex items-center">
                                 <UButtonGroup size="md" orientation="horizontal">
                                     <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" size="md"
                                         variant="outline" :placeholder="t('documents.searchPlaceholder')"
-                                        :loading="searchLoading" @keyup.enter="performSearch" class="w-full sm:w-80">
+                                        :loading="searchLoading" @keyup.enter="performSearch">
                                         <template v-if="searchQuery?.length" #trailing>
                                             <UButton color="neutral" variant="link" size="sm" icon="i-lucide-circle-x"
                                                 aria-label="Clear input" @click="searchQuery = ''" />
                                         </template>
                                     </UInput>
-
-                                    <UInput v-model="searchLimit" type="number" size="md" variant="outline" min="1"
-                                        max="20" @keyup.enter="performSearch" placeholder="" :ui="{ base: 'peer' }"
-                                        class="w-20" id="search-limit-input">
-                                        <label for="search-limit-input"
-                                            class="pointer-events-none absolute left-0 -top-2.5 text-highlighted text-xs font-medium px-1.5 transition-all peer-focus:-top-2.5 peer-focus:text-highlighted peer-focus:text-xs peer-focus:font-medium peer-placeholder-shown:text-sm peer-placeholder-shown:text-dimmed peer-placeholder-shown:top-1.5 peer-placeholder-shown:font-normal">
-                                            <span class="inline-flex bg-default px-1">{{
-                                                t('documents.searchLimitPlaceholder') }}</span>
-                                        </label>
-                                    </UInput>
-
                                     <UButton :label="t('common.search')" icon="i-heroicons-magnifying-glass"
                                         color="primary" variant="solid" size="md" @click="performSearch"
                                         :loading="searchLoading" />
@@ -110,8 +99,6 @@
                                 </template>
                                 <template v-else>
                                     <UButtonGroup size="md">
-                                        <UButton :label="t('documents.selected', { count: selectedDocuments.length })"
-                                            color="neutral" disabled />
                                         <UButton :label="t('common.clearSelection')" color="neutral" variant="outline"
                                             @click="clearSelection" />
                                         <UButton

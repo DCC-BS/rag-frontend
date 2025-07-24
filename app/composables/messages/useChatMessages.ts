@@ -9,6 +9,7 @@ export const useChatMessages = (
     const { data: authData } = useAuth();
     const { thread_id } = useThread();
     const { t } = useI18n();
+    const { handleApiError } = useApiError();
 
     const messages = ref<Message[]>([]);
     const isLoading = ref(false);
@@ -173,7 +174,14 @@ export const useChatMessages = (
                 currentAiMessage.content === "…" ||
                 currentAiMessage.content === ""
             ) {
-                currentAiMessage.content = "No response or stream ended.";
+                const error = {
+                    "message": "No response received from AI",
+                    "statusCode": 500,
+                    "statusMessage": "Failed to receive response from AI. Please try again."
+                }
+                // Show error toast for empty response
+                handleApiError(error);
+                currentAiMessage.content = "Failed to receive response. Please try again.";
             } else {
                 // Replace German ß with Swiss German ss
                 currentAiMessage.content = currentAiMessage.content.replace(/ß/g, 'ss');
