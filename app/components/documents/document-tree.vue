@@ -178,7 +178,11 @@ const treeItems = computed<TreeItem[]>(() => {
 
             if (!folderNode) {
                 const isRootLevel = currentLevel === tree;
-                folderNode = getOrCreateFolderNode(currentPath, folderName, isRootLevel);
+                folderNode = getOrCreateFolderNode(
+                    currentPath,
+                    folderName,
+                    isRootLevel,
+                );
                 currentLevel.push(folderNode);
             }
 

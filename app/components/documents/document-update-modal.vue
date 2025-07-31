@@ -25,14 +25,10 @@
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <!-- File Selection -->
                 <div>
-                    <label for="file-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        {{ t('documents.selectNewFile') }}
-                    </label>
-                    <UInput id="file-input" ref="fileInputRef" type="file" accept=".pdf,.docx,.pptx,.html"
-                        @change="handleFileChange" :disabled="isLoading" class="w-full" />
-                    <p v-if="selectedFile" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        {{ t('documents.fileSize') }}: {{ formatFileSize(selectedFile.size) }}
-                    </p>
+                    <UFileUpload v-model="selectedFile" ref="fileUploadRef" accept=".pdf,.docx,.pptx,.html"
+                        :label="t('documents.selectNewFile')" :description="getUpdateFileDescription()"
+                        :disabled="isLoading" icon="i-heroicons-arrow-up-tray" class="w-full min-h-32"
+                        :multiple="false" />
                 </div>
 
                 <!-- Access Role Selection -->
@@ -95,12 +91,20 @@ const {
     session,
     selectedFile,
     selectedAccessRole,
-    fileInputRef,
     roles,
-    handleFileChange,
     formatFileSize,
     resetForm,
 } = useDocumentForm();
+
+// File upload component ref
+const fileUploadRef = ref();
+
+/**
+ * Get description for the file upload component
+ */
+function getUpdateFileDescription(): string {
+    return `${t("documents.selectNewFileDescription")} (PDF, DOCX, PPTX, HTML)`;
+}
 
 // Session data is automatically managed by nuxt-auth
 
@@ -176,8 +180,8 @@ async function handleSubmit(): Promise<void> {
         const serverErrorMessage = updateError.value;
         const errorMessage = serverErrorMessage
             ? t("documents.updateFailedWithDetails", {
-                details: serverErrorMessage,
-            })
+                  details: serverErrorMessage,
+              })
             : t("documents.updateFailedDescription");
 
         // Show error toast

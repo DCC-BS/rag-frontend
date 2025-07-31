@@ -26,8 +26,11 @@
                     </label>
                     <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange"
                         accept=".pdf,.zip,.docx,.pptx,.html" multiple :disabled="isLoading" class="w-full" />
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {{ getFileUploadDescription() }}
+                    </p>
 
-                    <!-- Multiple files selected -->
+                    <!-- Additional file info for selected files -->
                     <div v-if="selectedFiles.length > 0" class="mt-3 space-y-2">
                         <div class="flex items-center justify-between text-sm">
                             <span class="font-medium text-gray-700 dark:text-gray-300">
@@ -52,22 +55,6 @@
                                 </span>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- No files selected -->
-                    <div v-else class="mt-1">
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                            {{ t('documents.chooseMultipleFiles') }} ({{ t('documents.maxFileSize', {
-                                size:
-                                    formatMaxFileSize
-                            }) }})
-                            <span class="block mt-1">
-                                {{ t('documents.supportedFormats') }}: PDF, DOCX, PPTX, HTML, ZIP
-                            </span>
-                            <span class="block mt-1 text-blue-600 dark:text-blue-400">
-                                {{ t('documents.multipleFileHint') }}
-                            </span>
-                        </p>
                     </div>
                 </div>
 
@@ -181,10 +168,15 @@ const folderOptions = computed(() => {
     // Add root folder option
     folders.add("");
 
-    if (existingDocuments.value?.documents && existingDocuments.value.documents.length > 0) {
+    if (
+        existingDocuments.value?.documents &&
+        existingDocuments.value.documents.length > 0
+    ) {
         for (const document of existingDocuments.value.documents) {
             const fullPath = document.document_path || document.file_name;
-            let pathParts = fullPath.split("/").filter((part) => part.length > 0);
+            let pathParts = fullPath
+                .split("/")
+                .filter((part) => part.length > 0);
 
             // Remove "s3:" prefix if it's the first part of the path
             if (pathParts.length > 0 && pathParts[0] === "s3:") {
@@ -211,7 +203,7 @@ const folderOptions = computed(() => {
     });
 
     return sortedFolders.map((folder) => ({
-        label: folder === "" ? t('documents.rootFolder') : folder,
+        label: folder === "" ? t("documents.rootFolder") : folder,
         value: folder,
     }));
 });
@@ -232,15 +224,32 @@ const hasValidFiles = computed(() => {
 });
 
 /**
- * Handle file input change event with support for multiple files
+ * Handle file input change event
  */
 function handleFileChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const files = Array.from(target.files || []);
+    const validFiles = validateSelectedFiles(files);
+    selectedFiles.value = validFiles;
+}
 
+/**
+ * Get the description text for the file upload component
+ */
+function getFileUploadDescription(): string {
+    const maxSizeText = t("documents.maxFileSize", { size: formatMaxFileSize });
+    const supportedFormats = `${t("documents.supportedFormats")}: PDF, DOCX, PPTX, HTML, ZIP`;
+    const multipleHint = t("documents.multipleFileHint");
+
+    return `${t("documents.chooseMultipleFiles")} (${maxSizeText}). ${supportedFormats}. ${multipleHint}`;
+}
+
+/**
+ * Validate files when they are selected through the FileUpload component
+ */
+function validateSelectedFiles(files: File[]): File[] {
     if (files.length === 0) {
-        selectedFiles.value = [];
-        return;
+        return [];
     }
 
     // Validate file count
@@ -253,8 +262,7 @@ function handleFileChange(event: Event): void {
             icon: "i-heroicons-exclamation-triangle",
             color: "error",
         });
-        clearFileSelection();
-        return;
+        return [];
     }
 
     // Validate individual file sizes and types
@@ -298,13 +306,7 @@ function handleFileChange(event: Event): void {
         });
     }
 
-    // If no valid files, clear selection
-    if (validFiles.length === 0) {
-        clearFileSelection();
-        return;
-    }
-
-    selectedFiles.value = validFiles;
+    return validFiles;
 }
 
 /**
@@ -312,9 +314,6 @@ function handleFileChange(event: Event): void {
  */
 function clearFileSelection(): void {
     selectedFiles.value = [];
-    if (fileInputRef.value?.input) {
-        fileInputRef.value.input.value = "";
-    }
 }
 
 /**
@@ -336,6 +335,26 @@ function resetForm(): void {
     selectedAccessRole.value = "";
     selectedFolder.value = "";
 }
+
+// Watch for file selection changes to validate files
+watch(
+    selectedFiles,
+    (newFiles: File[], oldFiles: File[]) => {
+        // Only validate if files were actually changed (not just cleared)
+        if (newFiles.length > 0 && newFiles !== oldFiles) {
+            const validFiles = validateSelectedFiles(newFiles);
+
+            // If validation failed, clear the selection
+            if (validFiles.length !== newFiles.length) {
+                // Use nextTick to avoid infinite loop
+                nextTick(() => {
+                    selectedFiles.value = validFiles;
+                });
+            }
+        }
+    },
+    { deep: true },
+);
 
 // Watch for modal open/close to reset form and ensure authentication
 watch(
@@ -477,7 +496,8 @@ async function handleSubmit(): Promise<void> {
                     toast.add({
                         title: t("documents.uploadSuccessTitle"),
                         description: t("documents.uploadSuccessDescription", {
-                            fileName: selectedFiles.value[0]?.name || "Unknown file",
+                            fileName:
+                                selectedFiles.value[0]?.name || "Unknown file",
                         }),
                         icon: "i-heroicons-check-circle",
                         color: "success",

@@ -100,7 +100,8 @@
                                             :label="allSelected ? t('documents.deselectAll') : t('documents.selectAll')"
                                             color="neutral" variant="outline" @click="toggleSelectAll(!allSelected)" />
                                         <UButton :label="t('documents.addDocument')" icon="i-heroicons-plus"
-                                            color="primary" variant="solid" @click="showUploadModal = true" />
+                                            color="primary" variant="solid"
+                                            @click="() => { console.log('Upload button clicked'); showUploadModal = true; }" />
                                     </UButtonGroup>
                                 </template>
                                 <template v-else>
@@ -141,7 +142,7 @@
                             </template>
                             <template v-else>
                                 <UButton color="primary" variant="solid" icon="i-heroicons-plus"
-                                    @click="showUploadModal = true">
+                                    @click="() => { console.log('Upload first button clicked'); showUploadModal = true; }">
                                     {{ t('documents.uploadFirst') }}
                                 </UButton>
                             </template>
@@ -267,6 +268,11 @@ const updateModalData = ref<{
 
 // Upload functionality
 const showUploadModal = ref<boolean>(false);
+
+// Debug: Watch for showUploadModal changes
+watch(showUploadModal, (newValue) => {
+    console.log('showUploadModal changed to:', newValue);
+});
 
 // View mode functionality
 const viewMode = ref<"tree" | "grid">("tree");

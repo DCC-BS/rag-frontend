@@ -13,7 +13,7 @@
           <DataBsFooter class="bg-white dark:bg-gray-800" />
         </div>
         <div class="flex-1 flex justify-end items-center gap-4">
-          <DisclaimerLlm />
+          <DisclaimerButton />
           <FeedbackControl />
         </div>
       </div>
