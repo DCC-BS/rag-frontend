@@ -5,15 +5,20 @@
     ":automergeAll",
     ":prImmediately"
   ],
-  "managers": {
-    "bun": {}
-  },
   "packageRules": [
     {
-      "description": "Automerge minor, patch, and high-confidence updates",
+      "description": "Automerge all patch updates",
       "matchUpdateTypes": [
-        "minor",
         "patch"
+      ],
+      "automerge": true,
+      "prHourlyLimit": 0,
+      "prConcurrentLimit": 0
+    },
+    {
+      "description": "Automerge minor updates with high confidence",
+      "matchUpdateTypes": [
+        "minor"
       ],
       "matchConfidence": [
         "high",
