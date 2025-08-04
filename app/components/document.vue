@@ -77,7 +77,7 @@ const getDocumentTitle = (): string => {
 // Helper function to get page information
 const getPageInfo = (): string => {
     const metadata = props.document.metadata;
-
+    console.log(metadata);
     if (
         metadata?.page &&
         metadata.num_pages &&
@@ -96,6 +96,7 @@ const getPageInfo = (): string => {
 // Helper function to get the document page number
 const getDocumentPage = (): number => {
     const metadata = props.document.metadata;
+    console.log(metadata);
     if (metadata?.page && typeof metadata.page === "number") {
         return metadata.page;
     }
