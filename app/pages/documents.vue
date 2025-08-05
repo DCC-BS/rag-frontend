@@ -106,12 +106,19 @@
                                             @click="() => { console.log('Upload button clicked'); showUploadModal = true; }" />
                                     </UButtonGroup>
                                 </template>
-                                <!-- Bulk delete actions - only show for Writer role -->
-                                <template v-else-if="hasWriterRole">
+                                <!-- Bulk actions when documents are selected -->
+                                <template v-else>
                                     <UButtonGroup size="md">
                                         <UButton :label="t('common.clearSelection')" color="neutral" variant="outline"
                                             @click="clearSelection" />
+                                        <!-- Chat with Selected - available for all users -->
                                         <UButton
+                                            :label="t('documents.chatWithSelected', { count: selectedDocuments.length })"
+                                            icon="i-heroicons-chat-bubble-left" color="primary" variant="solid"
+                                            @click="chatWithSelectedDocuments"
+                                            :disabled="selectedDocuments.length === 0 || selectedDocuments.length > 5" />
+                                        <!-- Delete Selected - only show for Writer role -->
+                                        <UButton v-if="hasWriterRole"
                                             :label="t('documents.deleteSelected', { count: selectedDocuments.length })"
                                             icon="i-heroicons-trash" color="error" variant="solid"
                                             :loading="isDeletingDocuments" @click="showBulkDeleteConfirmation" />
@@ -253,6 +260,7 @@ const {
     loading: isDeletingDocuments,
     error: deletionError,
 } = useDocumentDeletion();
+const { setDocumentsForChat } = useChatDocumentSelection();
 
 // Authentication and role checking
 const { data: session } = useAuth();
@@ -273,8 +281,43 @@ const searchLimit = ref<number>(10);
 const searchLoading = ref<boolean>(false);
 const searchPerformed = ref<boolean>(false);
 
-// Selection functionality
+// Selection functionality - persistent across page reloads
 const selectedDocuments = ref<number[]>([]);
+
+// Initialize from localStorage on mount
+function initializeSelections(): void {
+    if (typeof window !== "undefined") {
+        try {
+            const stored = localStorage.getItem("documents-selection");
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) {
+                    selectedDocuments.value = parsed;
+                }
+            }
+        } catch (error) {
+            console.warn("Failed to restore document selections:", error);
+        }
+    }
+}
+
+// Save to localStorage whenever selections change
+watch(
+    selectedDocuments,
+    (newSelection) => {
+        if (typeof window !== "undefined") {
+            try {
+                localStorage.setItem(
+                    "documents-selection",
+                    JSON.stringify(newSelection),
+                );
+            } catch (error) {
+                console.warn("Failed to save document selections:", error);
+            }
+        }
+    },
+    { deep: true },
+);
 const deletingDocumentIds = ref<number[]>([]);
 
 // Update functionality
@@ -327,8 +370,6 @@ const totalPages = computed<number>(() => {
 watch(viewMode, (newMode, oldMode) => {
     if (newMode !== oldMode) {
         currentPage.value = 1;
-        // Clear selections when switching views
-        selectedDocuments.value = [];
     }
 });
 
@@ -338,6 +379,37 @@ watch(totalPages, (newTotalPages) => {
         currentPage.value = 1;
     }
 });
+
+// Watch for documents changes and clean up stale selections only when necessary
+const shouldCleanupSelections = ref(false);
+
+// Temporarily disabled to debug selection persistence
+/* watch(
+    documents,
+    (newDocuments, oldDocuments) => {
+        // Only clean up selections in specific scenarios where we know documents have actually changed
+        if (
+            newDocuments?.documents && 
+            oldDocuments?.documents && 
+            shouldCleanupSelections.value &&
+            selectedDocuments.value.length > 0
+        ) {
+            const availableDocumentIds = newDocuments.documents.map(
+                (doc) => doc.id,
+            );
+            const originalCount = selectedDocuments.value.length;
+            selectedDocuments.value = selectedDocuments.value.filter((id) =>
+                availableDocumentIds.includes(id),
+            );
+            
+            if (originalCount !== selectedDocuments.value.length) {
+                console.log(`Cleaned up ${originalCount - selectedDocuments.value.length} stale selections`);
+            }
+            shouldCleanupSelections.value = false;
+        }
+    },
+    { deep: true },
+); */
 
 // Delete confirmation modal
 const showDeleteModal = ref<boolean>(false);
@@ -369,6 +441,71 @@ const allSelected = computed<boolean>(() => {
 });
 
 /**
+ * Handle "Chat with Selected" button click
+ * Transfers selected documents to chat and navigates to chat page
+ */
+async function chatWithSelectedDocuments(): Promise<void> {
+    if (selectedDocuments.value.length === 0) {
+        toast.add({
+            title: t("documents.chatWithSelectedError"),
+            description: t("documents.noDocumentsSelectedForChat"),
+            color: "warning",
+            icon: "i-heroicons-exclamation-triangle",
+        });
+        return;
+    }
+
+    if (selectedDocuments.value.length > 5) {
+        toast.add({
+            title: t("documents.chatWithSelectedError"),
+            description: t("documents.tooManyDocumentsSelectedForChat"),
+            color: "warning",
+            icon: "i-heroicons-exclamation-triangle",
+        });
+        return;
+    }
+
+    try {
+        // Convert selected document IDs to full UserDocument objects
+        const selectedDocumentObjects =
+            documents.value?.documents?.filter((doc) =>
+                selectedDocuments.value.includes(doc.id),
+            ) || [];
+
+        if (selectedDocumentObjects.length === 0) {
+            throw new Error("No documents found for selected IDs");
+        }
+
+        // Set documents for chat
+        setDocumentsForChat(selectedDocumentObjects);
+
+        // Show success toast
+        toast.add({
+            title: t("documents.chatWithSelectedSuccess"),
+            description: t("documents.chatWithSelectedSuccessDescription", {
+                count: selectedDocumentObjects.length,
+            }),
+            color: "success",
+            icon: "i-heroicons-chat-bubble-left",
+        });
+
+        // Navigate to chat page
+        await navigateTo("/");
+
+        // Keep selections so user can see what they selected when they return
+        // selectedDocuments.value = []; // Don't clear - maintain for return navigation
+    } catch (error) {
+        console.error("Error setting documents for chat:", error);
+        toast.add({
+            title: t("documents.chatWithSelectedError"),
+            description: t("documents.chatWithSelectedErrorDescription"),
+            color: "error",
+            icon: "i-heroicons-exclamation-triangle",
+        });
+    }
+}
+
+/**
  * Perform search with current query and limit
  */
 async function performSearch(): Promise<void> {
@@ -384,7 +521,7 @@ async function performSearch(): Promise<void> {
             searchLimit.value > 0 ? Math.min(searchLimit.value, 20) : 10;
         await searchDocuments(searchQuery.value.trim(), limit);
         searchPerformed.value = true;
-        // Clear selections after search
+        // Clear selections after search to avoid stale selections
         selectedDocuments.value = [];
     } finally {
         searchLoading.value = false;
@@ -661,6 +798,9 @@ function showBulkDeleteToast(result: {
  * Refresh documents list after deletion
  */
 async function refreshDocumentsAfterDelete(): Promise<void> {
+    // Enable cleanup since documents may have been deleted
+    shouldCleanupSelections.value = true;
+
     if (searchPerformed.value && searchQuery.value.trim()) {
         await performSearch();
     } else {
@@ -802,6 +942,7 @@ watch(deletionError, (newError) => {
 
 // Fetch documents on mount
 onMounted(() => {
+    initializeSelections(); // Restore persistent selections first
     fetchDocuments();
 });
 </script>

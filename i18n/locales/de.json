@@ -38,6 +38,8 @@
         "documentSelectionUpdatedDescription": "Chatte jetzt mit {count} ausgewählten Dokumenten",
         "chatWithSelected": "Mit Auswahl chatten",
         "chatWithDocuments": "Chatte mit {count} Dokumenten",
+        "documentsPreSelected": "Dokumente vorausgewählt",
+        "documentsPreSelectedDescription": "{count} Dokument für Chat vorausgewählt | {count} Dokumente für Chat vorausgewählt",
         "maxReached": "Max",
         "decision": {
             "retrieve": "Dokumente suchen",
@@ -220,6 +222,13 @@
         "zoomIn": "Vergrössern",
         "zoomOut": "Verkleinern",
         "resetZoom": "Zoom zurücksetzen",
-        "pageOf": "Seite {currentPage} von {totalPages}"
+        "pageOf": "Seite {currentPage} von {totalPages}",
+        "chatWithSelected": "Mit {count} Dokument chatten | Mit {count} Dokumenten chatten",
+        "chatWithSelectedError": "Fehler beim Chat mit Auswahl",
+        "noDocumentsSelectedForChat": "Keine Dokumente für Chat ausgewählt. Bitte wählen Sie 1-5 Dokumente aus.",
+        "tooManyDocumentsSelectedForChat": "Zu viele Dokumente ausgewählt. Bitte wählen Sie bis zu 5 Dokumente für den Chat aus.",
+        "chatWithSelectedSuccess": "Dokumente für Chat ausgewählt",
+        "chatWithSelectedSuccessDescription": "{count} Dokument erfolgreich für Chat ausgewählt | {count} Dokumente erfolgreich für Chat ausgewählt",
+        "chatWithSelectedErrorDescription": "Ein Fehler ist beim Einrichten der Dokumente für den Chat aufgetreten. Bitte versuchen Sie es erneut."
     }
 }

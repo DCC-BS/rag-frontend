@@ -46,7 +46,7 @@
 
                 <!-- Search -->
                 <div class="border-gray-200 border-b p-4 dark:border-gray-700">
-                    <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass"
+                    <UInput ref="searchInputRef" v-model="searchQuery" icon="i-heroicons-magnifying-glass"
                         :placeholder="t('documents.searchPlaceholder')" :loading="searchLoading"
                         @keyup.enter="performSearch" class="w-full">
                         <template v-if="searchQuery?.length" #trailing>
@@ -83,12 +83,28 @@
                             @click="clearSearch" />
                     </div>
 
-                    <!-- Documents grid -->
-                    <div class="space-y-3" v-else-if="documents && documents.documents?.length > 0">
-                        <DocumentSelectionItem v-for="document in documents.documents" :key="document.id"
-                            :document="document" :is-selected="isDocumentSelected(document.id)"
-                            :can-select="canSelectMore || isDocumentSelected(document.id)" @select="selectDocument"
-                            @deselect="deselectDocument" />
+                    <!-- Documents count and pagination info -->
+                    <div v-else-if="documents && documents.documents?.length > 0" class="space-y-4">
+                        <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                            <span>{{ t('documents.available', { count: totalDocuments }) }}</span>
+                            <span v-if="totalPages > 1">{{ t('common.page') }} {{ currentPage }} of {{ totalPages
+                            }}</span>
+                        </div>
+
+                        <!-- Documents grid -->
+                        <div class="space-y-3">
+                            <DocumentSelectionItem v-for="document in paginatedDocuments" :key="document.id"
+                                :document="document" :is-selected="isDocumentSelected(document.id)"
+                                :can-select="canSelectMore || isDocumentSelected(document.id)" @select="selectDocument"
+                                @deselect="deselectDocument" />
+                        </div>
+
+                        <!-- Pagination -->
+                        <div v-if="totalPages > 1" class="flex justify-center mt-4">
+                            <UPagination v-model:page="currentPage" :total="totalDocuments"
+                                :items-per-page="itemsPerPage" show-edges :sibling-count="1" size="sm" color="primary"
+                                variant="outline" active-color="primary" active-variant="solid" />
+                        </div>
                     </div>
                 </div>
 
@@ -123,6 +139,14 @@ const {
     canSelectMore,
 } = useDocumentSelection();
 
+// Chat document selection bridge
+const {
+    selectedDocumentsForChat,
+    setDocumentsForChat,
+    clearChatDocumentSelection,
+    hasChatDocuments,
+} = useChatDocumentSelection();
+
 // Drawer state
 const isOpen = ref<boolean>(false);
 
@@ -130,6 +154,13 @@ const isOpen = ref<boolean>(false);
 const searchQuery = ref<string>("");
 const searchLoading = ref<boolean>(false);
 const searchPerformed = ref<boolean>(false);
+
+// Pagination for drawer (10 docs per page)
+const currentPage = ref<number>(1);
+const itemsPerPage = ref<number>(10);
+
+// Template ref for search input to auto-focus
+const searchInputRef = ref();
 
 /**
  * Button label based on selection state
@@ -142,6 +173,48 @@ const buttonLabel = computed<string>(() => {
         count: selectedDocuments.value.length,
         max: 5,
     });
+});
+
+/**
+ * Documents sorted with selected ones on top
+ */
+const sortedDocuments = computed(() => {
+    if (!documents.value?.documents) return [];
+
+    return [...documents.value.documents].sort((a, b) => {
+        const aSelected = isDocumentSelected(a.id);
+        const bSelected = isDocumentSelected(b.id);
+
+        // Selected documents come first
+        if (aSelected && !bSelected) return -1;
+        if (!aSelected && bSelected) return 1;
+
+        // For documents with same selection status, maintain original order
+        return 0;
+    });
+});
+
+/**
+ * Paginated documents (10 per page)
+ */
+const paginatedDocuments = computed(() => {
+    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+    const endIndex = startIndex + itemsPerPage.value;
+    return sortedDocuments.value.slice(startIndex, endIndex);
+});
+
+/**
+ * Total pages for pagination
+ */
+const totalPages = computed<number>(() => {
+    return Math.ceil(sortedDocuments.value.length / itemsPerPage.value);
+});
+
+/**
+ * Total documents count for display
+ */
+const totalDocuments = computed<number>(() => {
+    return sortedDocuments.value.length;
 });
 
 /**
@@ -160,6 +233,7 @@ async function performSearch(): Promise<void> {
     }
 
     searchLoading.value = true;
+    currentPage.value = 1; // Reset to first page when searching
     try {
         await searchDocuments(query, 20);
         searchPerformed.value = true;
@@ -176,6 +250,7 @@ async function performSearch(): Promise<void> {
 async function clearSearch(): Promise<void> {
     searchQuery.value = "";
     searchPerformed.value = false;
+    currentPage.value = 1; // Reset to first page
     await fetchDocuments();
 }
 
@@ -201,14 +276,140 @@ function handleChatWithSelected(): void {
 
 // Load documents when drawer opens
 watch(isOpen, async (newValue) => {
-    if (newValue && !documents.value) {
-        await fetchDocuments();
+    if (newValue) {
+        if (!documents.value) {
+            await fetchDocuments();
+        }
+        // Sync from documents page selection when drawer opens
+        syncFromDocumentsPageSelection();
     }
 });
 
 // Load documents on mount
 onMounted(async () => {
     await fetchDocuments();
+    // Check if there are pre-selected documents from documents page
+    syncPreSelectedDocuments();
+    // Also check for manual navigation sync
+    syncFromDocumentsPageSelection();
+});
+
+/**
+ * Sync pre-selected documents from documents page to chat selection
+ */
+function syncPreSelectedDocuments(): void {
+    if (hasChatDocuments() && selectedDocumentsForChat.value.length > 0) {
+        // Clear current selection
+        clearSelection();
+
+        // Add pre-selected documents to chat selection
+        selectedDocumentsForChat.value.forEach((doc) => {
+            selectDocument(doc);
+        });
+
+        // Clear the pre-selected documents after syncing
+        clearChatDocumentSelection();
+    }
+}
+
+/**
+ * Sync selections from documents page when manually navigating to chat
+ * This handles the case where user navigates to chat without using "Chat with Selected" button
+ */
+function syncFromDocumentsPageSelection(): void {
+    // Only sync if we don't already have chat selections
+    if (selectedDocuments.value.length > 0) {
+        return; // Already have chat selections
+    }
+
+    // Check for documents page selections in localStorage
+    if (typeof window !== "undefined") {
+        try {
+            const documentsPageSelections = localStorage.getItem(
+                "documents-selection",
+            );
+            if (documentsPageSelections) {
+                const documentIds = JSON.parse(documentsPageSelections);
+                if (
+                    Array.isArray(documentIds) &&
+                    documentIds.length > 0 &&
+                    documents.value?.documents
+                ) {
+                    // Convert document IDs to full document objects
+                    const availableDocuments = documents.value.documents.filter(
+                        (doc) => documentIds.includes(doc.id),
+                    );
+
+                    if (availableDocuments.length > 0) {
+                        setDocumentsForChat(availableDocuments);
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn(
+                "Failed to sync from documents page selection:",
+                error,
+            );
+        }
+    }
+}
+
+// Watch for changes in pre-selected documents from documents page
+watch(
+    selectedDocumentsForChat,
+    () => {
+        if (hasChatDocuments()) {
+            syncPreSelectedDocuments();
+        }
+    },
+    { deep: true },
+);
+
+// Watch for changes in drawer selections and persist to localStorage
+// This ensures selections made in the drawer are preserved when navigating to documents page
+watch(
+    selectedDocumentIds,
+    (newDocumentIds) => {
+        if (typeof window !== "undefined") {
+            try {
+                localStorage.setItem(
+                    "documents-selection",
+                    JSON.stringify(newDocumentIds),
+                );
+            } catch (error) {
+                console.warn(
+                    "Failed to save drawer selections to localStorage:",
+                    error,
+                );
+            }
+        }
+    },
+    { deep: true },
+);
+
+// Auto-focus search input when drawer opens
+watch(isOpen, async (newValue) => {
+    if (newValue) {
+        // Wait for next tick to ensure input is rendered
+        await nextTick();
+
+        // Additional delay to ensure drawer animation is complete
+        setTimeout(() => {
+            // UInput doesn't expose focus directly, need to access the underlying input element
+            const inputElement =
+                searchInputRef.value?.$el?.querySelector("input");
+            if (inputElement) {
+                inputElement.focus();
+            }
+        }, 150); // Small delay for drawer animation
+    }
+});
+
+// Reset to first page when total pages change and current page is out of bounds
+watch(totalPages, (newTotalPages) => {
+    if (currentPage.value > newTotalPages && newTotalPages > 0) {
+        currentPage.value = 1;
+    }
 });
 
 // Expose selected document IDs for parent components
