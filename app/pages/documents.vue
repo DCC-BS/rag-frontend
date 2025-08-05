@@ -165,14 +165,24 @@
                             </div>
 
                             <!-- Grid View -->
-                            <div v-else class="documents-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                                <UserDocument v-for="document in documents.documents" :key="document.id"
-                                    :document="document"
-                                    :isSelected="hasWriterRole && selectedDocuments.includes(document.id)"
-                                    :isDeletingDocument="deletingDocumentIds.includes(document.id)"
-                                    :isUpdatingDocument="updatingDocumentIds.includes(document.id)"
-                                    :hasWriterRole="hasWriterRole" @update:selected="handleDocumentSelection"
-                                    @delete="showSingleDeleteConfirmation" @update="showUpdateModal" />
+                            <div v-else class="space-y-6">
+                                <div class="documents-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    <UserDocument v-for="document in paginatedDocuments" :key="document.id"
+                                        :document="document"
+                                        :isSelected="hasWriterRole && selectedDocuments.includes(document.id)"
+                                        :isDeletingDocument="deletingDocumentIds.includes(document.id)"
+                                        :isUpdatingDocument="updatingDocumentIds.includes(document.id)"
+                                        :hasWriterRole="hasWriterRole" @update:selected="handleDocumentSelection"
+                                        @delete="showSingleDeleteConfirmation" @update="showUpdateModal" />
+                                </div>
+
+                                <!-- Pagination for Grid View - only show if not searching -->
+                                <div v-if="!searchPerformed && totalPages > 1" class="flex justify-center mt-8">
+                                    <UPagination v-model:page="currentPage" :total="documents.documents?.length || 0"
+                                        :items-per-page="itemsPerPage" show-edges :sibling-count="1" size="md"
+                                        color="primary" variant="outline" active-color="primary"
+                                        active-variant="solid" />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -293,6 +303,42 @@ watch(showUploadModal, (newValue) => {
 // View mode functionality
 const viewMode = ref<"tree" | "grid">("tree");
 
+// Client-side pagination for grid view
+const currentPage = ref<number>(1);
+const itemsPerPage = ref<number>(12);
+
+// Client-side pagination: slice documents array for current page
+const paginatedDocuments = computed(() => {
+    if (viewMode.value !== "grid" || !documents.value?.documents) {
+        return documents.value?.documents || [];
+    }
+
+    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+    const endIndex = startIndex + itemsPerPage.value;
+    return documents.value.documents.slice(startIndex, endIndex);
+});
+
+const totalPages = computed<number>(() => {
+    if (!documents.value?.documents || viewMode.value !== "grid") return 1;
+    return Math.ceil(documents.value.documents.length / itemsPerPage.value);
+});
+
+// Watch for view mode changes and reset to first page
+watch(viewMode, (newMode, oldMode) => {
+    if (newMode !== oldMode) {
+        currentPage.value = 1;
+        // Clear selections when switching views
+        selectedDocuments.value = [];
+    }
+});
+
+// Watch for data changes and reset to first page if current page is out of bounds
+watch(totalPages, (newTotalPages) => {
+    if (currentPage.value > newTotalPages && newTotalPages > 0) {
+        currentPage.value = 1;
+    }
+});
+
 // Delete confirmation modal
 const showDeleteModal = ref<boolean>(false);
 const deleteModalData = ref<{
@@ -307,9 +353,13 @@ const deleteModalData = ref<{
 
 /**
  * Check if all visible documents are selected
+ * In grid view, this checks only documents on the current page
  */
 const allSelected = computed<boolean>(() => {
-    const visibleDocuments = documents.value?.documents || [];
+    const visibleDocuments =
+        viewMode.value === "grid"
+            ? paginatedDocuments.value
+            : documents.value?.documents || [];
     return (
         visibleDocuments.length > 0 &&
         visibleDocuments.every((doc) =>
@@ -362,22 +412,26 @@ function handleDocumentSelection(documentId: number, selected: boolean): void {
 
 /**
  * Toggle select all documents
+ * In grid view, this only affects documents on the current page
  */
 function toggleSelectAll(value: boolean | "indeterminate"): void {
     // Only allow selection if user has Writer role
     if (!hasWriterRole.value) return;
 
-    const visibleDocuments = documents.value?.documents || [];
+    const visibleDocuments =
+        viewMode.value === "grid"
+            ? paginatedDocuments.value
+            : documents.value?.documents || [];
 
     if (value === true) {
-        // Select all visible documents
+        // Select all visible documents (current page in grid view)
         const visibleDocumentIds = visibleDocuments.map((doc) => doc.id);
         const uniqueIds = [
             ...new Set([...selectedDocuments.value, ...visibleDocumentIds]),
         ];
         selectedDocuments.value = uniqueIds;
     } else {
-        // Deselect all visible documents
+        // Deselect all visible documents (current page in grid view)
         const visibleDocumentIds = visibleDocuments.map((doc) => doc.id);
         selectedDocuments.value = selectedDocuments.value.filter(
             (id) => !visibleDocumentIds.includes(id),
@@ -400,6 +454,7 @@ async function clearSearch(): Promise<void> {
     searchLimit.value = 10;
     searchPerformed.value = false;
     selectedDocuments.value = [];
+    currentPage.value = 1; // Reset to first page
     await fetchDocuments();
 }
 
@@ -465,6 +520,8 @@ async function handleDocumentUploaded(): Promise<void> {
 
         // Clear any selections since we have new data
         selectedDocuments.value = [];
+        // Reset to first page to show new documents
+        currentPage.value = 1;
     } catch (error) {
         console.error("Error refreshing documents after upload:", error);
 
