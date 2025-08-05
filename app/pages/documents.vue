@@ -95,16 +95,19 @@
                                             :label="viewMode === 'tree' ? t('documents.gridView') : t('documents.treeView')"
                                             color="neutral" variant="outline"
                                             @click="viewMode = viewMode === 'tree' ? 'grid' : 'tree'" />
-                                        <UButton
+                                        <!-- Selection buttons - only show for Writer role -->
+                                        <UButton v-if="hasWriterRole"
                                             :icon="allSelected ? 'i-heroicons-minus-circle' : 'i-heroicons-check-circle'"
                                             :label="allSelected ? t('documents.deselectAll') : t('documents.selectAll')"
                                             color="neutral" variant="outline" @click="toggleSelectAll(!allSelected)" />
-                                        <UButton :label="t('documents.addDocument')" icon="i-heroicons-plus"
-                                            color="primary" variant="solid"
+                                        <!-- Add Document button - only show for Writer role -->
+                                        <UButton v-if="hasWriterRole" :label="t('documents.addDocument')"
+                                            icon="i-heroicons-plus" color="primary" variant="solid"
                                             @click="() => { console.log('Upload button clicked'); showUploadModal = true; }" />
                                     </UButtonGroup>
                                 </template>
-                                <template v-else>
+                                <!-- Bulk delete actions - only show for Writer role -->
+                                <template v-else-if="hasWriterRole">
                                     <UButtonGroup size="md">
                                         <UButton :label="t('common.clearSelection')" color="neutral" variant="outline"
                                             @click="clearSelection" />
@@ -140,7 +143,8 @@
                                 <UButton :label="t('documents.clearSearch')" color="primary" variant="solid"
                                     @click="clearSearch" />
                             </template>
-                            <template v-else>
+                            <!-- Upload First button - only show for Writer role -->
+                            <template v-else-if="hasWriterRole">
                                 <UButton color="primary" variant="solid" icon="i-heroicons-plus"
                                     @click="() => { console.log('Upload first button clicked'); showUploadModal = true; }">
                                     {{ t('documents.uploadFirst') }}
@@ -152,9 +156,10 @@
                         <div v-else-if="documents.documents && documents.documents.length > 0" class="space-y-6">
                             <!-- Tree View -->
                             <div v-if="viewMode === 'tree'">
-                                <DocumentTree :documents="documents.documents" :selectedDocuments="selectedDocuments"
+                                <DocumentTree :documents="documents.documents"
+                                    :selectedDocuments="hasWriterRole ? selectedDocuments : []"
                                     :deletingDocumentIds="deletingDocumentIds"
-                                    :updatingDocumentIds="updatingDocumentIds"
+                                    :updatingDocumentIds="updatingDocumentIds" :hasWriterRole="hasWriterRole"
                                     @update:selected="handleDocumentSelection" @delete="showSingleDeleteConfirmation"
                                     @update="showUpdateModal" />
                             </div>
@@ -162,11 +167,12 @@
                             <!-- Grid View -->
                             <div v-else class="documents-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                                 <UserDocument v-for="document in documents.documents" :key="document.id"
-                                    :document="document" :isSelected="selectedDocuments.includes(document.id)"
+                                    :document="document"
+                                    :isSelected="hasWriterRole && selectedDocuments.includes(document.id)"
                                     :isDeletingDocument="deletingDocumentIds.includes(document.id)"
                                     :isUpdatingDocument="updatingDocumentIds.includes(document.id)"
-                                    @update:selected="handleDocumentSelection" @delete="showSingleDeleteConfirmation"
-                                    @update="showUpdateModal" />
+                                    :hasWriterRole="hasWriterRole" @update:selected="handleDocumentSelection"
+                                    @delete="showSingleDeleteConfirmation" @update="showUpdateModal" />
                             </div>
                         </div>
                     </div>
@@ -216,8 +222,8 @@
             :documentName="updateModalData.documentName" :currentAccessRole="updateModalData.currentAccessRole"
             :documentPath="updateModalData.documentPath" @updated="handleDocumentUpdated" />
 
-        <!-- Document Upload Modal -->
-        <DocumentUploadModal v-model:isOpen="showUploadModal" @uploaded="handleDocumentUploaded" />
+        <!-- Document Upload Modal - only show for Writer role -->
+        <DocumentUploadModal v-if="hasWriterRole" v-model:isOpen="showUploadModal" @uploaded="handleDocumentUploaded" />
     </div>
 </template>
 
@@ -237,6 +243,16 @@ const {
     loading: isDeletingDocuments,
     error: deletionError,
 } = useDocumentDeletion();
+
+// Authentication and role checking
+const { data: session } = useAuth();
+
+// Computed property to check if user has Writer role
+const hasWriterRole = computed<boolean>(() => {
+    const userRoles =
+        (session.value?.user as { roles?: string[] })?.roles ?? [];
+    return userRoles.includes("Writer");
+});
 
 // Toast notifications
 const toast = useToast();
@@ -271,7 +287,7 @@ const showUploadModal = ref<boolean>(false);
 
 // Debug: Watch for showUploadModal changes
 watch(showUploadModal, (newValue) => {
-    console.log('showUploadModal changed to:', newValue);
+    console.log("showUploadModal changed to:", newValue);
 });
 
 // View mode functionality
@@ -329,6 +345,9 @@ async function performSearch(): Promise<void> {
  * Handle individual document selection
  */
 function handleDocumentSelection(documentId: number, selected: boolean): void {
+    // Only allow selection if user has Writer role
+    if (!hasWriterRole.value) return;
+
     if (selected) {
         if (!selectedDocuments.value.includes(documentId)) {
             selectedDocuments.value.push(documentId);
@@ -345,6 +364,9 @@ function handleDocumentSelection(documentId: number, selected: boolean): void {
  * Toggle select all documents
  */
 function toggleSelectAll(value: boolean | "indeterminate"): void {
+    // Only allow selection if user has Writer role
+    if (!hasWriterRole.value) return;
+
     const visibleDocuments = documents.value?.documents || [];
 
     if (value === true) {
@@ -385,6 +407,9 @@ async function clearSearch(): Promise<void> {
  * Show update modal for a document
  */
 function showUpdateModal(documentId: number): void {
+    // Only allow update if user has Writer role
+    if (!hasWriterRole.value) return;
+
     const document = documents.value?.documents?.find(
         (doc) => doc.id === documentId,
     );
@@ -457,6 +482,9 @@ async function handleDocumentUploaded(): Promise<void> {
  * Show single document delete confirmation
  */
 function showSingleDeleteConfirmation(documentId: number): void {
+    // Only allow delete if user has Writer role
+    if (!hasWriterRole.value) return;
+
     const document = documents.value?.documents?.find(
         (doc) => doc.id === documentId,
     );
@@ -476,6 +504,9 @@ function showSingleDeleteConfirmation(documentId: number): void {
  * Show bulk delete confirmation
  */
 function showBulkDeleteConfirmation(): void {
+    // Only allow delete if user has Writer role
+    if (!hasWriterRole.value) return;
+
     const count = selectedDocuments.value.length;
     deleteModalData.value = {
         title: t("documents.deleteModalTitle", { count }),

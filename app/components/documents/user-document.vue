@@ -91,14 +91,16 @@
             <!-- Footer with selection and actions -->
             <template #footer>
                 <div class="flex items-center justify-between" @click.stop>
-                    <!-- Selection checkbox -->
-                    <div class="flex items-center gap-2">
+                    <!-- Selection checkbox - only show for Writer role -->
+                    <div v-if="hasWriterRole" class="flex items-center gap-2">
                         <UCheckbox :model-value="isSelected" @update:model-value="handleSelectionChange"
                             class="shrink-0" />
                         <span class="text-sm text-gray-600 dark:text-gray-400">
                             {{ t('documents.selectForDeletion') }}
                         </span>
                     </div>
+                    <!-- Empty space when no Writer role -->
+                    <div v-else></div>
 
                     <!-- Actions -->
                     <div class="flex items-center gap-2 shrink-0">
@@ -107,13 +109,16 @@
                                 color="neutral" variant="ghost" size="sm" @click="handleDocumentClick" />
                         </UTooltip>
 
-                        <UTooltip :text="isUpdatingDocument ? t('documents.updating') : t('documents.updateDocument')">
+                        <!-- Update and Delete buttons - only show for Writer role -->
+                        <UTooltip v-if="hasWriterRole"
+                            :text="isUpdatingDocument ? t('documents.updating') : t('documents.updateDocument')">
                             <UButton :icon="isUpdatingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-pencil-square'"
                                 :class="{ 'animate-spin': isUpdatingDocument }" color="warning" variant="ghost"
                                 size="sm" :disabled="isUpdatingDocument" @click="handleUpdateClick" />
                         </UTooltip>
 
-                        <UTooltip :text="isDeletingDocument ? t('documents.deleting') : t('documents.deleteDocument')">
+                        <UTooltip v-if="hasWriterRole"
+                            :text="isDeletingDocument ? t('documents.deleting') : t('documents.deleteDocument')">
                             <UButton :icon="isDeletingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-trash'"
                                 :class="{ 'animate-spin': isDeletingDocument }" color="error" variant="ghost" size="sm"
                                 :disabled="isDeletingDocument" @click="handleDeleteClick" />
@@ -130,7 +135,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { UserDocument } from "~/models/message";
+import type { UserDocument } from "~/models/document";
 
 const { t } = useI18n();
 
@@ -139,6 +144,7 @@ const props = defineProps<{
     isSelected?: boolean;
     isDeletingDocument?: boolean;
     isUpdatingDocument?: boolean;
+    hasWriterRole?: boolean;
 }>();
 
 const emit = defineEmits<{
