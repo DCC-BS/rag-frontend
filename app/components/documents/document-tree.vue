@@ -19,7 +19,6 @@
 
                     <!-- File Actions -->
                     <div v-if="item.isFile && item.document" class="flex items-center gap-1 shrink-0 ml-2" @click.stop>
-                        <!-- Selection Checkbox -->
                         <UCheckbox :model-value="selectedDocuments.includes(item.document?.id || 0)"
                             @update:model-value="(value) => handleDocumentSelection(item.document?.id || 0, value === true)"
                             size="sm" />
@@ -29,11 +28,12 @@
                             color="neutral" variant="ghost" size="xs" @click="handleDocumentClick(item.document)"
                             :disabled="isDocumentLoading()" />
 
-                        <UButton icon="i-heroicons-pencil-square" color="warning" variant="ghost" size="xs"
-                            @click="handleUpdateClick(item.document.id)"
+                        <!-- Update and Delete buttons - only show for Writer role -->
+                        <UButton v-if="hasWriterRole" icon="i-heroicons-pencil-square" color="warning" variant="ghost"
+                            size="xs" @click="handleUpdateClick(item.document.id)"
                             :disabled="isDocumentUpdating(item.document.id)" />
 
-                        <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="xs"
+                        <UButton v-if="hasWriterRole" icon="i-heroicons-trash" color="error" variant="ghost" size="xs"
                             @click="handleDeleteClick(item.document.id)"
                             :disabled="isDocumentDeleting(item.document.id)" />
                     </div>
@@ -84,6 +84,7 @@ const props = defineProps<{
     selectedDocuments: number[];
     deletingDocumentIds: number[];
     updatingDocumentIds: number[];
+    hasWriterRole: boolean;
 }>();
 
 const emit = defineEmits<{

@@ -16,7 +16,7 @@ const {
     sendChatMessage,
     clearMessages,
 } = useChatMessages(selectedDocumentIds);
-const { chatHistoryRef, watchMessages } = useAutoScroll();
+const { chatHistoryRef, watchMessages, resetScrollState } = useAutoScroll();
 const { userInput, hasContent, createKeydownHandler, clearInput, setInput } =
     useChatInput();
 const toast = useToast();
@@ -37,6 +37,8 @@ async function sendChat(): Promise<void> {
     if (!content) return;
 
     clearInput();
+    // Reset scroll state when sending a new message
+    resetScrollState();
 
     try {
         await sendChatMessage(content);
@@ -65,6 +67,8 @@ function startNewChat(): void {
         resetThreadId();
         clearMessages();
         clearInput();
+        // Reset scroll state when starting a new chat
+        resetScrollState();
         // Clear document selection when starting new chat
         try {
             documentSelectionDrawer.value?.clearSelection();
@@ -90,6 +94,8 @@ function startNewChat(): void {
 async function handleExampleQuestionClick(question: string): Promise<void> {
     try {
         setInput(question);
+        // Reset scroll state when clicking an example question
+        resetScrollState();
         await sendChat();
     } catch (error) {
         // Display error toast

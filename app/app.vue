@@ -12,5 +12,6 @@ provide("sessionState", {
 <template>
     <UApp>
         <NuxtPage />
+        <Disclaimer app-name="Chatbot" />
     </UApp>
 </template>

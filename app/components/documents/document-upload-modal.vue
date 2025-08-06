@@ -115,6 +115,7 @@
 
 <script lang="ts" setup>
 import { useDocumentForm } from "~/composables/documents/useDocumentForm";
+import { ERROR_LIMITS, FILE_LIMITS, FILE_TYPES } from "~/utils/constants";
 
 interface Props {
     isOpen: boolean;
@@ -152,8 +153,9 @@ const toast = useToast();
 
 // Multiple file selection state
 const selectedFiles = ref<File[]>([]);
-const maxFiles = 10;
-const maxFileSize = 50 * 1024 * 1024; // 50MB per file
+
+const maxFiles = FILE_LIMITS.MAX_FILES;
+const maxFileSize = FILE_LIMITS.MAX_FILE_SIZE;
 
 // Folder selection state
 const selectedFolder = ref<string>("");
@@ -282,7 +284,7 @@ function validateSelectedFiles(files: File[]): File[] {
         }
 
         // Check file type
-        const allowedExtensions = [".pdf", ".zip", ".docx", ".pptx", ".html"];
+        const allowedExtensions = FILE_TYPES.ALLOWED_EXTENSIONS;
         const fileExtension = `.${file.name.toLowerCase().split(".").pop()}`;
         if (!allowedExtensions.includes(fileExtension)) {
             errors.push(
@@ -299,8 +301,12 @@ function validateSelectedFiles(files: File[]): File[] {
         toast.add({
             title: t("documents.fileValidationError"),
             description:
-                errors.slice(0, 3).join("\n") +
-                (errors.length > 3 ? "\n..." : ""),
+                errors
+                    .slice(0, ERROR_LIMITS.MAX_VALIDATION_ERRORS_DISPLAYED)
+                    .join("\n") +
+                (errors.length > ERROR_LIMITS.MAX_VALIDATION_ERRORS_DISPLAYED
+                    ? "\n..."
+                    : ""),
             icon: "i-heroicons-exclamation-triangle",
             color: "error",
         });
@@ -553,8 +559,8 @@ async function handleSubmit(): Promise<void> {
             const serverErrorMessage = uploadError.value;
             let description = serverErrorMessage
                 ? t("documents.uploadErrorWithDetails", {
-                    details: serverErrorMessage,
-                })
+                      details: serverErrorMessage,
+                  })
                 : t("documents.uploadErrorDescription");
 
             // For multiple files, add list of failed files

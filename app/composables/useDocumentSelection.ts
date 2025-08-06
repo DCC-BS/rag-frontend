@@ -1,4 +1,5 @@
 import type { UserDocument } from "~/models/message";
+import { SELECTION_LIMITS } from "~/utils/constants";
 
 export interface UseDocumentSelectionReturn {
     selectedDocuments: Ref<UserDocument[]>;
@@ -16,7 +17,7 @@ export interface UseDocumentSelectionReturn {
  * Allows selection of up to 5 documents for targeted chat conversations
  */
 export const useDocumentSelection = (): UseDocumentSelectionReturn => {
-    const MAX_SELECTION = 5;
+    const MAX_SELECTION = SELECTION_LIMITS.MAX_CHAT_SELECTION;
 
     // Store selected documents with full data for UI display
     const selectedDocuments = ref<UserDocument[]>([]);

@@ -1,3 +1,5 @@
+import { PROCESSING, TIMING, UI_LAYOUT } from "~/utils/constants";
+
 interface UseDocumentDownloadReturn {
     downloadDocument: (documentId: number, fileName?: string) => Promise<void>;
     loading: Ref<boolean>;
@@ -54,7 +56,7 @@ export const useDocumentDownload = (): UseDocumentDownloadReturn => {
                     const newWindow = window.open(
                         blobUrl,
                         "_blank",
-                        "width=800,height=600,scrollbars=yes,resizable=yes",
+                        `width=${UI_LAYOUT.DOWNLOAD_POPUP_WIDTH},height=${UI_LAYOUT.DOWNLOAD_POPUP_HEIGHT},scrollbars=yes,resizable=yes`,
                     );
 
                     if (newWindow) {
@@ -62,7 +64,7 @@ export const useDocumentDownload = (): UseDocumentDownloadReturn => {
                         newWindow.onload = () => {
                             setTimeout(
                                 () => URL.revokeObjectURL(blobUrl),
-                                1000,
+                                TIMING.DOWNLOAD_POPUP_TIMEOUT,
                             );
                         };
                     } else {
@@ -115,10 +117,10 @@ export const useDocumentDownload = (): UseDocumentDownloadReturn => {
             .replace(/[<>:"/\\|?*]/g, "_") // Replace invalid chars with underscore
             .replace(/\s+/g, " ") // Replace multiple spaces with single space
             .trim() // Remove leading/trailing whitespace
-            .substring(0, 255); // Limit length to 255 characters
+            .substring(0, PROCESSING.MAX_FILENAME_LENGTH); // Limit length to max characters
 
         // Remove control characters (0-31)
-        for (let i = 0; i < 32; i++) {
+        for (let i = 0; i < PROCESSING.ASCII_CONTROL_CHAR_END; i++) {
             sanitized = sanitized.replace(
                 new RegExp(String.fromCharCode(i), "g"),
                 "_",

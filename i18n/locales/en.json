@@ -38,6 +38,8 @@
         "documentSelectionUpdatedDescription": "Now chatting with {count} selected documents",
         "chatWithSelected": "Chat with Selected",
         "chatWithDocuments": "Chatting with {count} documents",
+        "documentsPreSelected": "Documents Pre-selected",
+        "documentsPreSelectedDescription": "{count} document pre-selected for chat | {count} documents pre-selected for chat",
         "maxReached": "Max",
         "decision": {
             "retrieve": "Retrieve",
@@ -109,7 +111,7 @@
         "deleteSelected": "Delete {count} document | Delete {count} documents",
         "clickToView": "Click to view",
         "clickToDownload": "Click to download",
-        "selectForDeletion": "Select for multi-delete",
+        "selectDocument": "Select document",
         "updateDocument": "Update document",
         "deleteDocument": "Delete document",
         "treeView": "Tree View",
@@ -164,6 +166,7 @@
         "failedToDownload": "Failed to download \"{fileName}\". Please try again.",
         "operationFailed": "Operation Failed",
         "failedTo": "Failed to {operation} \"{fileName}\". Please try again.",
+        "onlyPdfSupported": "Only PDF files are supported.",
         "load": "load",
         "download": "download",
         "validationError": "Validation Error",
@@ -220,6 +223,13 @@
         "zoomIn": "Zoom in",
         "zoomOut": "Zoom out",
         "resetZoom": "Reset zoom",
-        "pageOf": "Page {currentPage} of {totalPages}"
+        "pageOf": "Page {currentPage} of {totalPages}",
+        "chatWithSelected": "Chat with {count} document | Chat with {count} documents",
+        "chatWithSelectedError": "Chat with Selected Error",
+        "noDocumentsSelectedForChat": "No documents selected for chat. Please select 1-5 documents.",
+        "tooManyDocumentsSelectedForChat": "Too many documents selected. Please select up to 5 documents for chat.",
+        "chatWithSelectedSuccess": "Documents Selected for Chat",
+        "chatWithSelectedSuccessDescription": "Successfully selected {count} document for chat | Successfully selected {count} documents for chat",
+        "chatWithSelectedErrorDescription": "An error occurred while setting up documents for chat. Please try again."
     }
 }

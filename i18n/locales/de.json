@@ -38,6 +38,8 @@
         "documentSelectionUpdatedDescription": "Chatte jetzt mit {count} ausgewählten Dokumenten",
         "chatWithSelected": "Mit Auswahl chatten",
         "chatWithDocuments": "Chatte mit {count} Dokumenten",
+        "documentsPreSelected": "Dokumente vorausgewählt",
+        "documentsPreSelectedDescription": "{count} Dokument für Chat vorausgewählt | {count} Dokumente für Chat vorausgewählt",
         "maxReached": "Max",
         "decision": {
             "retrieve": "Dokumente suchen",
@@ -109,7 +111,7 @@
         "deleteSelected": "{count} Dokument löschen | {count} Dokumente löschen",
         "clickToView": "Klicken zum Anzeigen",
         "clickToDownload": "Klicken zum Herunterladen",
-        "selectForDeletion": "Für Mehrfachlöschung auswählen",
+        "selectDocument": "Dokument auswählen",
         "updateDocument": "Dokument aktualisieren",
         "deleteDocument": "Dokument löschen",
         "treeView": "Baumansicht",
@@ -164,6 +166,7 @@
         "failedToDownload": "Der Download von \"{fileName}\" ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
         "operationFailed": "Operation fehlgeschlagen",
         "failedTo": "Konnte \"{fileName}\" nicht {operation}. Bitte versuchen Sie es erneut.",
+        "onlyPdfSupported": "Nur PDF-Dateien werden unterstützt.",
         "load": "laden",
         "download": "herunterladen",
         "validationError": "Validierungsfehler",
@@ -220,6 +223,13 @@
         "zoomIn": "Vergrössern",
         "zoomOut": "Verkleinern",
         "resetZoom": "Zoom zurücksetzen",
-        "pageOf": "Seite {currentPage} von {totalPages}"
+        "pageOf": "Seite {currentPage} von {totalPages}",
+        "chatWithSelected": "Mit {count} Dokument chatten | Mit {count} Dokumenten chatten",
+        "chatWithSelectedError": "Fehler beim Chat mit Auswahl",
+        "noDocumentsSelectedForChat": "Keine Dokumente für Chat ausgewählt. Bitte wählen Sie 1-5 Dokumente aus.",
+        "tooManyDocumentsSelectedForChat": "Zu viele Dokumente ausgewählt. Bitte wählen Sie bis zu 5 Dokumente für den Chat aus.",
+        "chatWithSelectedSuccess": "Dokumente für Chat ausgewählt",
+        "chatWithSelectedSuccessDescription": "{count} Dokument erfolgreich für Chat ausgewählt | {count} Dokumente erfolgreich für Chat ausgewählt",
+        "chatWithSelectedErrorDescription": "Ein Fehler ist beim Einrichten der Dokumente für den Chat aufgetreten. Bitte versuchen Sie es erneut."
     }
 }

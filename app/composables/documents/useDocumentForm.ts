@@ -1,5 +1,6 @@
 import type { ComputedRef } from "vue";
 import { computed, ref } from "vue";
+import { FILE_LIMITS, PROCESSING } from "~/utils/constants";
 
 /**
  * Composable for managing document form state and logic.
@@ -12,7 +13,7 @@ export function useDocumentForm() {
     const { data: session, refresh } = useAuth();
 
     // File size configuration (in bytes)
-    const maxFileSize = ref(50 * 1024 * 1024); // 50MB default
+    const maxFileSize = ref(FILE_LIMITS.MAX_FILE_SIZE);
 
     // Form state
     const selectedFile = ref<File | undefined>(undefined);
@@ -77,7 +78,7 @@ export function useDocumentForm() {
         if (bytes === 0) {
             return "0 Bytes";
         }
-        const k = 1024;
+        const k = PROCESSING.BYTES_PER_KB;
         const sizes = ["Bytes", "KB", "MB", "GB"];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;

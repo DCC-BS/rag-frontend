@@ -114,8 +114,14 @@ const findUserDocument = async (
     fileName: string,
 ): Promise<UserDocument | undefined> => {
     // Ensure documents are loaded
+    // Ensure documents are loaded
     if (!documents.value) {
-        await fetchDocuments();
+        try {
+            await fetchDocuments();
+        } catch (error) {
+            console.error("Failed to fetch documents:", error);
+            return undefined;
+        }
     }
 
     return documents.value?.documents?.find(

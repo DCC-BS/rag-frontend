@@ -1,4 +1,5 @@
 import { getHeader, type H3Event, readBody, readFormData } from "h3";
+import { getServerSession } from "#auth";
 
 type Method = "POST" | "GET" | "PUT" | "DELETE";
 
@@ -46,6 +47,22 @@ async function preserveFormData(event: H3Event): Promise<FormData | unknown> {
 }
 
 export default defineEventHandler(async (event) => {
+    // Check if the user is authenticated and has the Writer role
+    const session = await getServerSession(event);
+    if (!session?.user) {
+        throw createError({
+            statusCode: 401,
+            statusMessage: "Authentication required",
+        });
+    }
+
+    const user = session.user as { roles?: string[] };
+    if (!user.roles?.includes("Writer")) {
+        throw createError({
+            statusCode: 403,
+            statusMessage: "Writer role required",
+        });
+    }
     const handler = defineBackendHandler({
         url: "/documents",
         method: "POST",

@@ -96,7 +96,7 @@
                         <UCheckbox :model-value="isSelected" @update:model-value="handleSelectionChange"
                             class="shrink-0" />
                         <span class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ t('documents.selectForDeletion') }}
+                            {{ t('documents.selectDocument') }}
                         </span>
                     </div>
 
@@ -107,13 +107,16 @@
                                 color="neutral" variant="ghost" size="sm" @click="handleDocumentClick" />
                         </UTooltip>
 
-                        <UTooltip :text="isUpdatingDocument ? t('documents.updating') : t('documents.updateDocument')">
+                        <!-- Update and Delete buttons - only show for Writer role -->
+                        <UTooltip v-if="hasWriterRole"
+                            :text="isUpdatingDocument ? t('documents.updating') : t('documents.updateDocument')">
                             <UButton :icon="isUpdatingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-pencil-square'"
                                 :class="{ 'animate-spin': isUpdatingDocument }" color="warning" variant="ghost"
                                 size="sm" :disabled="isUpdatingDocument" @click="handleUpdateClick" />
                         </UTooltip>
 
-                        <UTooltip :text="isDeletingDocument ? t('documents.deleting') : t('documents.deleteDocument')">
+                        <UTooltip v-if="hasWriterRole"
+                            :text="isDeletingDocument ? t('documents.deleting') : t('documents.deleteDocument')">
                             <UButton :icon="isDeletingDocument ? 'i-heroicons-arrow-path' : 'i-heroicons-trash'"
                                 :class="{ 'animate-spin': isDeletingDocument }" color="error" variant="ghost" size="sm"
                                 :disabled="isDeletingDocument" @click="handleDeleteClick" />
@@ -130,7 +133,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { UserDocument } from "~/models/message";
+import type { UserDocument } from "~/models/document";
 
 const { t } = useI18n();
 
@@ -139,6 +142,7 @@ const props = defineProps<{
     isSelected?: boolean;
     isDeletingDocument?: boolean;
     isUpdatingDocument?: boolean;
+    hasWriterRole?: boolean;
 }>();
 
 const emit = defineEmits<{
