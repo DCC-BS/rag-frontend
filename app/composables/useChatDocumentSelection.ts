@@ -23,7 +23,7 @@ export const useChatDocumentSelection = () => {
                                 item &&
                                 typeof item === "object" &&
                                 "id" in item &&
-                                typeof item.id === "string",
+                                typeof item.id === "number",
                         )
                     ) {
                         selectedDocumentsForChat.value = parsed;
