@@ -409,15 +409,16 @@ function saveSelectedDocumentsToStorage(selection: number[]): void {
         } catch (error) {
             console.warn("Failed to save document selections:", error);
 
-            // Handle QuotaExceededError specifically - this is an actual error condition
             if (error instanceof Error && error.name === "QuotaExceededError") {
-                const { handleApiError } = useApiError();
-                handleApiError(
-                    new Error(
-                        "Storage quota exceeded. Please clear some browser data or select fewer documents.",
+                toast.add({
+                    title: t("documents.storageSizeTitle", "Selection Too Large"),
+                    description: t(
+                        "documents.storageSizeDescription",
+                        "Selection too large for storage. Please select fewer documents.",
                     ),
-                    "Storage limit reached",
-                );
+                    color: "error",
+                    icon: "i-heroicons-exclamation-triangle",
+                });
             } else {
                 // Other storage errors are also actual error conditions
                 const { handleApiError } = useApiError();
