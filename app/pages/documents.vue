@@ -312,14 +312,60 @@ function initializeSelections(): void {
 const MAX_SELECTION_COUNT = 50; // Maximum number of document IDs to store
 const MAX_STORAGE_SIZE = 50000; // Maximum JSON string length (~50KB)
 
+// Flag to prevent infinite loops when updating selectedDocuments
+const isUpdatingSelection = ref<boolean>(false);
+
 // Save to localStorage whenever selections change
 watch(
     selectedDocuments,
     (newSelection) => {
-        saveSelectedDocumentsToStorage(newSelection);
+        if (!isUpdatingSelection.value) {
+            saveSelectedDocumentsToStorage(newSelection);
+        }
     },
     { deep: true },
 );
+
+/**
+ * Handle selection truncation and show notification
+ */
+function handleSelectionTruncation(
+    originalLength: number,
+    truncatedSelection: number[],
+): void {
+    toast.add({
+        title: t("documents.selectionLimitTitle", "Selection Limit Reached"),
+        description: t(
+            "documents.selectionLimitDescription",
+            { limit: MAX_SELECTION_COUNT, original: originalLength },
+            `Selection limit exceeded. Only the first ${MAX_SELECTION_COUNT} of ${originalLength} documents were saved.`,
+        ),
+        color: "warning",
+        icon: "i-heroicons-exclamation-triangle",
+    });
+
+    // Update the reactive value safely without triggering the watcher
+    isUpdatingSelection.value = true;
+    selectedDocuments.value = truncatedSelection;
+    nextTick(() => {
+        isUpdatingSelection.value = false;
+    });
+}
+
+/**
+ * Show storage size limit notification
+ */
+function showStorageSizeError(): void {
+    toast.add({
+        title: t("documents.storageSizeTitle", "Selection Too Large"),
+        description: t(
+            "documents.storageSizeDescription",
+            "Selection too large for storage. Please select fewer documents.",
+        ),
+        color: "warning",
+        icon: "i-heroicons-exclamation-triangle",
+    });
+}
 
 /**
  * Save selected documents to localStorage with size limits and error handling
@@ -333,20 +379,13 @@ function saveSelectedDocumentsToStorage(selection: number[]): void {
                     0,
                     MAX_SELECTION_COUNT,
                 );
-                const { handleApiError } = useApiError();
-                handleApiError(
-                    new Error(
-                        `Selection limit exceeded. Only the first ${MAX_SELECTION_COUNT} documents were saved.`,
-                    ),
-                    "Failed to save all selected documents",
-                );
-                // Save truncated selection
+                // Save truncated selection first
                 localStorage.setItem(
                     "documents-selection",
                     JSON.stringify(truncatedSelection),
                 );
-                // Update the reactive value to match what was actually saved
-                selectedDocuments.value = truncatedSelection;
+                // Handle truncation notification outside the watcher
+                handleSelectionTruncation(selection.length, truncatedSelection);
                 return;
             }
 
@@ -354,13 +393,7 @@ function saveSelectedDocumentsToStorage(selection: number[]): void {
 
             // Check if JSON string exceeds size limit
             if (jsonString.length > MAX_STORAGE_SIZE) {
-                const { handleApiError } = useApiError();
-                handleApiError(
-                    new Error(
-                        "Selection too large for storage. Please select fewer documents.",
-                    ),
-                    "Failed to save document selection",
-                );
+                showStorageSizeError();
                 return;
             }
 
@@ -368,7 +401,7 @@ function saveSelectedDocumentsToStorage(selection: number[]): void {
         } catch (error) {
             console.warn("Failed to save document selections:", error);
 
-            // Handle QuotaExceededError specifically
+            // Handle QuotaExceededError specifically - this is an actual error condition
             if (error instanceof Error && error.name === "QuotaExceededError") {
                 const { handleApiError } = useApiError();
                 handleApiError(
@@ -378,6 +411,7 @@ function saveSelectedDocumentsToStorage(selection: number[]): void {
                     "Storage limit reached",
                 );
             } else {
+                // Other storage errors are also actual error conditions
                 const { handleApiError } = useApiError();
                 handleApiError(error, "Failed to save document selections");
             }
