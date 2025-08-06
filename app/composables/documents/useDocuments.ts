@@ -1,4 +1,5 @@
 import type { DocumentsResponse } from "~/models/document";
+import { SEARCH_LIMITS } from "~/utils/constants";
 
 interface UseDocumentsReturn {
     documents: Ref<DocumentsResponse | undefined>;
@@ -38,8 +39,11 @@ export const useDocuments = (): UseDocumentsReturn => {
                 searchParams.append("query", query.trim());
             }
             if (limit && limit > 0) {
-                // Ensure limit doesn't exceed 20
-                searchParams.append("limit", Math.min(limit, 20).toString());
+                // Ensure limit doesn't exceed maximum
+                searchParams.append(
+                    "limit",
+                    Math.min(limit, SEARCH_LIMITS.MAX_SEARCH_LIMIT).toString(),
+                );
             }
 
             const queryString = searchParams.toString();

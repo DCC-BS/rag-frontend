@@ -1,3 +1,5 @@
+import { TIMING, UI_LAYOUT } from "~/utils/constants";
+
 /**
  * Composable for handling auto-scroll behavior in chat
  */
@@ -28,10 +30,10 @@ export const useAutoScroll = () => {
                         // Reset the flag after auto-scroll is complete
                         setTimeout(() => {
                             isAutoScrolling.value = false;
-                        }, 100);
+                        }, TIMING.AUTO_SCROLL_DELAY);
                     }
                 }
-            }, 10);
+            }, TIMING.DOM_UPDATE_DELAY);
         }
     }
 
@@ -43,7 +45,7 @@ export const useAutoScroll = () => {
 
         const element = chatHistoryRef.value;
         const { scrollTop, scrollHeight, clientHeight } = element;
-        const threshold = 100; // pixels from bottom
+        const threshold = UI_LAYOUT.SCROLL_THRESHOLD; // pixels from bottom
 
         return scrollHeight - scrollTop - clientHeight <= threshold;
     }

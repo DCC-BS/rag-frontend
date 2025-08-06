@@ -166,6 +166,7 @@
         "failedToDownload": "Failed to download \"{fileName}\". Please try again.",
         "operationFailed": "Operation Failed",
         "failedTo": "Failed to {operation} \"{fileName}\". Please try again.",
+        "onlyPdfSupported": "Only PDF files are supported.",
         "load": "load",
         "download": "download",
         "validationError": "Validation Error",

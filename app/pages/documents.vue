@@ -275,7 +275,7 @@ const toast = useToast();
 
 // Search functionality
 const searchQuery = ref<string>("");
-const searchLimit = ref<number>(10);
+const searchLimit = ref<number>(SEARCH_LIMITS.DEFAULT_SEARCH_LIMIT);
 const searchLoading = ref<boolean>(false);
 const searchPerformed = ref<boolean>(false);
 
@@ -286,7 +286,9 @@ const selectedDocuments = ref<number[]>([]);
 function initializeSelections(): void {
     if (typeof window !== "undefined") {
         try {
-            const stored = localStorage.getItem("documents-selection");
+            const stored = localStorage.getItem(
+                STORAGE_KEYS.DOCUMENTS_SELECTION,
+            );
             if (stored) {
                 const parsed = JSON.parse(stored);
                 if (Array.isArray(parsed)) {
@@ -303,14 +305,17 @@ function initializeSelections(): void {
         } catch (error) {
             console.warn("Failed to restore document selections:", error);
             // Clear corrupted data
-            localStorage.removeItem("documents-selection");
+            localStorage.removeItem(STORAGE_KEYS.DOCUMENTS_SELECTION);
         }
     }
 }
 
-// Constants for localStorage management
-const MAX_SELECTION_COUNT = 50; // Maximum number of document IDs to store
-const MAX_STORAGE_SIZE = 50000; // Maximum JSON string length (~50KB)
+// Import constants
+import {
+    SELECTION_LIMITS,
+    STORAGE_KEYS,
+    STORAGE_LIMITS,
+} from "~/utils/constants";
 
 // Flag to prevent infinite loops when updating selectedDocuments
 const isUpdatingSelection = ref<boolean>(false);
@@ -337,8 +342,11 @@ function handleSelectionTruncation(
         title: t("documents.selectionLimitTitle", "Selection Limit Reached"),
         description: t(
             "documents.selectionLimitDescription",
-            { limit: MAX_SELECTION_COUNT, original: originalLength },
-            `Selection limit exceeded. Only the first ${MAX_SELECTION_COUNT} of ${originalLength} documents were saved.`,
+            {
+                limit: SELECTION_LIMITS.MAX_SELECTION_COUNT,
+                original: originalLength,
+            },
+            `Selection limit exceeded. Only the first ${SELECTION_LIMITS.MAX_SELECTION_COUNT} of ${originalLength} documents were saved.`,
         ),
         color: "warning",
         icon: "i-heroicons-exclamation-triangle",
@@ -374,14 +382,14 @@ function saveSelectedDocumentsToStorage(selection: number[]): void {
     if (typeof window !== "undefined") {
         try {
             // Check if selection exceeds count limit
-            if (selection.length > MAX_SELECTION_COUNT) {
+            if (selection.length > SELECTION_LIMITS.MAX_SELECTION_COUNT) {
                 const truncatedSelection = selection.slice(
                     0,
-                    MAX_SELECTION_COUNT,
+                    SELECTION_LIMITS.MAX_SELECTION_COUNT,
                 );
                 // Save truncated selection first
                 localStorage.setItem(
-                    "documents-selection",
+                    STORAGE_KEYS.DOCUMENTS_SELECTION,
                     JSON.stringify(truncatedSelection),
                 );
                 // Handle truncation notification outside the watcher
@@ -392,12 +400,12 @@ function saveSelectedDocumentsToStorage(selection: number[]): void {
             const jsonString = JSON.stringify(selection);
 
             // Check if JSON string exceeds size limit
-            if (jsonString.length > MAX_STORAGE_SIZE) {
+            if (jsonString.length > STORAGE_LIMITS.MAX_STORAGE_SIZE) {
                 showStorageSizeError();
                 return;
             }
 
-            localStorage.setItem("documents-selection", jsonString);
+            localStorage.setItem(STORAGE_KEYS.DOCUMENTS_SELECTION, jsonString);
         } catch (error) {
             console.warn("Failed to save document selections:", error);
 
@@ -464,7 +472,7 @@ const viewMode = ref<"tree" | "grid">("tree");
 
 // Client-side pagination for grid view
 const currentPage = ref<number>(1);
-const itemsPerPage = ref<number>(12);
+const itemsPerPage = ref<number>(SEARCH_LIMITS.GRID_ITEMS_PER_PAGE);
 
 // Client-side pagination: slice documents array for current page
 const paginatedDocuments = computed(() => {
@@ -652,7 +660,9 @@ async function performSearch(): Promise<void> {
     searchLoading.value = true;
     try {
         const limit =
-            searchLimit.value > 0 ? Math.min(searchLimit.value, 20) : 10;
+            searchLimit.value > 0
+                ? Math.min(searchLimit.value, SEARCH_LIMITS.MAX_SEARCH_LIMIT)
+                : SEARCH_LIMITS.DEFAULT_SEARCH_LIMIT;
         await searchDocuments(searchQuery.value.trim(), limit);
         searchPerformed.value = true;
         // Clear selections after search to avoid stale selections
@@ -719,7 +729,7 @@ function clearSelection(): void {
  */
 async function clearSearch(): Promise<void> {
     searchQuery.value = "";
-    searchLimit.value = 10;
+    searchLimit.value = SEARCH_LIMITS.DEFAULT_SEARCH_LIMIT;
     searchPerformed.value = false;
     selectedDocuments.value = [];
     currentPage.value = 1; // Reset to first page

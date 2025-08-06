@@ -1,6 +1,6 @@
 <template>
     <UDrawer v-model:open="isOpen" direction="left" :title="t('chat.selectDocuments')"
-        :description="t('chat.selectDocumentsDescription', { max: 5 })">
+        :description="t('chat.selectDocumentsDescription', { max: SELECTION_LIMITS.MAX_CHAT_SELECTION })">
         <!-- Trigger button -->
         <UButton color="neutral" variant="outline" icon="i-heroicons-document-text" :label="buttonLabel" size="sm" />
 
@@ -14,7 +14,7 @@
                                 {{ t('chat.selectDocuments') }}
                             </h2>
                             <p class="text-gray-600 text-sm dark:text-gray-400">
-                                {{ t('chat.selectDocumentsDescription', { max: 5 }) }}
+                                {{ t('chat.selectDocumentsDescription', { max: SELECTION_LIMITS.MAX_CHAT_SELECTION }) }}
                             </p>
                         </div>
                     </div>
@@ -24,7 +24,7 @@
                         <div class="text-gray-600 text-sm dark:text-gray-400">
                             {{ t('chat.documentsSelected', {
                                 count: selectedDocuments.length,
-                                max: 5
+                                max: SELECTION_LIMITS.MAX_CHAT_SELECTION
                             }) }}
                         </div>
                         <UButton v-if="selectedDocuments.length > 0" color="neutral" variant="outline" size="xs"
@@ -123,6 +123,13 @@
 </template>
 
 <script lang="ts" setup>
+import {
+    SEARCH_LIMITS,
+    SELECTION_LIMITS,
+    STORAGE_KEYS,
+    TIMING,
+} from "~/utils/constants";
+
 const { t } = useI18n();
 const toast = useToast();
 
@@ -157,7 +164,7 @@ const searchPerformed = ref<boolean>(false);
 
 // Pagination for drawer (10 docs per page)
 const currentPage = ref<number>(1);
-const itemsPerPage = ref<number>(10);
+const itemsPerPage = ref<number>(SEARCH_LIMITS.DRAWER_ITEMS_PER_PAGE);
 
 // Template ref for search input to auto-focus
 const searchInputRef = ref();
@@ -171,7 +178,7 @@ const buttonLabel = computed<string>(() => {
     }
     return t("chat.documentsSelected", {
         count: selectedDocuments.value.length,
-        max: 5,
+        max: SELECTION_LIMITS.MAX_CHAT_SELECTION,
     });
 });
 
@@ -235,7 +242,10 @@ async function performSearch(): Promise<void> {
     searchLoading.value = true;
     currentPage.value = 1; // Reset to first page when searching
     try {
-        await searchDocuments(query, 20);
+        await searchDocuments(
+            query,
+            SEARCH_LIMITS.DRAWER_SEARCH_ITEMS_PER_PAGE,
+        );
         searchPerformed.value = true;
     } catch (error) {
         console.error("Error searching documents:", error);
@@ -293,7 +303,7 @@ watch(isOpen, async (newValue) => {
             if (inputElement) {
                 inputElement.focus();
             }
-        }, 150);
+        }, TIMING.DRAWER_ANIMATION_DELAY);
     }
 });
 
@@ -380,7 +390,7 @@ watch(
         if (typeof window !== "undefined") {
             try {
                 localStorage.setItem(
-                    "documents-selection",
+                    STORAGE_KEYS.DOCUMENTS_SELECTION,
                     JSON.stringify(newDocumentIds),
                 );
             } catch (error) {

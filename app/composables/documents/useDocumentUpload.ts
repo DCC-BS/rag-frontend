@@ -1,5 +1,6 @@
 import { unzip } from "fflate";
 import type { DocumentUploadResponse } from "~/models/document";
+import { FILE_LIMITS, PROCESSING } from "~/utils/constants";
 
 interface UploadProgress {
     current: number;
@@ -41,8 +42,8 @@ export const useDocumentUpload = (): UseDocumentUploadReturn => {
     });
 
     // Constants for batching limits
-    const MAX_FILES_PER_BATCH = 100;
-    const MAX_BATCH_SIZE_BYTES = 500 * 1024 * 1024; // 500MB
+    const MAX_FILES_PER_BATCH = PROCESSING.MAX_FILES_PER_BATCH;
+    const MAX_BATCH_SIZE_BYTES = FILE_LIMITS.MAX_BATCH_SIZE;
 
     /**
      * Extract files from ZIP archive using fflate

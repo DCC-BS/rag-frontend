@@ -34,9 +34,9 @@
                         <div v-if="props.message.streaming" class="flex space-x-1">
                             <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
                             <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"
-                                style="animation-delay: 0.2s" />
+                                :style="`animation-delay: ${ANIMATION.DOT_ANIMATION_DELAY_1}`" />
                             <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"
-                                style="animation-delay: 0.4s" />
+                                :style="`animation-delay: ${ANIMATION.DOT_ANIMATION_DELAY_2}`" />
                         </div>
 
                         <!-- Render structured status parts -->
@@ -84,6 +84,7 @@ import type { MDCParserResult } from "@nuxtjs/mdc";
 import { computed } from "vue";
 import type { Message, StatusPart } from "@/models/message";
 import type { UserDocument } from "~/models/document";
+import { ANIMATION } from "~/utils/constants";
 
 const props = defineProps<{
     message: Message;
@@ -169,7 +170,7 @@ async function handleDocumentReferenceClick(docIndex: number): Promise<void> {
         if (!isPdf) {
             toast.add({
                 title: t("documents.operationFailed"),
-                description: `${t("documents.failedTo", { operation: "view", fileName })} Only PDF files are supported.`,
+                description: `${t("documents.failedTo", { operation: "view", fileName })} ${t("documents.onlyPdfSupported")}`,
                 icon: "i-heroicons-exclamation-triangle",
                 color: "warning",
             });

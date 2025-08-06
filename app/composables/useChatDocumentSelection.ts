@@ -1,4 +1,5 @@
 import type { UserDocument } from "~/models/document";
+import { STORAGE_KEYS } from "~/utils/constants";
 
 /**
  * Composable for managing document selection transfer between documents page and chat
@@ -13,7 +14,9 @@ export const useChatDocumentSelection = () => {
     function initializeChatDocuments(): void {
         if (typeof window !== "undefined") {
             try {
-                const stored = localStorage.getItem("chat-selected-documents");
+                const stored = localStorage.getItem(
+                    STORAGE_KEYS.CHAT_SELECTED_DOCUMENTS,
+                );
                 if (stored) {
                     const parsed = JSON.parse(stored);
                     if (
@@ -43,7 +46,7 @@ export const useChatDocumentSelection = () => {
         if (typeof window !== "undefined") {
             try {
                 localStorage.setItem(
-                    "chat-selected-documents",
+                    STORAGE_KEYS.CHAT_SELECTED_DOCUMENTS,
                     JSON.stringify(selectedDocumentsForChat.value),
                 );
             } catch (error) {

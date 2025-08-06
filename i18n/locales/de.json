@@ -166,6 +166,7 @@
         "failedToDownload": "Der Download von \"{fileName}\" ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
         "operationFailed": "Operation fehlgeschlagen",
         "failedTo": "Konnte \"{fileName}\" nicht {operation}. Bitte versuchen Sie es erneut.",
+        "onlyPdfSupported": "Nur PDF-Dateien werden unterstützt.",
         "load": "laden",
         "download": "herunterladen",
         "validationError": "Validierungsfehler",
