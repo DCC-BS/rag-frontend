@@ -66,7 +66,7 @@
             <UAccordion :items="accordionItems" :default-open="false">
                 <template #item="{ item }">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <Document v-for="(document, docIndex) in props.message.documents" :key="docIndex"
+                        <DocumentCard v-for="(document, docIndex) in props.message.documents" :key="docIndex"
                             :document="document" :index="docIndex" />
                     </div>
                 </template>

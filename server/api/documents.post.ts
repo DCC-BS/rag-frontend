@@ -49,10 +49,18 @@ async function preserveFormData(event: H3Event): Promise<FormData | unknown> {
 export default defineEventHandler(async (event) => {
     // Check if the user is authenticated and has the Writer role
     const session = await getServerSession(event);
-    if (!(session?.user as { roles?: string[] })?.roles?.includes("Writer")) {
+    if (!session?.user) {
         throw createError({
             statusCode: 401,
-            statusMessage: "Unauthorized",
+            statusMessage: "Authentication required",
+        });
+    }
+
+    const user = session.user as { roles?: string[] };
+    if (!user.roles?.includes("Writer")) {
+        throw createError({
+            statusCode: 403,
+            statusMessage: "Writer role required",
         });
     }
     const handler = defineBackendHandler({

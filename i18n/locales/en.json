@@ -111,7 +111,7 @@
         "deleteSelected": "Delete {count} document | Delete {count} documents",
         "clickToView": "Click to view",
         "clickToDownload": "Click to download",
-        "selectForDeletion": "Select for multi-delete",
+        "selectDocument": "Select document",
         "updateDocument": "Update document",
         "deleteDocument": "Delete document",
         "treeView": "Tree View",

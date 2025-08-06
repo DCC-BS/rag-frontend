@@ -16,7 +16,16 @@ export const useChatDocumentSelection = () => {
                 const stored = localStorage.getItem("chat-selected-documents");
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    if (Array.isArray(parsed)) {
+                    if (
+                        Array.isArray(parsed) &&
+                        parsed.every(
+                            (item) =>
+                                item &&
+                                typeof item === "object" &&
+                                "id" in item &&
+                                typeof item.id === "string",
+                        )
+                    ) {
                         selectedDocumentsForChat.value = parsed;
                     }
                 }
@@ -51,16 +60,16 @@ export const useChatDocumentSelection = () => {
      * @param documents - Array of documents to use for chat
      */
     function setDocumentsForChat(documents: UserDocument[]): void {
-        selectedDocumentsForChat.value = documents.slice(0, 5); // Limit to 5 documents max
+        selectedDocumentsForChat.value = [...documents];
         saveChatDocuments();
     }
 
     /**
-     * Get documents selected for chat
-     * @returns Array of selected documents
+     * Get documents for chat
+     * @returns Array of documents selected for chat
      */
     function getDocumentsForChat(): UserDocument[] {
-        return selectedDocumentsForChat.value;
+        return [...selectedDocumentsForChat.value];
     }
 
     /**

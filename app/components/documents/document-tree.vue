@@ -19,8 +19,7 @@
 
                     <!-- File Actions -->
                     <div v-if="item.isFile && item.document" class="flex items-center gap-1 shrink-0 ml-2" @click.stop>
-                        <UCheckbox v-if="hasWriterRole"
-                            :model-value="selectedDocuments.includes(item.document?.id || 0)"
+                        <UCheckbox :model-value="selectedDocuments.includes(item.document?.id || 0)"
                             @update:model-value="(value) => handleDocumentSelection(item.document?.id || 0, value === true)"
                             size="sm" />
 

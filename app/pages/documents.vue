@@ -103,7 +103,7 @@
                                         <!-- Add Document button - only show for Writer role -->
                                         <UButton v-if="hasWriterRole" :label="t('documents.addDocument')"
                                             icon="i-heroicons-plus" color="primary" variant="solid"
-                                            @click="() => { console.log('Upload button clicked'); showUploadModal = true; }" />
+                                            @click="() => { showUploadModal = true; }" />
                                     </UButtonGroup>
                                 </template>
                                 <!-- Bulk actions when documents are selected -->
@@ -153,7 +153,7 @@
                             <!-- Upload First button - only show for Writer role -->
                             <template v-else-if="hasWriterRole">
                                 <UButton color="primary" variant="solid" icon="i-heroicons-plus"
-                                    @click="() => { console.log('Upload first button clicked'); showUploadModal = true; }">
+                                    @click="() => { showUploadModal = true; }">
                                     {{ t('documents.uploadFirst') }}
                                 </UButton>
                             </template>
@@ -163,8 +163,7 @@
                         <div v-else-if="documents.documents && documents.documents.length > 0" class="space-y-6">
                             <!-- Tree View -->
                             <div v-if="viewMode === 'tree'">
-                                <DocumentTree :documents="documents.documents"
-                                    :selectedDocuments="hasWriterRole ? selectedDocuments : []"
+                                <DocumentTree :documents="documents.documents" :selectedDocuments="selectedDocuments"
                                     :deletingDocumentIds="deletingDocumentIds"
                                     :updatingDocumentIds="updatingDocumentIds" :hasWriterRole="hasWriterRole"
                                     @update:selected="handleDocumentSelection" @delete="showSingleDeleteConfirmation"
@@ -175,8 +174,7 @@
                             <div v-else class="space-y-6">
                                 <div class="documents-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                                     <UserDocument v-for="document in paginatedDocuments" :key="document.id"
-                                        :document="document"
-                                        :isSelected="hasWriterRole && selectedDocuments.includes(document.id)"
+                                        :document="document" :isSelected="selectedDocuments.includes(document.id)"
                                         :isDeletingDocument="deletingDocumentIds.includes(document.id)"
                                         :isUpdatingDocument="updatingDocumentIds.includes(document.id)"
                                         :hasWriterRole="hasWriterRole" @update:selected="handleDocumentSelection"
@@ -292,32 +290,121 @@ function initializeSelections(): void {
             if (stored) {
                 const parsed = JSON.parse(stored);
                 if (Array.isArray(parsed)) {
-                    selectedDocuments.value = parsed;
+                    // Only restore the stored IDs without validation
+                    // Validation will happen when documents are loaded via watcher
+                    selectedDocuments.value = parsed.filter(
+                        (id) =>
+                            typeof id === "number" &&
+                            Number.isInteger(id) &&
+                            id > 0,
+                    );
                 }
             }
         } catch (error) {
             console.warn("Failed to restore document selections:", error);
+            // Clear corrupted data
+            localStorage.removeItem("documents-selection");
         }
     }
 }
+
+// Constants for localStorage management
+const MAX_SELECTION_COUNT = 50; // Maximum number of document IDs to store
+const MAX_STORAGE_SIZE = 50000; // Maximum JSON string length (~50KB)
 
 // Save to localStorage whenever selections change
 watch(
     selectedDocuments,
     (newSelection) => {
-        if (typeof window !== "undefined") {
-            try {
-                localStorage.setItem(
-                    "documents-selection",
-                    JSON.stringify(newSelection),
-                );
-            } catch (error) {
-                console.warn("Failed to save document selections:", error);
-            }
-        }
+        saveSelectedDocumentsToStorage(newSelection);
     },
     { deep: true },
 );
+
+/**
+ * Save selected documents to localStorage with size limits and error handling
+ */
+function saveSelectedDocumentsToStorage(selection: number[]): void {
+    if (typeof window !== "undefined") {
+        try {
+            // Check if selection exceeds count limit
+            if (selection.length > MAX_SELECTION_COUNT) {
+                const truncatedSelection = selection.slice(
+                    0,
+                    MAX_SELECTION_COUNT,
+                );
+                const { handleApiError } = useApiError();
+                handleApiError(
+                    new Error(
+                        `Selection limit exceeded. Only the first ${MAX_SELECTION_COUNT} documents were saved.`,
+                    ),
+                    "Failed to save all selected documents",
+                );
+                // Save truncated selection
+                localStorage.setItem(
+                    "documents-selection",
+                    JSON.stringify(truncatedSelection),
+                );
+                // Update the reactive value to match what was actually saved
+                selectedDocuments.value = truncatedSelection;
+                return;
+            }
+
+            const jsonString = JSON.stringify(selection);
+
+            // Check if JSON string exceeds size limit
+            if (jsonString.length > MAX_STORAGE_SIZE) {
+                const { handleApiError } = useApiError();
+                handleApiError(
+                    new Error(
+                        "Selection too large for storage. Please select fewer documents.",
+                    ),
+                    "Failed to save document selection",
+                );
+                return;
+            }
+
+            localStorage.setItem("documents-selection", jsonString);
+        } catch (error) {
+            console.warn("Failed to save document selections:", error);
+
+            // Handle QuotaExceededError specifically
+            if (error instanceof Error && error.name === "QuotaExceededError") {
+                const { handleApiError } = useApiError();
+                handleApiError(
+                    new Error(
+                        "Storage quota exceeded. Please clear some browser data or select fewer documents.",
+                    ),
+                    "Storage limit reached",
+                );
+            } else {
+                const { handleApiError } = useApiError();
+                handleApiError(error, "Failed to save document selections");
+            }
+        }
+    }
+}
+
+/**
+ * Validate stored document IDs against current document list
+ * Filters out any IDs that don't exist in the current documents
+ */
+function validateStoredDocumentIds(storedIds: number[]): number[] {
+    if (!documents.value?.documents || storedIds.length === 0) {
+        return [];
+    }
+
+    const currentDocumentIds = new Set(
+        documents.value.documents.map((doc) => doc.id),
+    );
+
+    return storedIds.filter((id) => {
+        if (typeof id !== "number" || !Number.isInteger(id) || id <= 0) {
+            return false; // Invalid ID format
+        }
+        return currentDocumentIds.has(id);
+    });
+}
 const deletingDocumentIds = ref<number[]>([]);
 
 // Update functionality
@@ -337,11 +424,6 @@ const updateModalData = ref<{
 
 // Upload functionality
 const showUploadModal = ref<boolean>(false);
-
-// Debug: Watch for showUploadModal changes
-watch(showUploadModal, (newValue) => {
-    console.log("showUploadModal changed to:", newValue);
-});
 
 // View mode functionality
 const viewMode = ref<"tree" | "grid">("tree");
@@ -380,36 +462,25 @@ watch(totalPages, (newTotalPages) => {
     }
 });
 
-// Watch for documents changes and clean up stale selections only when necessary
-const shouldCleanupSelections = ref(false);
-
-// Temporarily disabled to debug selection persistence
-/* watch(
-    documents,
+// Watch for changes in documents list and clean up stale selections
+watch(
+    () => documents.value?.documents,
     (newDocuments, oldDocuments) => {
-        // Only clean up selections in specific scenarios where we know documents have actually changed
-        if (
-            newDocuments?.documents && 
-            oldDocuments?.documents && 
-            shouldCleanupSelections.value &&
-            selectedDocuments.value.length > 0
+        // Validate selections when documents first load
+        if (newDocuments && !oldDocuments) {
+            validateAndCleanupSelections();
+        }
+        // Also clean up if documents actually changed (not just loading state)
+        else if (
+            newDocuments &&
+            oldDocuments &&
+            newDocuments !== oldDocuments
         ) {
-            const availableDocumentIds = newDocuments.documents.map(
-                (doc) => doc.id,
-            );
-            const originalCount = selectedDocuments.value.length;
-            selectedDocuments.value = selectedDocuments.value.filter((id) =>
-                availableDocumentIds.includes(id),
-            );
-            
-            if (originalCount !== selectedDocuments.value.length) {
-                console.log(`Cleaned up ${originalCount - selectedDocuments.value.length} stale selections`);
-            }
-            shouldCleanupSelections.value = false;
+            cleanupStaleSelections();
         }
     },
     { deep: true },
-); */
+);
 
 // Delete confirmation modal
 const showDeleteModal = ref<boolean>(false);
@@ -442,7 +513,6 @@ const allSelected = computed<boolean>(() => {
 
 /**
  * Handle "Chat with Selected" button click
- * Transfers selected documents to chat and navigates to chat page
  */
 async function chatWithSelectedDocuments(): Promise<void> {
     if (selectedDocuments.value.length === 0) {
@@ -476,10 +546,8 @@ async function chatWithSelectedDocuments(): Promise<void> {
             throw new Error("No documents found for selected IDs");
         }
 
-        // Set documents for chat
         setDocumentsForChat(selectedDocumentObjects);
 
-        // Show success toast
         toast.add({
             title: t("documents.chatWithSelectedSuccess"),
             description: t("documents.chatWithSelectedSuccessDescription", {
@@ -489,11 +557,7 @@ async function chatWithSelectedDocuments(): Promise<void> {
             icon: "i-heroicons-chat-bubble-left",
         });
 
-        // Navigate to chat page
         await navigateTo("/");
-
-        // Keep selections so user can see what they selected when they return
-        // selectedDocuments.value = []; // Don't clear - maintain for return navigation
     } catch (error) {
         console.error("Error setting documents for chat:", error);
         toast.add({
@@ -502,6 +566,42 @@ async function chatWithSelectedDocuments(): Promise<void> {
             color: "error",
             icon: "i-heroicons-exclamation-triangle",
         });
+    }
+}
+
+/**
+ * Validate and clean up selections when documents first load
+ * This handles the initial validation that was deferred from initializeSelections
+ */
+function validateAndCleanupSelections(): void {
+    if (selectedDocuments.value.length === 0) return;
+
+    const validIds = validateStoredDocumentIds(selectedDocuments.value);
+
+    if (validIds.length !== selectedDocuments.value.length) {
+        const removedCount = selectedDocuments.value.length - validIds.length;
+        console.info(
+            `Validated document selections: ${validIds.length} valid, ${removedCount} stale IDs removed`,
+        );
+        selectedDocuments.value = validIds;
+        // Update localStorage with validated data
+        saveSelectedDocumentsToStorage(validIds);
+    }
+}
+
+/**
+ * Clean up selections when document list changes
+ * Removes any selected document IDs that no longer exist
+ */
+function cleanupStaleSelections(): void {
+    if (selectedDocuments.value.length === 0) return;
+
+    const validIds = validateStoredDocumentIds(selectedDocuments.value);
+
+    if (validIds.length !== selectedDocuments.value.length) {
+        const removedCount = selectedDocuments.value.length - validIds.length;
+        console.info(`Cleaned up ${removedCount} stale document selections`);
+        selectedDocuments.value = validIds;
     }
 }
 
@@ -532,9 +632,6 @@ async function performSearch(): Promise<void> {
  * Handle individual document selection
  */
 function handleDocumentSelection(documentId: number, selected: boolean): void {
-    // Only allow selection if user has Writer role
-    if (!hasWriterRole.value) return;
-
     if (selected) {
         if (!selectedDocuments.value.includes(documentId)) {
             selectedDocuments.value.push(documentId);
@@ -798,14 +895,16 @@ function showBulkDeleteToast(result: {
  * Refresh documents list after deletion
  */
 async function refreshDocumentsAfterDelete(): Promise<void> {
-    // Enable cleanup since documents may have been deleted
-    shouldCleanupSelections.value = true;
-
     if (searchPerformed.value && searchQuery.value.trim()) {
         await performSearch();
     } else {
         await refreshDocuments();
     }
+
+    // Clean up stale selections after refresh
+    nextTick(() => {
+        cleanupStaleSelections();
+    });
 }
 
 /**

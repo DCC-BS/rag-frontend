@@ -111,7 +111,7 @@
         "deleteSelected": "{count} Dokument löschen | {count} Dokumente löschen",
         "clickToView": "Klicken zum Anzeigen",
         "clickToDownload": "Klicken zum Herunterladen",
-        "selectForDeletion": "Für Mehrfachlöschung auswählen",
+        "selectDocument": "Dokument auswählen",
         "updateDocument": "Dokument aktualisieren",
         "deleteDocument": "Dokument löschen",
         "treeView": "Baumansicht",

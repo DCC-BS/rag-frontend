@@ -91,16 +91,14 @@
             <!-- Footer with selection and actions -->
             <template #footer>
                 <div class="flex items-center justify-between" @click.stop>
-                    <!-- Selection checkbox - only show for Writer role -->
-                    <div v-if="hasWriterRole" class="flex items-center gap-2">
+                    <!-- Selection checkbox -->
+                    <div class="flex items-center gap-2">
                         <UCheckbox :model-value="isSelected" @update:model-value="handleSelectionChange"
                             class="shrink-0" />
                         <span class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ t('documents.selectForDeletion') }}
+                            {{ t('documents.selectDocument') }}
                         </span>
                     </div>
-                    <!-- Empty space when no Writer role -->
-                    <div v-else></div>
 
                     <!-- Actions -->
                     <div class="flex items-center gap-2 shrink-0">

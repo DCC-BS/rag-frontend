@@ -88,7 +88,7 @@
                         <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                             <span>{{ t('documents.available', { count: totalDocuments }) }}</span>
                             <span v-if="totalPages > 1">{{ t('common.page') }} {{ currentPage }} of {{ totalPages
-                            }}</span>
+                                }}</span>
                         </div>
 
                         <!-- Documents grid -->
@@ -280,17 +280,27 @@ watch(isOpen, async (newValue) => {
         if (!documents.value) {
             await fetchDocuments();
         }
-        // Sync from documents page selection when drawer opens
         syncFromDocumentsPageSelection();
+
+        // Auto-focus search input when drawer opens
+        // Wait for next tick to ensure input is rendered
+        await nextTick();
+
+        // Additional delay to ensure drawer animation is complete
+        setTimeout(() => {
+            const inputElement =
+                searchInputRef.value?.$el?.querySelector("input");
+            if (inputElement) {
+                inputElement.focus();
+            }
+        }, 150);
     }
 });
 
 // Load documents on mount
 onMounted(async () => {
     await fetchDocuments();
-    // Check if there are pre-selected documents from documents page
     syncPreSelectedDocuments();
-    // Also check for manual navigation sync
     syncFromDocumentsPageSelection();
 });
 
@@ -299,7 +309,6 @@ onMounted(async () => {
  */
 function syncPreSelectedDocuments(): void {
     if (hasChatDocuments() && selectedDocumentsForChat.value.length > 0) {
-        // Clear current selection
         clearSelection();
 
         // Add pre-selected documents to chat selection
@@ -307,7 +316,6 @@ function syncPreSelectedDocuments(): void {
             selectDocument(doc);
         });
 
-        // Clear the pre-selected documents after syncing
         clearChatDocumentSelection();
     }
 }
@@ -317,9 +325,8 @@ function syncPreSelectedDocuments(): void {
  * This handles the case where user navigates to chat without using "Chat with Selected" button
  */
 function syncFromDocumentsPageSelection(): void {
-    // Only sync if we don't already have chat selections
     if (selectedDocuments.value.length > 0) {
-        return; // Already have chat selections
+        return;
     }
 
     // Check for documents page selections in localStorage
@@ -386,24 +393,6 @@ watch(
     },
     { deep: true },
 );
-
-// Auto-focus search input when drawer opens
-watch(isOpen, async (newValue) => {
-    if (newValue) {
-        // Wait for next tick to ensure input is rendered
-        await nextTick();
-
-        // Additional delay to ensure drawer animation is complete
-        setTimeout(() => {
-            // UInput doesn't expose focus directly, need to access the underlying input element
-            const inputElement =
-                searchInputRef.value?.$el?.querySelector("input");
-            if (inputElement) {
-                inputElement.focus();
-            }
-        }, 150); // Small delay for drawer animation
-    }
-});
 
 // Reset to first page when total pages change and current page is out of bounds
 watch(totalPages, (newTotalPages) => {
