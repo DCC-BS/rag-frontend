@@ -51,6 +51,7 @@ export default defineNuxtConfig({
         githubToken: process.env.GITHUB_TOKEN,
     },
     runtimeConfig: {
+        githubToken: process.env.GITHUB_TOKEN,
         public: {
             logger_bs: {
                 loglevel: process.env.LOG_LEVEL ?? "debug",
