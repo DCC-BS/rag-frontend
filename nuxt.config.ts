@@ -58,6 +58,7 @@ export default defineNuxtConfig({
             },
         },
         apiUrl: process.env.API_URL,
+    },
     // localization
     i18n: {
         locales: [
