@@ -26,7 +26,7 @@ export function useDocumentForm() {
 
     // Computed property for roles from session data
     const roles: ComputedRef<string[]> = computed(
-        () => session.value?.user?.roles ?? [],
+        () => (session.value?.user as { roles?: string[] })?.roles ?? [],
     );
 
     /**

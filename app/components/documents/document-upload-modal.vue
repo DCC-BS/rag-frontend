@@ -63,7 +63,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ t('documents.selectFolder') }}
                     </label>
-                    <USelect v-model="selectedFolder" :options="folderOptions"
+                    <USelect v-model="selectedFolder" :items="folderItems"
                         :placeholder="t('documents.selectFolderPlaceholder')" :disabled="isLoading" />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                         {{ t('documents.folderSelectionHint') }}
@@ -75,10 +75,10 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ t('documents.accessRole') }}
                     </label>
-                    <USelect v-model="selectedAccessRole" :items="roles" :placeholder="t('documents.selectAccessRole')"
-                        :disabled="isLoading" />
+                    <USelect v-model="selectedAccessRole" :items="roleItems"
+                        :placeholder="t('documents.selectAccessRole')" :disabled="isLoading" />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {{ (roles.length || 0) > 0
+                        {{ (roleItems.length || 0) > 0
                             ? t('documents.availableRoles')
                             : t('documents.noRoles') }}
                     </p>
@@ -161,10 +161,10 @@ const maxFileSize = FILE_LIMITS.MAX_FILE_SIZE;
 const selectedFolder = ref<string>("");
 
 // Get available documents for folder extraction
-const { documents: existingDocuments } = useDocuments();
+const { documents: existingDocuments, refreshDocuments } = useDocuments();
 
-// Extract folder options from existing documents
-const folderOptions = computed(() => {
+// Extract folder items from existing documents (primitive string values for USelect)
+const folderItems = computed(() => {
     const folders = new Set<string>();
 
     // Add root folder option
@@ -204,10 +204,14 @@ const folderOptions = computed(() => {
         return a.localeCompare(b);
     });
 
-    return sortedFolders.map((folder) => ({
-        label: folder === "" ? t("documents.rootFolder") : folder,
-        value: folder,
-    }));
+    return sortedFolders.map((folder) => (folder === "" ? "/" : folder));
+});
+
+// Build role items for the select component from session roles (primitive string values)
+const roleItems = computed(() => {
+    const original = roles.value ?? [];
+    const filtered = original.filter((role: string) => role !== "Writer");
+    return filtered.length > 0 ? filtered : original;
 });
 
 // Check if any selected file is a zip file
@@ -239,7 +243,9 @@ function handleFileChange(event: Event): void {
  * Get the description text for the file upload component
  */
 function getFileUploadDescription(): string {
-    const maxSizeText = t("documents.maxFileSize", { size: formatMaxFileSize });
+    const maxSizeText = t("documents.maxFileSize", {
+        size: formatMaxFileSize.value,
+    });
     const supportedFormats = `${t("documents.supportedFormats")}: PDF, DOCX, PPTX, HTML, ZIP`;
     const multipleHint = t("documents.multipleFileHint");
 
@@ -286,7 +292,7 @@ function validateSelectedFiles(files: File[]): File[] {
         // Check file type
         const allowedExtensions = FILE_TYPES.ALLOWED_EXTENSIONS;
         const fileExtension = `.${file.name.toLowerCase().split(".").pop()}`;
-        if (!allowedExtensions.includes(fileExtension)) {
+        if (!allowedExtensions.some((ext) => ext === fileExtension)) {
             errors.push(
                 t("documents.invalidFileTypeError", { fileName: file.name }),
             );
@@ -376,6 +382,14 @@ watch(
                 percentage: 0,
                 status: "idle",
             };
+
+            // Ensure data sources are populated for selects
+            try {
+                await Promise.all([
+                    refreshDocuments(),
+                    refreshSession(),
+                ]);
+            } catch { }
         }
     },
 );
@@ -475,10 +489,11 @@ async function handleSubmit(): Promise<void> {
             throw new Error("No files selected for upload");
         }
 
+        const folderPathToSend = selectedFolder.value === "/" ? "" : (selectedFolder.value || "");
         const result = await uploadFiles(
             filesToUpload,
             selectedAccessRole.value,
-            selectedFolder.value || "",
+            folderPathToSend,
         );
 
         if (result.success > 0) {
@@ -559,8 +574,8 @@ async function handleSubmit(): Promise<void> {
             const serverErrorMessage = uploadError.value;
             let description = serverErrorMessage
                 ? t("documents.uploadErrorWithDetails", {
-                      details: serverErrorMessage,
-                  })
+                    details: serverErrorMessage,
+                })
                 : t("documents.uploadErrorDescription");
 
             // For multiple files, add list of failed files

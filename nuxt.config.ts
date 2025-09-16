@@ -8,6 +8,32 @@ export default defineNuxtConfig({
             htmlAttrs: {
                 lang: "de",
             },
+            link: [
+                {
+                    rel: "icon",
+                    type: "image/png",
+                    href: "/favicon-192x192.png",
+                    sizes: "192x192",
+                },
+                {
+                    rel: "icon",
+                    type: "image/png",
+                    href: "/favicon-512x512.png",
+                    sizes: "512x512",
+                },
+                {
+                    rel: "icon",
+                    type: "image/png",
+                    href: "/favicon-32x32.png",
+                    sizes: "32x32",
+                },
+                { rel: "shortcut icon", href: "/favicon.ico" },
+                {
+                    rel: "apple-touch-icon",
+                    sizes: "180x180",
+                    href: "/apple-touch-icon.png",
+                },
+            ],
             meta: [
                 { charset: "utf-8" },
                 {

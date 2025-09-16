@@ -232,6 +232,11 @@
         "chatWithSelectedSuccessDescription": "Successfully selected {count} document for chat | Successfully selected {count} documents for chat",
         "chatWithSelectedErrorDescription": "An error occurred while setting up documents for chat. Please try again.",
         "selectionLimitTitle": "Selection Limit Reached",
-        "selectionLimitDescription": "Selection limit exceeded. Only the first {limit} of {original} documents were saved."
+        "selectionLimitDescription": "Selection limit exceeded. Only the first {limit} of {original} documents were selected.",
+        "selectFolder": "Select Folder",
+        "selectFolderDescription": "Select a folder to store the documents.",
+        "selectFolderPlaceholder": "Select a folder",
+        "folderSelectionHint": "Select a folder to store the documents."
+
     }
 }
