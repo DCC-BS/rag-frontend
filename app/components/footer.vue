@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import { DataBsFooter, DisclaimerButton } from "@dcc-bs/common-ui.bs.js";
 </script>
 
 <template>

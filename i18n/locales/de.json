@@ -20,7 +20,7 @@
         "exampleQuestions": {
             "title": "Fragen Sie zum Beispiel:",
             "clickToAsk": "Klicken Sie, um zu fragen",
-            "additionalHelp": "Sie können mir alles zu Sozialversicherung fragen.",
+            "additionalHelp": "Ich beantworte alle Fragen basierend auf den hinterlegten Dokumenten.",
             "description": "Klicken Sie auf eine der folgenden Fragen, um zu beginnen, oder geben Sie Ihre eigene Frage ein.",
             "question1": "Was kann bei Hausbesitzer:innen alles als Miete und Nebenkosten erstattet werden?",
             "category1": "Nebenkosten",
@@ -230,6 +230,8 @@
         "tooManyDocumentsSelectedForChat": "Zu viele Dokumente ausgewählt. Bitte wählen Sie bis zu 5 Dokumente für den Chat aus.",
         "chatWithSelectedSuccess": "Dokumente für Chat ausgewählt",
         "chatWithSelectedSuccessDescription": "{count} Dokument erfolgreich für Chat ausgewählt | {count} Dokumente erfolgreich für Chat ausgewählt",
-        "chatWithSelectedErrorDescription": "Ein Fehler ist beim Einrichten der Dokumente für den Chat aufgetreten. Bitte versuchen Sie es erneut."
+        "chatWithSelectedErrorDescription": "Ein Fehler ist beim Einrichten der Dokumente für den Chat aufgetreten. Bitte versuchen Sie es erneut.",
+        "selectionLimitTitle": "Auswahllimit erreicht",
+        "selectionLimitDescription": "Auswahllimit überschritten. Nur die ersten {limit} von {original} Dokumente wurden gespeichert."
     }
 }

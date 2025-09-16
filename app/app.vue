@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Disclaimer } from "@dcc-bs/common-ui.bs.js";
+
 // Use built-in authentication session
 const { data: session, status } = useAuth();
 

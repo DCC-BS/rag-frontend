@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Check if the user has the Writer role
-    const userRoles = (session.user as any)?.roles || [];
+    const userRoles = (session.user as { roles?: string[] })?.roles || [];
     if (!Array.isArray(userRoles) || !userRoles.includes("Writer")) {
         throw createError({
             statusCode: 403,
