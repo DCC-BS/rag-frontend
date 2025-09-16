@@ -44,7 +44,7 @@
 
                     <!-- Search and Actions -->
                     <div v-else-if="documents" class="space-y-6">
-                        <div class="flex justify-between">
+                        <div class="flex flex-wrap justify-between">
                             <!-- Search and Limit Controls -->
                             <div>
                                 <UButtonGroup size="md" orientation="horizontal">
