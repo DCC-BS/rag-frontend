@@ -1,8 +1,7 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import "@dcc-bs/common-ui.bs.js";
 @import "./markdown.css";
-
-@source "../../node_modules/@dcc-bs/common-ui.bs.js/dist/runtime";
 
 /**
  * Position the disclaimer in the bottom right corner
