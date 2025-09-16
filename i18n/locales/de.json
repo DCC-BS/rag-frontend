@@ -232,6 +232,9 @@
         "chatWithSelectedSuccessDescription": "{count} Dokument erfolgreich für Chat ausgewählt | {count} Dokumente erfolgreich für Chat ausgewählt",
         "chatWithSelectedErrorDescription": "Ein Fehler ist beim Einrichten der Dokumente für den Chat aufgetreten. Bitte versuchen Sie es erneut.",
         "selectionLimitTitle": "Auswahllimit erreicht",
-        "selectionLimitDescription": "Auswahllimit überschritten. Nur die ersten {limit} von {original} Dokumente wurden gespeichert."
+        "selectionLimitDescription": "Auswahllimit überschritten. Nur die ersten {limit} von {original} Dokumente wurden gespeichert.",
+        "selectFolder": "Ordner auswählen",
+        "selectFolderPlaceholder": "Wählen Sie einen Ordner",
+        "folderSelectionHint": "Wählen Sie einen Ordner aus, in dem die Dokumente gespeichert werden sollen."
     }
 }
