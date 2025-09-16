@@ -57,8 +57,7 @@ export default defineNuxtConfig({
                 loglevel: process.env.LOG_LEVEL ?? "debug",
             },
         },
-        apiUrl: process.env.FASTAPI_URL,
-    },
+        apiUrl: process.env.API_URL,
     // localization
     i18n: {
         locales: [
@@ -74,7 +73,7 @@ export default defineNuxtConfig({
             },
         ],
         defaultLocale: "de",
-        strategy: "prefix_except_default",
+        strategy: "no_prefix",
     },
     imports: {
         dirs: [
