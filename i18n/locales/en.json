@@ -20,7 +20,7 @@
         "exampleQuestions": {
             "title": "Try asking:",
             "clickToAsk": "Click to ask",
-            "additionalHelp": "You can ask me about social security.",
+            "additionalHelp": "I answer all questions based on the documents provided.",
             "description": "Click on one of the following questions to start, or enter your own question.",
             "question1": "What can be reimbursed as rent and ancillary costs for homeowners?",
             "category1": "Ancillary costs",
@@ -230,6 +230,8 @@
         "tooManyDocumentsSelectedForChat": "Too many documents selected. Please select up to 5 documents for chat.",
         "chatWithSelectedSuccess": "Documents Selected for Chat",
         "chatWithSelectedSuccessDescription": "Successfully selected {count} document for chat | Successfully selected {count} documents for chat",
-        "chatWithSelectedErrorDescription": "An error occurred while setting up documents for chat. Please try again."
+        "chatWithSelectedErrorDescription": "An error occurred while setting up documents for chat. Please try again.",
+        "selectionLimitTitle": "Selection Limit Reached",
+        "selectionLimitDescription": "Selection limit exceeded. Only the first {limit} of {original} documents were saved."
     }
 }

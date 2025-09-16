@@ -44,16 +44,16 @@
 
                     <!-- Search and Actions -->
                     <div v-else-if="documents" class="space-y-6">
-                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                        <div class="flex justify-between">
                             <!-- Search and Limit Controls -->
-                            <div class="flex items-center">
+                            <div>
                                 <UButtonGroup size="md" orientation="horizontal">
                                     <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" size="md"
                                         variant="outline" :placeholder="t('documents.searchPlaceholder')"
                                         :loading="searchLoading" @keyup.enter="performSearch">
                                         <template v-if="searchQuery?.length" #trailing>
                                             <UButton color="neutral" variant="link" size="sm" icon="i-lucide-circle-x"
-                                                aria-label="Clear input" @click="searchQuery = ''" />
+                                                aria-label="Clear input" @click="clearSearch()" />
                                         </template>
                                     </UInput>
                                     <UButton :label="t('common.search')" icon="i-heroicons-magnifying-glass"
@@ -63,7 +63,7 @@
                             </div>
 
                             <!-- Document Count Stats -->
-                            <div class="flex items-center gap-2 justify-center lg:justify-start flex-shrink-0">
+                            <div>
                                 <UIcon name="i-heroicons-document-duplicate"
                                     class="w-5 h-5 text-gray-500 dark:text-gray-400" />
                                 <span class="text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">
@@ -85,8 +85,7 @@
                             </div>
 
                             <!-- Actions -->
-                            <div class="flex items-center gap-2 justify-end flex-shrink-0"
-                                v-if="documents.documents && documents.documents.length > 0">
+                            <div v-if="documents.documents && documents.documents.length > 0">
                                 <template v-if="selectedDocuments.length === 0">
                                     <UButtonGroup size="md">
                                         <!-- View Mode Toggle -->
@@ -339,14 +338,13 @@ function handleSelectionTruncation(
     truncatedSelection: number[],
 ): void {
     toast.add({
-        title: t("documents.selectionLimitTitle", "Selection Limit Reached"),
+        title: t("documents.selectionLimitTitle"),
         description: t(
             "documents.selectionLimitDescription",
             {
                 limit: SELECTION_LIMITS.MAX_SELECTION_COUNT,
                 original: originalLength,
             },
-            `Selection limit exceeded. Only the first ${SELECTION_LIMITS.MAX_SELECTION_COUNT} of ${originalLength} documents were saved.`,
         ),
         color: "warning",
         icon: "i-heroicons-exclamation-triangle",
@@ -411,7 +409,10 @@ function saveSelectedDocumentsToStorage(selection: number[]): void {
 
             if (error instanceof Error && error.name === "QuotaExceededError") {
                 toast.add({
-                    title: t("documents.storageSizeTitle", "Selection Too Large"),
+                    title: t(
+                        "documents.storageSizeTitle",
+                        "Selection Too Large",
+                    ),
                     description: t(
                         "documents.storageSizeDescription",
                         "Selection too large for storage. Please select fewer documents.",
