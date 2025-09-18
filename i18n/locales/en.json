@@ -187,7 +187,8 @@
         "batchUploadFailedTitle": "Upload Failed",
         "batchUploadFailedDescription": "Failed to upload files: {errorMessage}",
         "uploadTitle": "Upload New Document",
-        "uploadDescription": "Add a new document to your collection",
+        "uploadDescription": "Add new documents to your collection. It may take up to 15 minutes for the documents to be visible in the application.",
+        "uploadDurationAlert": "It may take up to 15 minutes for the documents to be visible in the application.",
         "updateTitle": "Update Document",
         "updateDescription": "Replace the file and update access role for \"{fileName}\"",
         "selectFile": "Select File *",
@@ -236,7 +237,13 @@
         "selectFolder": "Select Folder",
         "selectFolderDescription": "Select a folder to store the documents.",
         "selectFolderPlaceholder": "Select a folder",
-        "folderSelectionHint": "Select a folder to store the documents."
-
+        "folderSelectionHint": "Select a folder to store the documents.",
+        "notPersistentTitle": "Pilot Application",
+        "notPersistentDescription": "The documents are not backed up. Uploaded documents may be lost. In this case, you need to upload the documents again."
+    },
+    "noaccess": {
+        "title": "No Access",
+        "description": "You do not have access to this page.",
+        "contact": "If you need access, please contact us at:"
     }
 }

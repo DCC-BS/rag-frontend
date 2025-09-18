@@ -17,6 +17,9 @@
                             </p>
                         </div>
                     </div>
+                    <UAlert v-if="showAlert" :title="t('documents.notPersistentTitle')"
+                        :description="t('documents.notPersistentDescription')" color="warning" variant="subtle"
+                        icon="i-heroicons-exclamation-triangle" close @update:open="showAlert = $event" />
                 </div>
 
                 <!-- Loading State -->
@@ -339,13 +342,10 @@ function handleSelectionTruncation(
 ): void {
     toast.add({
         title: t("documents.selectionLimitTitle"),
-        description: t(
-            "documents.selectionLimitDescription",
-            {
-                limit: SELECTION_LIMITS.MAX_SELECTION_COUNT,
-                original: originalLength,
-            },
-        ),
+        description: t("documents.selectionLimitDescription", {
+            limit: SELECTION_LIMITS.MAX_SELECTION_COUNT,
+            original: originalLength,
+        }),
         color: "warning",
         icon: "i-heroicons-exclamation-triangle",
     });
@@ -468,6 +468,9 @@ const updateModalData = ref<{
 
 // Upload functionality
 const showUploadModal = ref<boolean>(false);
+
+// Alert functionality
+const showAlert = ref<boolean>(true);
 
 // View mode functionality
 const viewMode = ref<"tree" | "grid">("tree");

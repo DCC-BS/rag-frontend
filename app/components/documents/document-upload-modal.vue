@@ -17,6 +17,8 @@
         </template>
 
         <template #body>
+            <UAlert :description="t('documents.uploadDurationAlert')" color="warning" variant="subtle"
+                icon="i-heroicons-exclamation-triangle" />
             <!-- Form -->
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <!-- File Selection -->
@@ -385,11 +387,8 @@ watch(
 
             // Ensure data sources are populated for selects
             try {
-                await Promise.all([
-                    refreshDocuments(),
-                    refreshSession(),
-                ]);
-            } catch { }
+                await Promise.all([refreshDocuments(), refreshSession()]);
+            } catch {}
         }
     },
 );
@@ -489,7 +488,8 @@ async function handleSubmit(): Promise<void> {
             throw new Error("No files selected for upload");
         }
 
-        const folderPathToSend = selectedFolder.value === "/" ? "" : (selectedFolder.value || "");
+        const folderPathToSend =
+            selectedFolder.value === "/" ? "" : selectedFolder.value || "";
         const result = await uploadFiles(
             filesToUpload,
             selectedAccessRole.value,
@@ -574,8 +574,8 @@ async function handleSubmit(): Promise<void> {
             const serverErrorMessage = uploadError.value;
             let description = serverErrorMessage
                 ? t("documents.uploadErrorWithDetails", {
-                    details: serverErrorMessage,
-                })
+                      details: serverErrorMessage,
+                  })
                 : t("documents.uploadErrorDescription");
 
             // For multiple files, add list of failed files

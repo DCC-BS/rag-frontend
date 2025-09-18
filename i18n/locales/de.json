@@ -187,7 +187,8 @@
         "batchUploadFailedTitle": "Upload fehlgeschlagen",
         "batchUploadFailedDescription": "Das Hochladen der Dateien ist fehlgeschlagen: {errorMessage}",
         "uploadTitle": "Neues Dokument hochladen",
-        "uploadDescription": "Fügen Sie Ihrer Sammlung ein neues Dokument hinzu",
+        "uploadDescription": "Fügen Sie Ihrer Sammlung neue Dokumente hinzu. Es dauert bis zu 15 Minuten, bis die Dokumente in der Anwendung sichtbar ist.",
+        "uploadDurationAlert": "Es dauert bis zu 15 Minuten, bis die neuen Dokumente in der Anwendung sichtbar sind.",
         "updateTitle": "Dokument aktualisieren",
         "updateDescription": "Ersetzen Sie die Datei und aktualisieren Sie die Zugriffsrolle für \"{fileName}\"",
         "selectFile": "Datei auswählen *",
@@ -235,7 +236,13 @@
         "selectionLimitDescription": "Auswahllimit überschritten. Nur die ersten {limit} von {original} Dokumente wurden selektiert.",
         "selectFolder": "Ordner auswählen",
         "selectFolderPlaceholder": "Wählen Sie einen Ordner",
-        "folderSelectionHint": "Wählen Sie einen Ordner aus, in dem die Dokumente gespeichert werden sollen."
-
+        "folderSelectionHint": "Wählen Sie einen Ordner aus, in dem die Dokumente gespeichert werden sollen.",
+        "notPersistentTitle": "Pilot Anwendung",
+        "notPersistentDescription": "Die Dokumente werden nicht gesichert. Hochgeladene Dokumente können verloren gehen. In diesem Fall müssen Sie die Dokumente erneut hochladen."
+    },
+    "noaccess": {
+        "title": "Kein Zugriff",
+        "description": "Sie haben keinen Zugriff auf diese Seite.",
+        "contact": "Wenn Sie Zugriff benötigen, kontaktieren Sie uns unter:"
     }
 }

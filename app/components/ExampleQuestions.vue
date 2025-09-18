@@ -6,8 +6,8 @@ const emit = defineEmits<{
     questionClicked: [question: string];
 }>();
 
-// Array of example questions using i18n keys
-const exampleQuestions = [
+// Make example questions reactive to locale changes
+const exampleQuestions = computed(() => [
     {
         text: t("chat.exampleQuestions.question1"),
         icon: "i-heroicons-light-bulb",
@@ -23,7 +23,7 @@ const exampleQuestions = [
         icon: "i-heroicons-code-bracket",
         category: t("chat.exampleQuestions.category3"),
     },
-];
+]);
 
 // Function to handle question click
 function handleQuestionClick(question: string): void {
@@ -78,11 +78,6 @@ function handleQuestionClick(question: string): void {
                                 <UIcon name="i-heroicons-arrow-right" class="w-3 h-3 mr-1" />
                                 {{ t("chat.exampleQuestions.clickToAsk") }}
                             </div>
-                        </div>
-
-                        <!-- Hover Effect -->
-                        <div
-                            class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                         </div>
                     </button>
                 </div>
