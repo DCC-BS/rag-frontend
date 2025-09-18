@@ -1,6 +1,6 @@
 {
     "chat": {
-        "title": "AI Chat Bot",
+        "title": "Bebbi-Bot",
         "new": "New Chat",
         "send": "Send",
         "message": "Message",
@@ -88,7 +88,7 @@
         "generic": "An unexpected error occurred."
     },
     "navigation": {
-        "title": "AI Chat Bot",
+        "title": "Bebbi-Bot",
         "documents": "Documents",
         "languages": "Languages",
         "signOut": "Sign Out"

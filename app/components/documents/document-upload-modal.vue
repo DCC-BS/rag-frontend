@@ -388,7 +388,13 @@ watch(
             // Ensure data sources are populated for selects
             try {
                 await Promise.all([refreshDocuments(), refreshSession()]);
-            } catch {}
+            } catch {
+                toast.add({
+                    title: t("errors.generic"),
+                    description: t("documents.refreshErrorDescription"),
+                    color: "warning",
+                });
+            }
         }
     },
 );
@@ -574,8 +580,8 @@ async function handleSubmit(): Promise<void> {
             const serverErrorMessage = uploadError.value;
             let description = serverErrorMessage
                 ? t("documents.uploadErrorWithDetails", {
-                      details: serverErrorMessage,
-                  })
+                    details: serverErrorMessage,
+                })
                 : t("documents.uploadErrorDescription");
 
             // For multiple files, add list of failed files

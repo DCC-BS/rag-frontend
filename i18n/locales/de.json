@@ -1,6 +1,6 @@
 {
     "chat": {
-        "title": "KI-Chatbot",
+        "title": "Bebbi-Bot",
         "new": "Neuer Chat",
         "send": "Senden",
         "message": "Nachricht",
@@ -88,7 +88,7 @@
         "generic": "Ein unerwarteter Fehler ist aufgetreten."
     },
     "navigation": {
-        "title": "KI-Chatbot",
+        "title": "Bebbi-Bot",
         "documents": "Dokumente",
         "languages": "Sprachen",
         "signOut": "Abmelden"
