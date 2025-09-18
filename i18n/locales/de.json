@@ -187,7 +187,7 @@
         "batchUploadFailedTitle": "Upload fehlgeschlagen",
         "batchUploadFailedDescription": "Das Hochladen der Dateien ist fehlgeschlagen: {errorMessage}",
         "uploadTitle": "Neues Dokument hochladen",
-        "uploadDescription": "Fügen Sie Ihrer Sammlung neue Dokumente hinzu. Es dauert bis zu 15 Minuten, bis die Dokumente in der Anwendung sichtbar ist.",
+        "uploadDescription": "Fügen Sie Ihrer Sammlung neue Dokumente hinzu. Es dauert bis zu 15 Minuten, bis die Dokumente in der Anwendung sichtbar sind.",
         "uploadDurationAlert": "Es dauert bis zu 15 Minuten, bis die neuen Dokumente in der Anwendung sichtbar sind.",
         "updateTitle": "Dokument aktualisieren",
         "updateDescription": "Ersetzen Sie die Datei und aktualisieren Sie die Zugriffsrolle für \"{fileName}\"",
