@@ -1,10 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: "2024-11-01",
+    title: "Bebbi-Bot",
     // Define app head configuration
     app: {
         head: {
-            titleTemplate: "rag-frontend",
+            title: "Bebbi-Bot",
             htmlAttrs: {
                 lang: "de",
             },

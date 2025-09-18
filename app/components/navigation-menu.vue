@@ -6,14 +6,14 @@ const { t } = useI18n();
 
 const { signOut } = useAuth();
 
-const { locale, locales } = useI18n();
-const switchLocalePath = useSwitchLocalePath();
+const { locale, locales, setLocale } = useI18n();
 
 const availableLocales = computed(() => {
     return locales.value.filter((i) => i.code !== locale.value);
 });
 
-const items = ref<NavigationMenuItem[]>([
+// Make navigation items reactive to locale changes
+const items = computed<NavigationMenuItem[]>(() => [
     [
         {
             label: t("navigation.signOut"),
@@ -41,7 +41,9 @@ const items = ref<NavigationMenuItem[]>([
             icon: "i-heroicons-language",
             children: availableLocales.value.map((locale) => ({
                 label: locale.name,
-                to: switchLocalePath(locale.code),
+                onSelect: async () => {
+                    setLocale(locale.code);
+                },
             })),
         },
     ],
