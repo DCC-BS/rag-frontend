@@ -10,4 +10,10 @@
             <Footer />
         </footer>
     </div>
-</template>;
+</template>
+
+<script lang="ts" setup>
+definePageMeta({
+    middleware: ["auth"],
+});
+</script>

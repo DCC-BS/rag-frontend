@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { DataBsBanner } from '@dcc-bs/common-ui.bs.js';
+import { DataBsBanner } from "@dcc-bs/common-ui.bs.js";
 
 const { t } = useI18n();
 </script>

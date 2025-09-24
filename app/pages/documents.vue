@@ -245,6 +245,11 @@
 </template>
 
 <script lang="ts" setup>
+// Apply auth middleware to protect this page
+definePageMeta({
+    middleware: ["auth"],
+});
+
 const { t } = useI18n();
 const {
     documents,

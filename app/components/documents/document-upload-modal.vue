@@ -580,8 +580,8 @@ async function handleSubmit(): Promise<void> {
             const serverErrorMessage = uploadError.value;
             let description = serverErrorMessage
                 ? t("documents.uploadErrorWithDetails", {
-                    details: serverErrorMessage,
-                })
+                      details: serverErrorMessage,
+                  })
                 : t("documents.uploadErrorDescription");
 
             // For multiple files, add list of failed files
