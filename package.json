@@ -31,7 +31,7 @@
         "vue-router": "^4.5.1"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.2.5",
+        "@biomejs/biome": "2.2.6",
         "@types/bun": "^1.2.23",
         "jiti": "^2.6.0",
         "sass": "1.93.2",
