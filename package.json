@@ -19,7 +19,7 @@
         "@iconify-json/lucide": "^1.2.68",
         "@nuxt/ui": "^3.3.5",
         "@nuxtjs/i18n": "^10.1.0",
-        "@nuxtjs/mdc": "^0.17.4",
+        "@nuxtjs/mdc": "^0.18.0",
         "@types/uuid": "^11.0.0",
         "better-sqlite3": "^12.4.1",
         "fflate": "^0.8.2",
