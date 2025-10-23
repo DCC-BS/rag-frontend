@@ -168,19 +168,3 @@
     padding: 0 0.15em;
     transition: all 0.2s ease;
 }
-
-/* Add brackets around ref content using pseudo-elements */
-/* biome-ignore lint/correctness/noUnknownTypeSelector: ref is a custom HTML element */
-.prose ref::before {
-    content: "[";
-}
-
-/* biome-ignore lint/correctness/noUnknownTypeSelector: ref is a custom HTML element */
-.prose ref::after {
-    content: "]";
-}
-
-/* biome-ignore lint/correctness/noUnknownTypeSelector: ref is a custom HTML element */
-.prose ref:hover {
-    color: #2563eb;
-}

@@ -7,27 +7,39 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n();
+
 // Props that might be passed from MDC
 interface ProseRefProps {
     text?: string;
 }
 
-const props = withDefaults(defineProps<ProseRefProps>(), {
-    text: "Reference",
-});
+const props = defineProps<ProseRefProps>();
 
 // Compute tooltip text from props or use default
 const tooltipText = computed((): string => {
-    return props.text ?? "Reference";
+    return props.text ?? t("common.reference");
 });
 </script>
 
 <style scoped>
 ref {
-    /* Style for ref tag */
     display: inline;
     cursor: help;
     text-decoration: underline;
     text-decoration-style: dotted;
+    color: #3b82f6;
+    font-size: 0.75em;
+    vertical-align: super;
+    font-weight: 600;
+}
+
+/* Add brackets around ref content using pseudo-elements */
+ref::before {
+    content: "[";
+}
+
+ref::after {
+    content: "]";
 }
 </style>

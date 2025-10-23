@@ -33,18 +33,8 @@ const actions = ref([
 const { status, sendChatMessage } = useChatMessages();
 
 const input = ref("");
-const chat = ref<Chat | undefined>();
 const messages = ref<Message[]>([]);
 
-// Subscribe to live query for chat
-const chatSubscription = liveQuery(() =>
-    db.chats
-        .where("id")
-        .equals(route.params.id as string)
-        .first(),
-).subscribe((result) => {
-    chat.value = result;
-});
 
 // Subscribe to live query for messages with their status parts and documents
 const messagesSubscription = liveQuery(async () => {
@@ -52,8 +42,6 @@ const messagesSubscription = liveQuery(async () => {
         .where("chatId")
         .equals(route.params.id as string)
         .toArray();
-
-    console.log("[DB Query] Found messages:", msgs.length);
 
     // Sort messages by createdAt (oldest first)
     msgs.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
@@ -76,32 +64,17 @@ const messagesSubscription = liveQuery(async () => {
                 .equals(msg.id)
                 .toArray();
 
-            console.log(`[DB Query] Message ${msg.id}:`, {
-                role: msg.role,
-                contentLength: msg.content?.length || 0,
-                statusParts: statusParts.length,
-                documents: documents.length,
-            });
-
             return { ...msg, statusParts, documents };
         }),
     );
 
     return messagesWithParts;
 }).subscribe((result) => {
-    console.log("[DB Subscription] Messages updated, count:", result.length);
     messages.value = result;
-});
-
-// Debug on mount
-onMounted(() => {
-    console.log("[onMounted] Chat page loaded, route ID:", route.params.id);
-    console.log("[onMounted] Initial messages count:", messages.value.length);
 });
 
 // Cleanup subscriptions on unmount
 onUnmounted(() => {
-    chatSubscription.unsubscribe();
     messagesSubscription.unsubscribe();
 });
 
@@ -109,8 +82,6 @@ onUnmounted(() => {
  * Convert messages to Nuxt UI ChatMessages format (text only)
  */
 const formattedMessages = computed(() => {
-    console.log("[formattedMessages] Total messages:", messages.value.length);
-
     return messages.value.map((message, index) => {
         // Determine state based on streaming status and content
         const messageState =
@@ -137,14 +108,6 @@ const formattedMessages = computed(() => {
             statusParts: message.statusParts || [],
             documents: message.documents || [],
         };
-
-        console.log(`[formattedMessages] Message ${index} (${message.role}):`, {
-            hasContent: !!message.content,
-            contentLength: message.content?.length || 0,
-            statusParts: (message.statusParts || []).length,
-            documents: (message.documents || []).length,
-        });
-
         return formatted;
     });
 });
@@ -166,16 +129,6 @@ function getMessageExtras(message: unknown): {
         ? (obj.statusParts as StatusPart[])
         : [];
 
-    // Debug logging
-    if (docs.length > 0 || parts.length > 0) {
-        console.log(
-            "[getMessageExtras] Documents:",
-            docs.length,
-            "StatusParts:",
-            parts.length,
-        );
-    }
-
     return { documents: docs, statusParts: parts };
 }
 
@@ -196,16 +149,6 @@ function extractMessageText(message: unknown): string {
         typeof obj.parts[0]?.text === "string"
     ) {
         text = obj.parts[0]?.text as string;
-    }
-
-    // Debug logging
-    if (text) {
-        console.log(
-            "[extractMessageText] Text length:",
-            text.length,
-            "Preview:",
-            text.substring(0, 100),
-        );
     }
 
     return text;
@@ -230,7 +173,6 @@ async function handleSubmit(e: Event): Promise<void> {
             color: "error",
             icon: "i-heroicons-exclamation-triangle",
         });
-        console.error("Error sending chat message:", error);
     }
 }
 </script>
@@ -253,11 +195,9 @@ async function handleSubmit(e: Event): Promise<void> {
                 }
             }" :messages="formattedMessages" auto-scroll-icon="i-lucide-chevron-down" :should-scroll-to-bottom="false">
                 <template #content="{ message }">
-                    {{ console.log('[Template #content] Rendering message:', message.role, message.id) }}
                     <div v-if="message.role === 'assistant'">
                         <!-- Render AI response as Markdown -->
-                        <MDC :value="extractMessageText(message) || (status === 'streaming' ? '…' : '')" tag="div"
-                            class="prose prose-sm max-w-none" />
+                        <MDC :value="extractMessageText(message) || (status === 'streaming' ? '…' : '')" tag="div" />
                         <!-- Status parts should appear below the message content -->
                         <ChatStatusParts :status-parts="getMessageExtras(message).statusParts"
                             :is-streaming="status === 'streaming' && !extractMessageText(message)" />

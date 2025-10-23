@@ -57,6 +57,7 @@
         }
     },
     "common": {
+        "reference": "Reference",
         "close": "Close",
         "cancel": "Cancel",
         "delete": "Delete",
