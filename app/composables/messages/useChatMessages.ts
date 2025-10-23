@@ -1,77 +1,76 @@
-import type { Message, StatusPart, StreamChunk } from "~/models/message";
-
+import { v4 as uuidv4 } from "uuid";
+import type { ApiDocument, StreamChunk } from "~/models/api_message";
+import { db } from "~/services/db";
+import { sendMessage } from "./apiMessageHandler";
 /**
  * Composable for managing chat messages and sending functionality
  */
 export const useChatMessages = (
     selectedDocumentIds?: ComputedRef<number[]>,
 ) => {
-    const { data: authData } = useAuth();
-    const { thread_id } = useThread();
     const { t } = useI18n();
     const { handleApiError } = useApiError();
 
-    const messages = ref<Message[]>([]);
-    const isLoading = ref(false);
+    const status = ref<string>("");
 
     /**
      * Add a user message to the chat
      */
-    function addUserMessage(content: string): void {
-        const userAvatar =
-            authData.value?.user?.image ?? "https://i.pravatar.cc/150?img=1";
-
-        messages.value.push({
-            id: `user-${Date.now()}`,
-            isUser: true,
-            avatar: userAvatar,
-            content,
-            timestamp: new Date(),
+    async function addUserMessage(
+        content: string,
+        chatId: string,
+    ): Promise<void> {
+        await db.messages.add({
+            id: uuidv4(),
+            chatId: chatId,
+            content: content,
+            role: "user",
+            createdAt: new Date(Date.now()),
+            documents: [],
+            statusParts: [],
         });
     }
 
     /**
      * Add an AI message placeholder and return its index
      */
-    function addAiMessagePlaceholder(): number {
-        const aiAvatar = "/img/ai.png";
-        const aiMessageId = `ai-${Date.now()}`;
-
-        messages.value.push({
-            id: aiMessageId,
-            isUser: false,
-            avatar: aiAvatar,
+    async function addAiMessagePlaceholder(chatId: string): Promise<string> {
+        const messageId = await db.messages.add({
+            id: uuidv4(),
+            chatId: chatId,
             content: "",
-            streaming: true,
-            timestamp: new Date(),
+            role: "assistant",
+            createdAt: new Date(Date.now()),
+            documents: [],
+            statusParts: [],
         });
-
-        return messages.value.findIndex(
-            (msg: Message) => msg.id === aiMessageId,
-        );
+        return messageId;
     }
 
     /**
      * Update AI message content based on stream chunks
      */
-    function updateAiMessage(index: number, chunk: StreamChunk): void {
-        const currentAiMessage = messages.value[index];
+    async function updateAiMessage(
+        messageId: string,
+        chunk: StreamChunk,
+    ): Promise<void> {
+        const currentAiMessage = await db.messages.get(messageId);
         if (!currentAiMessage) {
             return;
         }
 
         switch (chunk.type) {
             case "status":
-                handleStatusChunk(currentAiMessage, chunk);
+                handleStatusChunk(messageId, chunk);
                 break;
             case "answer":
-                handleAnswerChunk(currentAiMessage, chunk);
+                handleAnswerChunk(messageId, chunk);
                 break;
             case "documents":
-                handleDocumentsChunk(currentAiMessage, chunk);
+                handleDocumentsChunk(messageId, chunk);
                 break;
             case "decision":
-                handleDecisionChunk(currentAiMessage, chunk);
+                handleDecisionChunk(messageId, chunk);
                 break;
         }
     }
@@ -79,58 +78,102 @@ export const useChatMessages = (
     /**
      * Handle status chunk updates
      */
-    function handleStatusChunk(message: Message, chunk: StreamChunk): void {
+    function handleStatusChunk(messageId: string, chunk: StreamChunk): void {
         if (chunk.type !== "status") return;
-
-        const statusPart: StatusPart = {
+        db.statusParts.add({
+            id: uuidv4(),
+            messageId: messageId,
             text: t(chunk.metadata.translation_key),
+            highlight: null,
             sender: chunk.sender,
-        };
-
-        message.statusParts ??= [];
-        message.statusParts.push(statusPart);
+            createdAt: new Date(Date.now()),
+        });
     }
 
     /**
      * Handle answer chunk updates
      */
-    function handleAnswerChunk(message: Message, chunk: StreamChunk): void {
+    async function handleAnswerChunk(
+        messageId: string,
+        chunk: StreamChunk,
+    ): Promise<void> {
         if (chunk.type !== "answer") return;
 
         const answer = chunk.metadata.answer;
 
-        if (message.content === "…" || message.content === "") {
-            message.content = answer;
-        } else {
-            message.content += answer;
+        const currentAiMessage = await db.messages.get(messageId);
+        if (!currentAiMessage) {
+            return;
         }
+
+        if (
+            currentAiMessage.content === "…" ||
+            currentAiMessage.content === ""
+        ) {
+            currentAiMessage.content = answer;
+        } else {
+            currentAiMessage.content += answer;
+        }
+        await db.messages.put(currentAiMessage);
     }
 
     /**
      * Handle documents chunk updates
      */
-    function handleDocumentsChunk(message: Message, chunk: StreamChunk): void {
+    async function handleDocumentsChunk(
+        messageId: string,
+        chunk: StreamChunk,
+    ): Promise<void> {
         if (chunk.type !== "documents") return;
 
-        message.documents = chunk.metadata.documents;
+        await db.documents.bulkAdd(
+            chunk.metadata.documents.map((document: ApiDocument) => ({
+                id: uuidv4(),
+                file_name: document.metadata.file_name,
+                document_path: document.metadata.document_path,
+                mime_type: document.metadata.mime_type,
+                num_pages: document.metadata.num_pages ?? 1,
+                access_roles: document.metadata.access_roles,
+                page: document.metadata.page ?? 1,
+                page_content: document.page_content,
+                metadata: document.metadata,
+                messageId: messageId,
+                createdAt: new Date(Date.now()),
+            })),
+        );
     }
 
     /**
      * Handle decision chunk updates
      */
-    function handleDecisionChunk(message: Message, chunk: StreamChunk): void {
+    async function handleDecisionChunk(
+        messageId: string,
+        chunk: StreamChunk,
+    ): Promise<void> {
         if (chunk.type !== "decision") return;
 
         const statusPart = createDecisionStatusPart(chunk);
 
-        message.statusParts ??= [];
-        message.statusParts.push(statusPart);
+        await db.statusParts.add({
+            id: uuidv4(),
+            messageId: messageId,
+            text: statusPart.text as string,
+            highlight: statusPart.highlight as
+                | "success"
+                | "error"
+                | "warning"
+                | null,
+            sender: statusPart.sender as string,
+            createdAt: new Date(Date.now()),
+        });
     }
 
     /**
      * Create status part for decision chunks with appropriate highlighting
      */
-    function createDecisionStatusPart(chunk: StreamChunk): StatusPart {
+    function createDecisionStatusPart(
+        chunk: StreamChunk,
+    ): Record<string, unknown> {
         if (chunk.type !== "decision") {
             throw new Error("Invalid chunk type for decision status part");
         }
@@ -154,7 +197,7 @@ export const useChatMessages = (
                 break;
         }
 
-        const statusPart: StatusPart = {
+        const statusPart: Record<string, unknown> = {
             text,
             sender: chunk.sender,
             highlight,
@@ -166,10 +209,9 @@ export const useChatMessages = (
     /**
      * Finalize AI message on stream end
      */
-    function finalizeAiMessage(index: number): void {
-        const currentAiMessage = messages.value[index];
+    async function finalizeAiMessage(messageId: string): Promise<void> {
+        const currentAiMessage = await db.messages.get(messageId);
         if (currentAiMessage) {
-            currentAiMessage.streaming = false;
             if (
                 currentAiMessage.content === "…" ||
                 currentAiMessage.content === ""
@@ -190,94 +232,82 @@ export const useChatMessages = (
                     /ß/g,
                     "ss",
                 );
+                console.log(
+                    "currentAiMessage.content",
+                    currentAiMessage.content,
+                );
             }
-        }
-    }
-
-    /**
-     * Handle AI message error
-     */
-    function handleAiMessageError(index: number): void {
-        const currentAiMessage = messages.value[index];
-        if (currentAiMessage) {
-            currentAiMessage.content = "Failed to send message.";
-            currentAiMessage.statusParts = [
-                {
-                    text: "Error: Failed to process message",
-                    highlight: "error",
-                },
-            ];
+            await db.messages.put(currentAiMessage);
         }
     }
 
     /**
      * Send a chat message
+     * Returns the chatId immediately and streams the response in the background
      */
-    async function sendChatMessage(content: string): Promise<void> {
-        if (!content.trim() || isLoading.value) {
-            return;
+    async function sendChatMessage(
+        content: string,
+        chatId: string | null = null,
+    ): Promise<string | undefined> {
+        if (!content.trim() || status.value === "streaming") {
+            return chatId ?? undefined;
         }
-
-        isLoading.value = true;
+        let chatIdToUse = chatId;
+        if (!chatIdToUse) {
+            chatIdToUse = await db.chats.add({
+                id: uuidv4(),
+                createdAt: new Date(Date.now()),
+                updatedAt: new Date(Date.now()),
+                messages: [],
+            });
+        }
+        status.value = "streaming";
 
         // Add user message
-        addUserMessage(content);
+        await addUserMessage(content, chatIdToUse);
 
         // Add AI message placeholder
-        const aiMessageIndex = addAiMessagePlaceholder();
-        if (aiMessageIndex === -1) {
-            isLoading.value = false;
-            return;
+        const aiMessageIndex = await addAiMessagePlaceholder(chatIdToUse);
+        if (!aiMessageIndex) {
+            status.value = "ready";
+            return chatIdToUse;
         }
 
-        try {
-            // Use provided document IDs or null
-            const documentIds = selectedDocumentIds?.value?.length
-                ? selectedDocumentIds.value
-                : null;
+        // Start streaming in the background (don't await)
+        // This allows immediate redirect while response streams in
+        const documentIds = selectedDocumentIds?.value?.length
+            ? selectedDocumentIds.value
+            : null;
 
-            await new Promise<void>((resolve, reject) => {
-                sendMessage(
-                    content,
-                    thread_id.value,
-                    documentIds,
-                    (chunk: StreamChunk) =>
-                        updateAiMessage(aiMessageIndex, chunk),
-                    () => {
-                        finalizeAiMessage(aiMessageIndex);
-                        isLoading.value = false;
-                        resolve();
-                    },
-                    (error: Error) => {
-                        reject(error);
-                    },
-                );
-            });
-        } catch (error) {
+        // Stream the response without blocking the return
+        new Promise<void>((resolve, reject) => {
+            sendMessage(
+                content,
+                chatIdToUse,
+                documentIds,
+                (chunk: StreamChunk) => updateAiMessage(aiMessageIndex, chunk),
+                () => {
+                    finalizeAiMessage(aiMessageIndex);
+                    status.value = "ready";
+                    resolve();
+                },
+                (error: Error) => {
+                    reject(error);
+                },
+            );
+        }).catch((error) => {
             console.error("Failed to send chat message:", error);
-            handleAiMessageError(aiMessageIndex);
-            isLoading.value = false;
-            throw error;
-        }
-    }
+            status.value = "ready";
+            const { handleApiError } = useApiError();
+            handleApiError(error);
+        });
 
-    /**
-     * Clear all messages
-     */
-    function clearMessages(): void {
-        messages.value = [];
+        // Return chatId immediately so UI can redirect
+        return chatIdToUse;
     }
-
-    /**
-     * Check if example questions should be shown
-     */
-    const showExampleQuestions = computed(() => messages.value.length === 0);
 
     return {
-        messages,
-        isLoading,
-        showExampleQuestions,
+        status,
         sendChatMessage,
-        clearMessages,
     };
 };

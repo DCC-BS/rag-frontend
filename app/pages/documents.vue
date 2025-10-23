@@ -1,8 +1,5 @@
 <template>
     <div class="flex flex-col h-screen">
-        <header>
-            <NavigationMenu />
-        </header>
         <main class="flex-1 overflow-y-auto">
             <div class="container mx-auto px-4 py-8">
                 <!-- Page Header -->

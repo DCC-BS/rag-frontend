@@ -9,7 +9,6 @@ import { FILE_LIMITS, PROCESSING } from "~/utils/constants";
  * @returns An object with reactive state and methods for the document form.
  */
 export function useDocumentForm() {
-    // Use authentication session data
     const { data: session, refresh } = useAuth();
 
     // File size configuration (in bytes)

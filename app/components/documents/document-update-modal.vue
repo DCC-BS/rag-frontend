@@ -106,8 +106,6 @@ function getUpdateFileDescription(): string {
     return `${t("documents.selectNewFileDescription")} (PDF, DOCX, PPTX, HTML)`;
 }
 
-// Session data is automatically managed by nuxt-auth
-
 const { t } = useI18n();
 // Toast notifications
 const toast = useToast();
@@ -121,8 +119,6 @@ watch(
             resetForm();
             selectedAccessRole.value = props.currentAccessRole || "";
             updateError.value = undefined;
-
-            // Session data is automatically managed by nuxt-auth
         }
     },
 );

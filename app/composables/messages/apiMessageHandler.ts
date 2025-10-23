@@ -1,4 +1,4 @@
-import type { ChatMessage, StreamChunk } from "~/models/message";
+import type { ApiChatMessage, StreamChunk } from "~/models/api_message";
 
 /**
  * Parse a line containing JSON data separated by null bytes
@@ -118,7 +118,7 @@ export async function sendMessage(
     const normalizedDocumentIds =
         document_ids && document_ids.length === 0 ? null : document_ids;
 
-    const body: ChatMessage = {
+    const body: ApiChatMessage = {
         message,
         thread_id,
         document_ids: normalizedDocumentIds,

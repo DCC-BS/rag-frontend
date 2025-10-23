@@ -1,10 +1,12 @@
 {
     "chat": {
-        "title": "Bebbi-Bot",
+        "title": "Bebbi Bot",
+        "introduction": "Wie kann ich Ihnen heute helfen?",
         "new": "Neuer Chat",
         "send": "Senden",
         "message": "Nachricht",
         "pressEnterToSend": "Drücken Sie Enter, um die Nachricht zu senden",
+        "placeholder": "Frage an Bebbi-Bot",
         "sources": "Quellen",
         "document": "Dokument",
         "page": "Seite {page} von {num_pages}",
@@ -88,9 +90,9 @@
         "generic": "Ein unerwarteter Fehler ist aufgetreten."
     },
     "navigation": {
-        "title": "Bebbi-Bot",
+        "app": "Bebbi-Bot",
+        "chat": "Neuer Chat",
         "documents": "Dokumente",
-        "languages": "Sprachen",
         "signOut": "Abmelden"
     },
     "documents": {
@@ -166,6 +168,7 @@
         "failedToDownload": "Der Download von \"{fileName}\" ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
         "operationFailed": "Operation fehlgeschlagen",
         "failedTo": "Konnte \"{fileName}\" nicht {operation}. Bitte versuchen Sie es erneut.",
+        "open": "öffnen",
         "onlyPdfSupported": "Nur PDF-Dateien werden unterstützt.",
         "load": "laden",
         "download": "herunterladen",

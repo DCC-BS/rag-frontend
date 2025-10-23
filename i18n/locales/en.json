@@ -2,9 +2,11 @@
     "chat": {
         "title": "Bebbi-Bot",
         "new": "New Chat",
+        "introduction": "How can I help you today?",
         "send": "Send",
         "message": "Message",
         "pressEnterToSend": "Press Enter to send",
+        "placeholder": "Question to Bebbi-Bot",
         "sources": "Sources",
         "document": "Document",
         "page": "Page {page} of {num_pages}",
@@ -88,9 +90,9 @@
         "generic": "An unexpected error occurred."
     },
     "navigation": {
-        "title": "Bebbi-Bot",
+        "app": "Bebbi-Bot",
+        "chat": "New Chat",
         "documents": "Documents",
-        "languages": "Languages",
         "signOut": "Sign Out"
     },
     "documents": {
@@ -169,6 +171,7 @@
         "onlyPdfSupported": "Only PDF files are supported.",
         "load": "load",
         "download": "download",
+        "open": "open",
         "validationError": "Validation Error",
         "validationErrorDescription": "Please select a file and access role before uploading.",
         "authError": "Authentication Error",
