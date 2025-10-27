@@ -10,7 +10,7 @@ interface Document {
     access_roles: string[];
     page?: number;
     page_content?: string;
-    metadata?: unknown;
+    metadata: Record<string, string | number>;
     createdAt: Date;
 }
 
@@ -20,8 +20,6 @@ interface Message {
     role: "user" | "assistant";
     content: string;
     createdAt: Date;
-    documents: Document[];
-    statusParts: StatusPart[];
 }
 
 interface StatusPart {
@@ -35,7 +33,6 @@ interface StatusPart {
 
 interface Chat {
     id: string;
-    messages: Message[];
     createdAt: Date;
     updatedAt: Date;
 }

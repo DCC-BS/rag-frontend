@@ -26,8 +26,6 @@ export const useChatMessages = (
             content: content,
             role: "user",
             createdAt: new Date(Date.now()),
-            documents: [],
-            statusParts: [],
         });
     }
 
@@ -41,8 +39,6 @@ export const useChatMessages = (
             content: "",
             role: "assistant",
             createdAt: new Date(Date.now()),
-            documents: [],
-            statusParts: [],
         });
         return messageId;
     }
@@ -232,10 +228,6 @@ export const useChatMessages = (
                     /ß/g,
                     "ss",
                 );
-                console.log(
-                    "currentAiMessage.content",
-                    currentAiMessage.content,
-                );
             }
             await db.messages.put(currentAiMessage);
         }
@@ -258,7 +250,6 @@ export const useChatMessages = (
                 id: uuidv4(),
                 createdAt: new Date(Date.now()),
                 updatedAt: new Date(Date.now()),
-                messages: [],
             });
         }
         status.value = "streaming";

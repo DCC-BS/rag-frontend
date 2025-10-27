@@ -4,8 +4,9 @@
             <UBadge v-for="(document, docIndex) in documents" :key="document.id" color="primary" variant="subtle"
                 class="cursor-pointer hover:opacity-90" @click="handleDocumentClick(document, docIndex)">
                 <UIcon name="i-heroicons-document-text" class="w-4 h-4 mr-1" />
+                <span>[{{ docIndex + 1 }}]</span>
                 <span class="truncate max-w-56">{{ document.file_name }}</span>
-                <span v-if="document.page" class="ml-1 opacity-70">(p. {{ document.page }})</span>
+                <span v-if="document.page" class="ml-1 opacity-70">(S. {{ document.page }})</span>
             </UBadge>
         </div>
 

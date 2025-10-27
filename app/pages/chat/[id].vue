@@ -6,7 +6,6 @@ definePageMeta({
 
 import { liveQuery } from "dexie";
 import {
-    type Chat,
     type Document as ChatDocument,
     db,
     type Message,
@@ -22,19 +21,18 @@ const userImage = computed(() => {
     return base64 ? base64 : "/LucideCircleUserRound.png";
 });
 
-const actions = ref([
-    {
-        label: "Copy to clipboard",
-        icon: "i-lucide-copy",
-    },
-]);
-
 // Initialize chat messages composable
 const { status, sendChatMessage } = useChatMessages();
 
 const input = ref("");
-const messages = ref<Message[]>([]);
 
+// Type for messages with their related data loaded
+type MessageWithRelations = Message & {
+    statusParts: StatusPart[];
+    documents: ChatDocument[];
+};
+
+const messages = ref<MessageWithRelations[]>([]);
 
 // Subscribe to live query for messages with their status parts and documents
 const messagesSubscription = liveQuery(async () => {
@@ -78,81 +76,67 @@ onUnmounted(() => {
     messagesSubscription.unsubscribe();
 });
 
-/**
- * Convert messages to Nuxt UI ChatMessages format (text only)
- */
-const formattedMessages = computed(() => {
-    return messages.value.map((message, index) => {
-        // Determine state based on streaming status and content
-        const messageState =
-            message.role === "assistant" &&
-                !message.content &&
-                status.value === "streaming"
-                ? "streaming"
-                : "done";
+// Quick lookup maps for related content by message id
+const statusPartsById = computed(() => {
+    return new Map<string, StatusPart[]>(
+        messages.value.map((m) => [m.id, m.statusParts || []]),
+    );
+});
 
-        const formatted = {
+const documentsById = computed(() => {
+    return new Map<string, ChatDocument[]>(
+        messages.value.map((m) => [m.id, m.documents || []]),
+    );
+});
+
+/**
+ * Safely extract plain text from a UI message using AI SDK v5 parts.
+ * Falls back to empty string if no text part is present.
+ */
+function isTextPart(part: unknown): part is { type: "text"; text: string } {
+    if (!part || typeof part !== "object") return false;
+    const p = part as { type?: unknown; text?: unknown };
+    return p.type === "text" && typeof p.text === "string";
+}
+
+function getMessageText(message: unknown): string {
+    if (!message || typeof message !== "object") return "";
+    const obj = message as { content?: unknown; parts?: unknown };
+    if (typeof obj.content === "string" && obj.content.length > 0) {
+        return obj.content;
+    }
+    if (Array.isArray(obj.parts) && obj.parts.length > 0) {
+        const first = obj.parts[0];
+        if (isTextPart(first)) return first.text;
+    }
+    return "";
+}
+
+// Minimal shape expected by Nuxt UI ChatMessages
+const uiMessages = computed(() => {
+    return messages.value.map((message) => {
+        const isStreamingAssistant =
+            message.role === "assistant" &&
+            !message.content &&
+            status.value === "streaming";
+
+        return {
             id: message.id,
             role: message.role,
             parts: [
                 {
                     type: "text" as const,
-                    text:
-                        message.content ||
-                        (messageState === "streaming" ? "Thinking..." : ""),
-                    state: messageState as "done" | "streaming",
+                    text: message.content || (isStreamingAssistant ? "…" : ""),
+                    state: (isStreamingAssistant ? "streaming" : "done") as
+                        | "done"
+                        | "streaming",
                 },
             ],
-            actions: actions.value,
-            // Keep references for custom components
-            statusParts: message.statusParts || [],
-            documents: message.documents || [],
         };
-        return formatted;
     });
 });
 
-/**
- * Safely extract custom extras from the message object passed by UChatMessages slot.
- * Nuxt UI types the slot as `UIMessage`, which doesn't include our custom fields,
- * but the runtime object still carries them through. This function narrows safely.
- */
-function getMessageExtras(message: unknown): {
-    documents: ChatDocument[];
-    statusParts: StatusPart[];
-} {
-    const obj = (message as Record<string, unknown>) || {};
-    const docs = Array.isArray(obj.documents)
-        ? (obj.documents as ChatDocument[])
-        : [];
-    const parts = Array.isArray(obj.statusParts)
-        ? (obj.statusParts as StatusPart[])
-        : [];
-
-    return { documents: docs, statusParts: parts };
-}
-
-/**
- * Extract the current text content from a UIMessage-like object.
- */
-function extractMessageText(message: unknown): string {
-    if (!message || typeof message !== "object") return "";
-    const obj = message as {
-        parts?: Array<{ text?: string }>;
-        content?: string;
-    };
-    let text = "";
-    if (typeof obj.content === "string" && obj.content.length > 0) {
-        text = obj.content;
-    } else if (
-        Array.isArray(obj.parts) &&
-        typeof obj.parts[0]?.text === "string"
-    ) {
-        text = obj.parts[0]?.text as string;
-    }
-
-    return text;
-}
+// No helper extraction needed: use message.parts[0].text and lookup maps
 
 /**
  * Handle chat message submission
@@ -193,20 +177,18 @@ async function handleSubmit(e: Event): Promise<void> {
                 avatar: {
                     src: '/img/ai.png'
                 }
-            }" :messages="formattedMessages" auto-scroll-icon="i-lucide-chevron-down" :should-scroll-to-bottom="false">
+            }" :messages="uiMessages" :status="status === 'streaming' ? 'streaming' : 'ready'"
+                auto-scroll-icon="i-lucide-chevron-down" :should-scroll-to-bottom="false">
                 <template #content="{ message }">
                     <div v-if="message.role === 'assistant'">
-                        <!-- Render AI response as Markdown -->
-                        <MDC :value="extractMessageText(message) || (status === 'streaming' ? '…' : '')" tag="div" />
-                        <!-- Status parts should appear below the message content -->
-                        <ChatStatusParts :status-parts="getMessageExtras(message).statusParts"
-                            :is-streaming="status === 'streaming' && !extractMessageText(message)" />
-                        <!-- Documents list -->
-                        <ChatDocuments :documents="getMessageExtras(message).documents" />
+                        <MessageMarkdown :value="getMessageText(message)"
+                            :documents="documentsById.get(message.id) ?? []" />
+                        <ChatStatusParts :status-parts="statusPartsById.get(message.id) ?? []"
+                            :is-streaming="status === 'streaming'" />
+                        <ChatDocuments :documents="documentsById.get(message.id) ?? []" />
                     </div>
                     <div v-else>
-                        <!-- User message - render as plain text -->
-                        {{ extractMessageText(message) }}
+                        {{ getMessageText(message) }}
                     </div>
                 </template>
             </UChatMessages>
