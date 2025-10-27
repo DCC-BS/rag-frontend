@@ -4,7 +4,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { provide, toRef } from "vue";
 
 import type { Document as ChatDocument } from "~/services/db";

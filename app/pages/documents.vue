@@ -47,7 +47,7 @@
                         <div class="flex flex-wrap justify-between">
                             <!-- Search and Limit Controls -->
                             <div>
-                                <UButtonGroup size="md" orientation="horizontal">
+                                <UFieldGroup>
                                     <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" size="md"
                                         variant="outline" :placeholder="t('documents.searchPlaceholder')"
                                         :loading="searchLoading" @keyup.enter="performSearch">
@@ -59,7 +59,7 @@
                                     <UButton :label="t('common.search')" icon="i-heroicons-magnifying-glass"
                                         color="primary" variant="solid" size="md" @click="performSearch"
                                         :loading="searchLoading" />
-                                </UButtonGroup>
+                                </UFieldGroup>
                             </div>
 
                             <!-- Document Count Stats -->
@@ -87,7 +87,7 @@
                             <!-- Actions -->
                             <div v-if="documents.documents && documents.documents.length > 0">
                                 <template v-if="selectedDocuments.length === 0">
-                                    <UButtonGroup size="md">
+                                    <UFieldGroup>
                                         <!-- View Mode Toggle -->
                                         <UButton
                                             :icon="viewMode === 'tree' ? 'i-heroicons-list-bullet' : 'i-heroicons-squares-2x2'"
@@ -103,11 +103,11 @@
                                         <UButton v-if="hasWriterRole" :label="t('documents.addDocument')"
                                             icon="i-heroicons-plus" color="primary" variant="solid"
                                             @click="() => { showUploadModal = true; }" />
-                                    </UButtonGroup>
+                                    </UFieldGroup>
                                 </template>
                                 <!-- Bulk actions when documents are selected -->
                                 <template v-else>
-                                    <UButtonGroup size="md">
+                                    <UFieldGroup>
                                         <UButton :label="t('common.clearSelection')" color="neutral" variant="outline"
                                             @click="clearSelection" />
                                         <!-- Chat with Selected - available for all users -->
@@ -121,7 +121,7 @@
                                             :label="t('documents.deleteSelected', { count: selectedDocuments.length })"
                                             icon="i-heroicons-trash" color="error" variant="solid"
                                             :loading="isDeletingDocuments" @click="showBulkDeleteConfirmation" />
-                                    </UButtonGroup>
+                                    </UFieldGroup>
                                 </template>
                             </div>
                         </div>
@@ -193,9 +193,6 @@
                 </div>
             </div>
         </main>
-        <footer>
-            <Footer />
-        </footer>
 
         <!-- Delete Confirmation Modal -->
         <UModal v-model:open="showDeleteModal" :title="deleteModalData.title" :description="deleteModalData.message">

@@ -1,44 +1,24 @@
 <template>
-    <UModal :open="isOpen" @update:open="$emit('update:isOpen', $event)" :prevent-close="isLoading">
-        <template #header>
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-warning-100 dark:bg-warning-900 rounded-lg">
-                    <UIcon name="i-heroicons-pencil-square" class="w-6 h-6 text-warning-600 dark:text-warning-400" />
-                </div>
-                <div class="min-w-0 flex-1">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ t('documents.updateTitle') }}
-                    </h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-words overflow-wrap-anywhere">
-                        <i18n-t keypath="documents.updateDescription" tag="span">
-                            <template #fileName>
-                                <span class="font-mono break-all">{{ documentName }}</span>
-                            </template>
-                        </i18n-t>
-                    </p>
-                </div>
-            </div>
-        </template>
+    <UModal :open="isOpen" :title="t('documents.updateTitle')"
+        :description="t('documents.updateDescription', { fileName: documentName })"
+        @update:open="$emit('update:isOpen', $event)" :prevent-close="isLoading">
 
         <template #body>
             <!-- Form -->
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <!-- File Selection -->
-                <div>
-                    <UFileUpload v-model="selectedFile" ref="fileUploadRef" accept=".pdf,.docx,.pptx,.html"
-                        :label="t('documents.selectNewFile')" :description="getUpdateFileDescription()"
-                        :disabled="isLoading" icon="i-heroicons-arrow-up-tray" class="w-full min-h-32"
-                        :multiple="false" />
-                </div>
+                <UFileUpload v-model="selectedFile" ref="fileUploadRef" accept=".pdf,.docx,.pptx,.html"
+                    :label="t('documents.selectNewFile')" :description="getUpdateFileDescription()"
+                    :disabled="isLoading" icon="i-heroicons-arrow-up-tray" :multiple="false" />
 
                 <!-- Access Role Selection -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-sm font-medium mb-2">
                         {{ t('documents.accessRole') }}
                     </label>
-                    <USelect v-model="selectedAccessRole" :items="roles" :placeholder="t('documents.selectAccessRole')"
-                        :disabled="isLoading" />
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <USelect v-model="selectedAccessRole" :items="roleItems"
+                        :placeholder="t('documents.selectAccessRole')" :disabled="isLoading" />
+                    <p class="mt-1 text-xs text-gray-500">
                         {{ (roles.length || 0) > 0
                             ? t('documents.availableRoles')
                             : t('documents.noRoles') }}
@@ -88,22 +68,26 @@ const {
 
 // Shared document form logic
 const {
-    session,
     selectedFile,
     selectedAccessRole,
     roles,
-    formatFileSize,
     resetForm,
 } = useDocumentForm();
 
 // File upload component ref
 const fileUploadRef = ref();
 
+const roleItems = computed(() => {
+    const original = roles.value ?? [];
+    const filtered = original.filter((role: string) => role !== "Writer");
+    return filtered.length > 0 ? filtered : original;
+});
+
 /**
  * Get description for the file upload component
  */
 function getUpdateFileDescription(): string {
-    return `${t("documents.selectNewFileDescription")} (PDF, DOCX, PPTX, HTML)`;
+    return `${t("documents.supportedFormats")}: PDF, DOCX, PPTX, HTML`;
 }
 
 const { t } = useI18n();
@@ -176,8 +160,8 @@ async function handleSubmit(): Promise<void> {
         const serverErrorMessage = updateError.value;
         const errorMessage = serverErrorMessage
             ? t("documents.updateFailedWithDetails", {
-                  details: serverErrorMessage,
-              })
+                details: serverErrorMessage,
+            })
             : t("documents.updateFailedDescription");
 
         // Show error toast

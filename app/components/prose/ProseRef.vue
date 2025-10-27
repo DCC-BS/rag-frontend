@@ -31,10 +31,7 @@ onMounted(() => {
 
 function getDocTitle(document: ChatDocument): string | undefined {
     const meta = document.metadata;
-    if (
-        typeof meta.file_name === "string" &&
-        meta.file_name.length > 0
-    ) {
+    if (typeof meta.file_name === "string" && meta.file_name.length > 0) {
         return meta.file_name;
     }
     return undefined;
@@ -49,7 +46,9 @@ const tooltipText = computed((): string => {
             const title = getDocTitle(doc);
             if (title) {
                 const pageInfo =
-                    typeof doc.page === "number" ? ` (${t("common.page_abreviation")} ${doc.page})` : "";
+                    typeof doc.page === "number"
+                        ? ` (${t("common.page_abreviation")} ${doc.page})`
+                        : "";
                 return `${title}${pageInfo}`;
             }
         }
