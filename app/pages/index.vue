@@ -4,7 +4,7 @@
         <h1 class="text-3xl sm:text-4xl text-highlighted font-bold">
             {{ t('chat.introduction') }}
         </h1>
-        <UChatPrompt v-model="input" ariant="subtle" @submit="onSubmit" :status="status ? 'streaming' : 'ready'"
+        <UChatPrompt v-model="input" variant="subtle" @submit="onSubmit" :status="status ? 'streaming' : 'ready'"
             :placeholder="t('chat.placeholder')">
             <UChatPromptSubmit color="neutral" />
             <template #footer>

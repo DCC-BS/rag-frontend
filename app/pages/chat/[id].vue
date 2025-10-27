@@ -34,46 +34,63 @@ type MessageWithRelations = Message & {
 
 const messages = ref<MessageWithRelations[]>([]);
 
+// Store the current subscription to allow cleanup when route changes
+const messagesSubscription = ref<{ unsubscribe: () => void } | undefined>(
+    undefined,
+);
+
 // Subscribe to live query for messages with their status parts and documents
-const messagesSubscription = liveQuery(async () => {
-    const msgs = await db.messages
-        .where("chatId")
-        .equals(route.params.id as string)
-        .toArray();
+// Recreate subscription whenever the chat id changes
+watchEffect(() => {
+    // Unsubscribe from previous subscription if it exists
+    if (messagesSubscription.value) {
+        messagesSubscription.value.unsubscribe();
+        messagesSubscription.value = undefined;
+    }
 
-    // Sort messages by createdAt (oldest first)
-    msgs.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    const chatId = route.params.id as string | undefined;
 
-    // Load status parts and documents for each message
-    const messagesWithParts = await Promise.all(
-        msgs.map(async (msg) => {
-            const statusParts = await db.statusParts
-                .where("messageId")
-                .equals(msg.id)
-                .toArray();
+    // Guard for undefined/invalid id and clear messages
+    if (!chatId) {
+        messages.value = [];
+        return;
+    }
 
-            // Sort status parts by createdAt (oldest first)
-            statusParts.sort(
-                (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
-            );
+    // Create new liveQuery subscription for the current chat id
+    messagesSubscription.value = liveQuery(async () => {
+        const msgs = await db.messages
+            .where("chatId")
+            .equals(chatId)
+            .sortBy("createdAt");
 
-            const documents = await db.documents
-                .where("messageId")
-                .equals(msg.id)
-                .toArray();
+        // Load status parts and documents for each message
+        const messagesWithParts = await Promise.all(
+            msgs.map(async (msg) => {
+                const statusParts = await db.statusParts
+                    .where("messageId")
+                    .equals(msg.id)
+                    .sortBy("createdAt");
 
-            return { ...msg, statusParts, documents };
-        }),
-    );
+                const documents = await db.documents
+                    .where("messageId")
+                    .equals(msg.id)
+                    .sortBy("createdAt");
 
-    return messagesWithParts;
-}).subscribe((result) => {
-    messages.value = result;
+                return { ...msg, statusParts, documents };
+            }),
+        );
+
+        return messagesWithParts;
+    }).subscribe((result) => {
+        messages.value = result;
+    });
 });
 
 // Cleanup subscriptions on unmount
 onUnmounted(() => {
-    messagesSubscription.unsubscribe();
+    if (messagesSubscription.value) {
+        messagesSubscription.value.unsubscribe();
+    }
 });
 
 // Quick lookup maps for related content by message id
@@ -114,9 +131,11 @@ function getMessageText(message: unknown): string {
 
 // Minimal shape expected by Nuxt UI ChatMessages
 const uiMessages = computed(() => {
+    const lastMessage = messages.value[messages.value.length - 1];
     return messages.value.map((message) => {
         const isStreamingAssistant =
             message.role === "assistant" &&
+            message.id === lastMessage?.id &&
             !message.content &&
             status.value === "streaming";
 

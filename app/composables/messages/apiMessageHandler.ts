@@ -3,10 +3,10 @@ import type { ApiChatMessage, StreamChunk } from "~/models/api_message";
 /**
  * Parse a line containing JSON data separated by null bytes
  */
-function parseLine(line: string): StreamChunk[] {
+function parseLine(line: string): unknown[] {
     try {
         const jsons = line.split("\0");
-        const result: StreamChunk[] = [];
+        const result: unknown[] = [];
         for (const json of jsons) {
             if (json.length === 0) {
                 continue;
@@ -129,23 +129,27 @@ export async function sendMessage(
             method: "POST",
             body,
             responseType: "stream",
+            timeout: 30000, // 30 seconds
         })) as ReadableStream<Uint8Array>;
-
         const reader = response.getReader();
         const decoder = new TextDecoder();
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-                break;
-            }
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    break;
+                }
 
-            const chunks = parseStreamLine(
-                decoder.decode(value, { stream: true }),
-            );
-            for (const chunk of chunks) {
-                onChunk(chunk);
+                const chunks = parseStreamLine(
+                    decoder.decode(value, { stream: true }),
+                );
+                for (const chunk of chunks) {
+                    onChunk(chunk);
+                }
             }
+        } finally {
+            reader.releaseLock();
         }
 
         onComplete();

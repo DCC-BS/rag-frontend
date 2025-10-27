@@ -57,16 +57,16 @@ export const useChatMessages = (
 
         switch (chunk.type) {
             case "status":
-                handleStatusChunk(messageId, chunk);
+                await handleStatusChunk(messageId, chunk);
                 break;
             case "answer":
-                handleAnswerChunk(messageId, chunk);
+                await handleAnswerChunk(messageId, chunk);
                 break;
             case "documents":
-                handleDocumentsChunk(messageId, chunk);
+                await handleDocumentsChunk(messageId, chunk);
                 break;
             case "decision":
-                handleDecisionChunk(messageId, chunk);
+                await handleDecisionChunk(messageId, chunk);
                 break;
         }
     }
@@ -74,9 +74,12 @@ export const useChatMessages = (
     /**
      * Handle status chunk updates
      */
-    function handleStatusChunk(messageId: string, chunk: StreamChunk): void {
+    async function handleStatusChunk(
+        messageId: string,
+        chunk: StreamChunk,
+    ): Promise<void> {
         if (chunk.type !== "status") return;
-        db.statusParts.add({
+        await db.statusParts.add({
             id: uuidv4(),
             messageId: messageId,
             text: t(chunk.metadata.translation_key),

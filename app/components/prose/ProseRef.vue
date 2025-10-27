@@ -25,6 +25,7 @@ function parseIndexFromSlot(): void {
 }
 
 onMounted(() => {
+    // Slot content is static after mount
     parseIndexFromSlot();
 });
 
@@ -38,7 +39,6 @@ function getDocTitle(document: ChatDocument): string | undefined {
     }
     return undefined;
 }
-
 // Resolve tooltip text by matching the numeric index to a document
 const tooltipText = computed((): string => {
     const docs = injectedDocuments.value;
@@ -49,12 +49,13 @@ const tooltipText = computed((): string => {
             const title = getDocTitle(doc);
             if (title) {
                 const pageInfo =
-                    typeof doc.page === "number" ? ` (S. ${doc.page})` : "";
+                    typeof doc.page === "number" ? ` (${t("common.page")} ${doc.page})` : "";
                 return `${title}${pageInfo}`;
             }
         }
     }
     return t("common.reference");
+});
 });
 </script>
 

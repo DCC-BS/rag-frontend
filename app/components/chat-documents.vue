@@ -6,7 +6,8 @@
                 <UIcon name="i-heroicons-document-text" class="w-4 h-4 mr-1" />
                 <span>[{{ docIndex + 1 }}]</span>
                 <span class="truncate max-w-56">{{ document.file_name }}</span>
-                <span v-if="document.page" class="ml-1 opacity-70">(S. {{ document.page }})</span>
+                <span v-if="document.page" class="ml-1 opacity-70">({{ t("page_abreviation") }} {{ document.page
+                    }})</span>
             </UBadge>
         </div>
 
@@ -41,10 +42,11 @@ const {
     error: documentError,
 } = useDocumentViewer();
 
+// Documents composable
+const { documents: userDocuments, fetchDocuments } = useDocuments();
+
 // Download composable (for non-PDF files)
 const { downloadDocument } = useDocumentDownload();
-
-// No accordion anymore; badges are rendered inline
 
 /**
  * Handle document click to open viewer
@@ -57,7 +59,6 @@ async function handleDocumentClick(
 
     try {
         // Find the corresponding user document to get the ID
-        const { documents: userDocuments, fetchDocuments } = useDocuments();
         if (!userDocuments.value) {
             await fetchDocuments(); // Ensure documents are loaded
         }
@@ -85,20 +86,16 @@ async function handleDocumentClick(
                 selectedDocumentFileName.value = result.fileName;
                 selectedDocumentPage.value = document.page || 1;
                 isDocumentViewerOpen.value = true;
-                return;
+            } else if (documentError.value) {
+                toast.add({
+                    title: t("documents.failedToLoad"),
+                    description: documentError.value,
+                    icon: "i-heroicons-exclamation-triangle",
+                    color: "error",
+                });
             }
         } else {
             await downloadDocument(userDocument.id, fileName);
-            return;
-        }
-
-        if (documentError.value) {
-            toast.add({
-                title: t("documents.failedToLoad"),
-                description: documentError.value,
-                icon: "i-heroicons-exclamation-triangle",
-                color: "error",
-            });
         }
     } catch (error) {
         console.error("Failed to open document:", error);

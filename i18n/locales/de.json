@@ -6,7 +6,7 @@
         "send": "Senden",
         "message": "Nachricht",
         "pressEnterToSend": "Drücken Sie Enter, um die Nachricht zu senden",
-        "placeholder": "Frage an Bebbi-Bot",
+        "placeholder": "Frage an Bebbi Bot",
         "sources": "Quellen",
         "document": "Dokument",
         "page": "Seite {page} von {num_pages}",
@@ -68,6 +68,7 @@
         "previous": "Zurück",
         "selected": "Ausgewählt",
         "page": "Seite",
+        "page_abreviation": "S.",
         "pageCount": "{count} Seite | {count} Seiten",
         "file": "Datei",
         "yes": "Ja",
@@ -91,7 +92,7 @@
         "generic": "Ein unerwarteter Fehler ist aufgetreten."
     },
     "navigation": {
-        "app": "Bebbi-Bot",
+        "app": "Bebbi Bot",
         "chat": "Neuer Chat",
         "documents": "Dokumente",
         "signOut": "Abmelden"

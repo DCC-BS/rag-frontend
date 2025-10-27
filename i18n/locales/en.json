@@ -68,6 +68,7 @@
         "previous": "Previous",
         "selected": "Selected",
         "page": "page",
+        "page_abreviation": "p.",
         "pageCount": "{count} page | {count} pages",
         "file": "File",
         "yes": "Yes",
