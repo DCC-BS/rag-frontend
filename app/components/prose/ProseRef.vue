@@ -49,13 +49,12 @@ const tooltipText = computed((): string => {
             const title = getDocTitle(doc);
             if (title) {
                 const pageInfo =
-                    typeof doc.page === "number" ? ` (${t("common.page")} ${doc.page})` : "";
+                    typeof doc.page === "number" ? ` (${t("common.page_abreviation")} ${doc.page})` : "";
                 return `${title}${pageInfo}`;
             }
         }
     }
     return t("common.reference");
-});
 });
 </script>
 
