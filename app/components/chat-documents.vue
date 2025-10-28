@@ -6,7 +6,7 @@
                 <UIcon name="i-heroicons-document-text" class="w-4 h-4 mr-1" />
                 <span>[{{ docIndex + 1 }}]</span>
                 <span class="truncate max-w-56">{{ document.file_name }}</span>
-                <span v-if="document.page" class="ml-1 opacity-70">({{ t("common.page_abreviation") }} {{ document.page
+                <span v-if="document.page" class="ml-1 opacity-70">({{ t("common.page_abbreviation") }} {{ document.page
                     }})</span>
             </UBadge>
         </div>
@@ -56,7 +56,6 @@ async function handleDocumentClick(
     try {
         // Use the user_document_id directly to fetch/download without list lookup
         const userDocumentId = document.user_document_id;
-        alert(JSON.stringify(document));
         if (typeof userDocumentId !== "number") {
             toast.add({
                 title: t("documents.failedToLoad"),

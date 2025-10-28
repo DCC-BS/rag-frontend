@@ -64,7 +64,7 @@ export interface ApiDocument {
     metadata: ApiMetadata;
 }
 
-interface ApiMetadata {
+export interface ApiMetadata {
     id: number;
     file_name: string;
     document_path: string;

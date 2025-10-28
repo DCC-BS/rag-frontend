@@ -48,19 +48,13 @@ watchEffect(() => {
         messagesSubscription.value = undefined;
     }
 
-    const chatId = route.params.id as string | undefined;
-
-    // Guard for undefined/invalid id and clear messages
-    if (!chatId) {
-        messages.value = [];
-        return;
-    }
+    const chatId = typeof route.params.id === "string" ? route.params.id : undefined;
 
     // Create new liveQuery subscription for the current chat id
     messagesSubscription.value = liveQuery(async () => {
         const msgs = await db.messages
             .where("chatId")
-            .equals(chatId)
+            .equals(chatId ?? "")
             .sortBy("createdAt");
 
         // Load status parts and documents for each message
@@ -136,8 +130,7 @@ const uiMessages = computed(() => {
         const isStreamingAssistant =
             message.role === "assistant" &&
             message.id === lastMessage?.id &&
-            !message.content &&
-            status.value === "streaming";
+            !message.content;
 
         return {
             id: message.id,
@@ -179,7 +172,7 @@ async function handleSubmit(e: Event): Promise<void> {
 
     try {
         // Pass the current chatId so message is added to existing chat
-        await sendChatMessage(content, route.params.id as string);
+        await sendChatMessage(content, typeof route.params.id === "string" ? route.params.id : "");
         input.value = "";
     } catch (error) {
         toast.add({

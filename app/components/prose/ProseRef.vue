@@ -87,7 +87,7 @@ const tooltipText = computed((): string => {
             if (title) {
                 const pageInfo =
                     typeof doc.page === "number"
-                        ? ` (${t("common.page_abreviation")} ${doc.page})`
+                        ? ` (${t("common.page_abbreviation")} ${doc.page})`
                         : "";
                 return `${title}${pageInfo}`;
             }

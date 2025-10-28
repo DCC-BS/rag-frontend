@@ -11,7 +11,7 @@ export const useChatMessages = (
     const { t } = useI18n();
     const { handleApiError } = useApiError();
 
-    const status = ref<string>("");
+    const status = ref<"streaming" | "ready">("ready");
 
     /**
      * Add a user message to the chat
@@ -174,7 +174,10 @@ export const useChatMessages = (
      */
     function createDecisionStatusPart(
         chunk: StreamChunk,
-    ): Record<string, unknown> {
+    ): Pick<
+        import("~/services/db").StatusPart,
+        "text" | "highlight" | "sender"
+    > {
         if (chunk.type !== "decision") {
             throw new Error("Invalid chunk type for decision status part");
         }
