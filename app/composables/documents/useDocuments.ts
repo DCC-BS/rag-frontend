@@ -47,9 +47,10 @@ export const useDocuments = (): UseDocumentsReturn => {
             }
 
             const queryString = searchParams.toString();
+            // Use absolute path to avoid resolving relative to the current route (e.g., "/chat/api/documents")
             const url = queryString
-                ? `api/documents?${queryString}`
-                : "api/documents";
+                ? `/api/documents?${queryString}`
+                : "/api/documents";
 
             const response = await $fetch<DocumentsResponse>(url, {
                 method: "GET",
