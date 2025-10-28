@@ -1,6 +1,6 @@
 <template>
     <UTooltip :delay-duration="0" :text="tooltipText">
-        <span class="ref-tag" ref="slotEl">
+        <span class="ref-tag" ref="slotEl" :title="tooltipText">
             <slot />
         </span>
     </UTooltip>
@@ -17,6 +17,7 @@ const injectedDocuments = inject<Ref<ChatDocument[]>>("mdcDocuments", ref([]));
 // Element containing the slot text (e.g., "1")
 const slotEl = ref<HTMLElement | undefined>(undefined);
 const referenceIndex = ref<number | undefined>(undefined);
+let mutationObserver: MutationObserver | undefined;
 
 function parseIndexFromSlot(): void {
     const textContent = slotEl.value?.textContent?.trim() ?? "";
@@ -25,11 +26,50 @@ function parseIndexFromSlot(): void {
 }
 
 onMounted(() => {
-    // Slot content is static after mount
+    // Compute initial index
+    parseIndexFromSlot();
+    // Observe text changes inside slot during streaming to keep index in sync
+    if (slotEl.value) {
+        mutationObserver = new MutationObserver(() => {
+            parseIndexFromSlot();
+        });
+        mutationObserver.observe(slotEl.value, {
+            subtree: true,
+            characterData: true,
+            childList: true,
+        });
+    }
+});
+
+onBeforeUnmount(() => {
+    if (mutationObserver) {
+        mutationObserver.disconnect();
+        mutationObserver = undefined;
+    }
+});
+
+onUpdated(() => {
+    // Safeguard: recompute on updates in case observer missed something
     parseIndexFromSlot();
 });
 
+watch(
+    () => injectedDocuments.value.length,
+    () => {
+        // Re-parse when related documents arrive/update during streaming
+        parseIndexFromSlot();
+    },
+);
+
 function getDocTitle(document: ChatDocument): string | undefined {
+    // Prefer top-level file_name from Document
+    if (
+        typeof document.file_name === "string" &&
+        document.file_name.length > 0
+    ) {
+        return document.file_name;
+    }
+    // Fallback to metadata.file_name
     const meta = document.metadata;
     if (typeof meta.file_name === "string" && meta.file_name.length > 0) {
         return meta.file_name;
@@ -55,6 +95,8 @@ const tooltipText = computed((): string => {
     }
     return t("common.reference");
 });
+
+// No debug/diagnostic computeds
 </script>
 
 <style scoped>
