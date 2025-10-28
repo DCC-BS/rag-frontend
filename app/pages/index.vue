@@ -1,37 +1,39 @@
 <template>
+    <div>
+        <ChatHistory />
+        <UContainer class="flex-1 flex flex-col justify-center gap-4 sm:gap-6 py-8">
+            <h1 class="text-3xl sm:text-4xl text-highlighted font-bold">
+                {{ t('chat.introduction') }}
+            </h1>
+            <UChatPrompt v-model="input" variant="subtle" @submit="onSubmit" :status="status ? 'streaming' : 'ready'"
+                :placeholder="t('chat.placeholder')">
+                <UChatPromptSubmit color="neutral" />
+                <template #footer>
+                    <div class="flex items-center gap-3 mb-4">
+                        <!-- Document Selection Drawer -->
+                        <DocumentSelectionDrawer ref="documentSelectionDrawer" />
 
-    <UContainer class="flex-1 flex flex-col justify-center gap-4 sm:gap-6 py-8">
-        <h1 class="text-3xl sm:text-4xl text-highlighted font-bold">
-            {{ t('chat.introduction') }}
-        </h1>
-        <UChatPrompt v-model="input" variant="subtle" @submit="onSubmit" :status="status ? 'streaming' : 'ready'"
-            :placeholder="t('chat.placeholder')">
-            <UChatPromptSubmit color="neutral" />
-            <template #footer>
-                <div class="flex items-center gap-3 mb-4">
-                    <!-- Document Selection Drawer -->
-                    <DocumentSelectionDrawer ref="documentSelectionDrawer" />
-
-                    <!-- Selected documents indicator -->
-                    <div v-if="documentSelectionDrawer?.selectedDocuments?.length > 0"
-                        class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <UIcon name="i-heroicons-document-text" class="w-4 h-4" />
-                        <span>
-                            {{ t('chat.chatWithDocuments', {
-                                count: documentSelectionDrawer.selectedDocuments.length
-                            }) }}
-                        </span>
+                        <!-- Selected documents indicator -->
+                        <div v-if="documentSelectionDrawer?.selectedDocuments?.length > 0"
+                            class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <UIcon name="i-heroicons-document-text" class="w-4 h-4" />
+                            <span>
+                                {{ t('chat.chatWithDocuments', {
+                                    count: documentSelectionDrawer.selectedDocuments.length
+                                }) }}
+                            </span>
+                        </div>
                     </div>
-                </div>
-            </template>
-        </UChatPrompt>
+                </template>
+            </UChatPrompt>
 
-        <div class="flex flex-wrap gap-2">
-            <UButton v-for="quickChat in quickChats" :key="quickChat.label" :icon="quickChat.icon"
-                :label="quickChat.label" size="sm" color="neutral" variant="outline" class="rounded-full"
-                @click="sendChat(quickChat.label)" />
-        </div>
-    </UContainer>
+            <div class="flex flex-wrap gap-2">
+                <UButton v-for="quickChat in quickChats" :key="quickChat.label" :icon="quickChat.icon"
+                    :label="quickChat.label" size="sm" color="neutral" variant="outline" class="rounded-full"
+                    @click="sendChat(quickChat.label)" />
+            </div>
+        </UContainer>
+    </div>
 </template>
 
 <script lang="ts" setup>

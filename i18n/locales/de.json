@@ -13,6 +13,11 @@
         "created_at": "Erstellt am",
         "mime_type": "Dateityp",
         "sourcesCount": "{count} Dokument | {count} Dokumente",
+        "history": "Vergangene Chats",
+        "showOlder": "Ältere anzeigen",
+        "untitled": "Unbenannt",
+        "today": "Heute",
+        "yesterday": "Gestern",
         "error": {
             "title": "Nachricht konnte nicht gesendet werden",
             "sendMessage": "Bitte melden Sie sich erneut an und versuchen Sie es erneut.",
@@ -249,5 +254,9 @@
         "title": "Kein Zugriff",
         "description": "Sie haben keinen Zugriff auf diese Seite.",
         "contact": "Wenn Sie Zugriff benötigen, kontaktieren Sie uns unter:"
+    },
+    "date": {
+        "today": "Heute",
+        "yesterday": "Gestern"
     }
 }

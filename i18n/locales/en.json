@@ -19,6 +19,11 @@
             "newChat": "Could not start a new chat. Please try again.",
             "exampleQuestion": "Could not send the example question. Please try again"
         },
+        "history": "Previous Chats",
+        "showOlder": "Show older",
+        "untitled": "Untitled",
+        "today": "Today",
+        "yesterday": "Yesterday",
         "exampleQuestions": {
             "title": "Try asking:",
             "clickToAsk": "Click to ask",
@@ -250,5 +255,9 @@
         "title": "No Access",
         "description": "You do not have access to this page.",
         "contact": "If you need access, please contact us at:"
+    },
+    "date": {
+        "today": "Today",
+        "yesterday": "Yesterday"
     }
 }
