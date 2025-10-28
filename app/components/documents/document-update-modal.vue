@@ -67,12 +67,8 @@ const {
 } = useDocumentUpdate();
 
 // Shared document form logic
-const {
-    selectedFile,
-    selectedAccessRole,
-    roles,
-    resetForm,
-} = useDocumentForm();
+const { selectedFile, selectedAccessRole, roles, resetForm } =
+    useDocumentForm();
 
 // File upload component ref
 const fileUploadRef = ref();
@@ -160,8 +156,8 @@ async function handleSubmit(): Promise<void> {
         const serverErrorMessage = updateError.value;
         const errorMessage = serverErrorMessage
             ? t("documents.updateFailedWithDetails", {
-                details: serverErrorMessage,
-            })
+                  details: serverErrorMessage,
+              })
             : t("documents.updateFailedDescription");
 
         // Show error toast
