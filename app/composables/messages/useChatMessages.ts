@@ -124,7 +124,6 @@ export const useChatMessages = (
         chunk: StreamChunk,
     ): Promise<void> {
         if (chunk.type !== "documents") return;
-
         await db.documents.bulkAdd(
             chunk.metadata.documents.map((document: ApiDocument) => ({
                 id: uuidv4(),
@@ -133,9 +132,12 @@ export const useChatMessages = (
                 mime_type: document.metadata.mime_type,
                 num_pages: document.metadata.num_pages ?? 1,
                 access_roles: document.metadata.access_roles,
+                user_document_id: document.metadata.id,
                 page: document.metadata.page ?? 1,
-                page_content: document.page_content,
-                metadata: document.metadata,
+                metadata: document.metadata as unknown as Record<
+                    string,
+                    string | number | string[] | null
+                >,
                 messageId: messageId,
                 createdAt: new Date(Date.now()),
             })),

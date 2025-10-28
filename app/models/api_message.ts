@@ -61,12 +61,11 @@ export type StreamChunk =
     | DecisionStreamChunk;
 
 export interface ApiDocument {
-    page_content: string;
     metadata: ApiMetadata;
 }
 
 interface ApiMetadata {
-    id: string;
+    id: number;
     file_name: string;
     document_path: string;
     mime_type: string;

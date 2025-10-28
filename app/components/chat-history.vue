@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 import { liveQuery } from "dexie";
 import { type Chat, db, type Message } from "~/services/db";
 
@@ -41,7 +40,7 @@ async function fetchChatsWithTitles(): Promise<ChatWithTitle[]> {
             const firstUser = firstMessages.find(
                 (m: Message) => m.role === "user",
             );
-            const base = firstUser?.content ?? t('chat.untitled');
+            const base = firstUser?.content ?? t("chat.untitled");
             const title = truncateText(base, MAX_TITLE_LENGTH);
             return { ...chat, title };
         }),
@@ -134,18 +133,34 @@ const open = ref(false);
  * Delete a chat and all related data in a single transaction.
  */
 async function deleteChat(chatId: string): Promise<void> {
-    await db.transaction('rw', db.chats, db.messages, db.statusParts, db.documents, async () => {
-        const messagesInChat = await db.messages.where('chatId').equals(chatId).toArray();
-        const messageIds = messagesInChat.map((m) => m.id);
+    await db.transaction(
+        "rw",
+        db.chats,
+        db.messages,
+        db.statusParts,
+        db.documents,
+        async () => {
+            const messagesInChat = await db.messages
+                .where("chatId")
+                .equals(chatId)
+                .toArray();
+            const messageIds = messagesInChat.map((m) => m.id);
 
-        if (messageIds.length > 0) {
-            await db.statusParts.where('messageId').anyOf(messageIds).delete();
-            await db.documents.where('messageId').anyOf(messageIds).delete();
-        }
+            if (messageIds.length > 0) {
+                await db.statusParts
+                    .where("messageId")
+                    .anyOf(messageIds)
+                    .delete();
+                await db.documents
+                    .where("messageId")
+                    .anyOf(messageIds)
+                    .delete();
+            }
 
-        await db.messages.where('chatId').equals(chatId).delete();
-        await db.chats.delete(chatId);
-    });
+            await db.messages.where("chatId").equals(chatId).delete();
+            await db.chats.delete(chatId);
+        },
+    );
 }
 
 async function onDelete(chatId: string): Promise<void> {

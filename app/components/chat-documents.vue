@@ -7,7 +7,7 @@
                 <span>[{{ docIndex + 1 }}]</span>
                 <span class="truncate max-w-56">{{ document.file_name }}</span>
                 <span v-if="document.page" class="ml-1 opacity-70">({{ t("common.page_abreviation") }} {{ document.page
-                }})</span>
+                    }})</span>
             </UBadge>
         </div>
 
@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import type { UserDocument } from "~/models/document";
 import type { Document } from "~/services/db";
 
 const props = defineProps<{
@@ -42,9 +41,6 @@ const {
     error: documentError,
 } = useDocumentViewer();
 
-// Documents composable
-const { documents: userDocuments, fetchDocuments } = useDocuments();
-
 // Download composable (for non-PDF files)
 const { downloadDocument } = useDocumentDownload();
 
@@ -58,16 +54,10 @@ async function handleDocumentClick(
     const fileName = document.file_name;
 
     try {
-        // Find the corresponding user document to get the ID
-        if (!userDocuments.value) {
-            await fetchDocuments(); // Ensure documents are loaded
-        }
-
-        const userDocument = userDocuments.value?.documents?.find(
-            (doc: UserDocument) => doc.file_name === fileName,
-        );
-
-        if (!userDocument) {
+        // Use the user_document_id directly to fetch/download without list lookup
+        const userDocumentId = document.user_document_id;
+        alert(JSON.stringify(document));
+        if (typeof userDocumentId !== "number") {
             toast.add({
                 title: t("documents.failedToLoad"),
                 description: t("documents.unableToLoad", { fileName }),
@@ -80,7 +70,7 @@ async function handleDocumentClick(
         // If PDF, open in embedded viewer; otherwise, download
         const isPdf = document.mime_type === "application/pdf";
         if (isPdf) {
-            const result = await fetchDocument(userDocument.id, fileName);
+            const result = await fetchDocument(userDocumentId, fileName);
             if (result) {
                 selectedDocumentFile.value = result.blob;
                 selectedDocumentFileName.value = result.fileName;
@@ -95,7 +85,7 @@ async function handleDocumentClick(
                 });
             }
         } else {
-            await downloadDocument(userDocument.id, fileName);
+            await downloadDocument(userDocumentId, fileName);
         }
     } catch (error) {
         console.error("Failed to open document:", error);
