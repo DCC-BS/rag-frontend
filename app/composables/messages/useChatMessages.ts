@@ -290,7 +290,6 @@ export const useChatMessages = (
         }).catch((error) => {
             console.error("Failed to send chat message:", error);
             status.value = "ready";
-            const { handleApiError } = useApiError();
             handleApiError(error);
         });
 
