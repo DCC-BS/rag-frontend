@@ -1,6 +1,6 @@
 <template>
     <!-- Provide message-specific documents to MDC subtree -->
-    <MDC :value="value" />
+    <MDC :value="value" :cache-key="cacheKey" />
 
 </template>
 
@@ -12,6 +12,7 @@ import type { Document as ChatDocument } from "~/services/db";
 interface MessageMarkdownProps {
     value: string;
     documents: ChatDocument[];
+    cacheKey?: string;
 }
 
 const props = defineProps<MessageMarkdownProps>();

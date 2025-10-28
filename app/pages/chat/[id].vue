@@ -155,6 +155,18 @@ const uiMessages = computed(() => {
     });
 });
 
+// ID of the assistant message currently streaming (only the last assistant when status is streaming)
+const streamingAssistantMessageId = computed<string | undefined>(() => {
+    if (status.value !== "streaming") {
+        return undefined;
+    }
+    const last = messages.value[messages.value.length - 1];
+    if (last && last.role === "assistant") {
+        return last.id;
+    }
+    return undefined;
+});
+
 // No helper extraction needed: use message.parts[0].text and lookup maps
 
 /**
@@ -181,42 +193,41 @@ async function handleSubmit(e: Event): Promise<void> {
 </script>
 
 <template>
-    <UDashboardPanel id="chat" class="relative" :ui="{ body: 'p-0 sm:p-0' }">
-        <UContainer class="flex-1 flex flex-col">
-            <!-- Chat Messages with custom content -->
-            <UChatMessages :user="{
-                side: 'right',
-                variant: 'soft',
-                avatar: {
-                    src: userImage
-                }
-            }" :assistant="{
-                side: 'left',
-                variant: 'soft',
-                avatar: {
-                    src: '/img/ai.png'
-                }
-            }" :messages="uiMessages" :status="status === 'streaming' ? 'streaming' : 'ready'"
-                auto-scroll-icon="i-lucide-chevron-down" :should-scroll-to-bottom="false">
-                <template #content="{ message }">
+    <UContainer class="flex flex-col grow min-h-0 h-[calc(100dvh-8rem)] overflow-y-auto gap-4 sm:gap-6">
+        <UChatMessages :user="{
+            side: 'right',
+            variant: 'soft',
+            avatar: {
+                src: userImage
+            }
+        }" :assistant="{
+            side: 'left',
+            variant: 'soft',
+            avatar: {
+                src: '/img/ai.png'
+            }
+        }" :messages="uiMessages" :status="status === 'streaming' ? 'streaming' : 'ready'"
+            auto-scroll-icon="i-lucide-chevron-down" should-auto-scroll>
+            <template #content="{ message }">
+                <div :key="message.id">
                     <div v-if="message.role === 'assistant'">
-                        <MessageMarkdown :value="getMessageText(message)"
+                        <MessageMarkdown :value="getMessageText(message)" :cache-key="message.id"
                             :documents="documentsById.get(message.id) ?? []" />
                         <ChatStatusParts :status-parts="statusPartsById.get(message.id) ?? []"
-                            :is-streaming="status === 'streaming'" />
+                            :is-streaming="streamingAssistantMessageId === message.id" />
                         <ChatDocuments :documents="documentsById.get(message.id) ?? []" />
                     </div>
                     <div v-else>
                         {{ getMessageText(message) }}
                     </div>
-                </template>
-            </UChatMessages>
+                </div>
+            </template>
+        </UChatMessages>
 
-            <!-- Chat Input Prompt -->
-            <UChatPrompt v-model="input" variant="subtle" @submit="handleSubmit"
-                :status="status === 'streaming' ? 'streaming' : 'ready'">
-                <UChatPromptSubmit color="neutral" />
-            </UChatPrompt>
-        </UContainer>
-    </UDashboardPanel>
+        <!-- Chat Input Prompt -->
+        <UChatPrompt v-model="input" variant="subtle" @submit="handleSubmit"
+            :status="status === 'streaming' ? 'streaming' : 'ready'" class="sticky bottom-0 rounded-b-none z-10">
+            <UChatPromptSubmit color="neutral" />
+        </UChatPrompt>
+    </UContainer>
 </template>
