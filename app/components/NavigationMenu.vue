@@ -6,29 +6,32 @@ const { t } = useI18n();
 const { data, signOut } = useAuth();
 
 const userImage = computed(() => {
-    const base64 = data.value?.user?.image;
-    return base64 ? base64 : "/LucideCircleUserRound.png";
+  const base64 = data.value?.user?.image;
+  return base64 ? base64 : "/LucideCircleUserRound.png";
 });
 
 // Navigation menu items
 const items = computed<DropdownMenuItem[]>(() => [
-    {
-        label: t("navigation.signOut"),
-        icon: "i-lucide-sign-out",
-        onSelect: handleSignOut,
-    },
+  {
+    label: t("navigation.signOut"),
+    icon: "i-lucide-sign-out",
+    onSelect: handleSignOut,
+  },
 ]);
 
 async function handleSignOut(): Promise<void> {
-    await signOut();
+  await signOut();
 }
 </script>
 
 <template>
   <NavigationBar>
     <template #center>
-      <UButton variant="ghost" color="neutral" :to="$localePath('/')">{{ t('navigation.chat') }}</UButton>
-      <UButton variant="ghost" color="neutral" :to="$localePath('/documents')">{{ t('navigation.documents') }}</UButton>
+      <div class="flex flex-row items-center gap-2">
+        <UButton variant="ghost" color="neutral" :to="$localePath('/')">{{ t('navigation.chat') }}</UButton>
+        <UButton variant="ghost" color="neutral" :to="$localePath('/documents')">{{ t('navigation.documents') }}
+        </UButton>
+      </div>
     </template>
     <template #right>
       <UDropdownMenu :items="items">
