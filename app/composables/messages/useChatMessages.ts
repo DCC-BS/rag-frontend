@@ -100,22 +100,16 @@ export const useChatMessages = (
 
         const answer = chunk.metadata.answer;
 
-        await db.transaction("rw", db.messages, async () => {
-            const currentAiMessage = await db.messages.get(messageId);
-            if (!currentAiMessage) {
-                return;
-            }
-
-            if (
-                currentAiMessage.content === "…" ||
-                currentAiMessage.content === ""
-            ) {
-                currentAiMessage.content = answer;
-            } else {
-                currentAiMessage.content += answer;
-            }
-            await db.messages.put(currentAiMessage);
-        });
+        await db.messages
+            .where("id")
+            .equals(messageId)
+            .modify((message) => {
+                if (message.content === "…" || message.content === "") {
+                    message.content = answer;
+                } else {
+                    message.content += answer;
+                }
+            });
     }
 
     /**
@@ -292,6 +286,11 @@ export const useChatMessages = (
         }).catch((error) => {
             console.error("Failed to send chat message:", error);
             status.value = "ready";
+            db.messages
+                .where("id")
+                .equals(aiMessageIndex)
+                .delete()
+                .catch(console.error);
             handleApiError(error);
         });
 
