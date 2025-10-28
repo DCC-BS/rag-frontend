@@ -201,7 +201,7 @@ export const useChatMessages = (
                 break;
         }
 
-        const statusPart: Record<string, unknown> = {
+        const statusPart: Partial<import("~/services/db").StatusPart> = {
             text,
             sender: chunk.sender,
             highlight,
