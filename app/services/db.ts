@@ -49,7 +49,7 @@ db.version(1).stores({
     messages: "id, chatId, role, content, createdAt",
     statusParts: "id, messageId, text, highlight, sender, createdAt",
     documents:
-        "id, messageId, file_name, document_path, mime_type, num_pages, access_roles, user_document_id, page, createdAt",
+        "id, messageId, file_name, document_path, mime_type, num_pages, *access_roles, user_document_id, page, createdAt",
 });
 
 export type { Chat, Document, Message, StatusPart };
