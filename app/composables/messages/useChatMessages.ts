@@ -100,20 +100,22 @@ export const useChatMessages = (
 
         const answer = chunk.metadata.answer;
 
-        const currentAiMessage = await db.messages.get(messageId);
-        if (!currentAiMessage) {
-            return;
-        }
+        await db.transaction("rw", db.messages, async () => {
+            const currentAiMessage = await db.messages.get(messageId);
+            if (!currentAiMessage) {
+                return;
+            }
 
-        if (
-            currentAiMessage.content === "…" ||
-            currentAiMessage.content === ""
-        ) {
-            currentAiMessage.content = answer;
-        } else {
-            currentAiMessage.content += answer;
-        }
-        await db.messages.put(currentAiMessage);
+            if (
+                currentAiMessage.content === "…" ||
+                currentAiMessage.content === ""
+            ) {
+                currentAiMessage.content = answer;
+            } else {
+                currentAiMessage.content += answer;
+            }
+            await db.messages.put(currentAiMessage);
+        });
     }
 
     /**
