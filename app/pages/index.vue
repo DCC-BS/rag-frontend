@@ -86,15 +86,15 @@ async function sendChat(inputText: string): Promise<void> {
 
 const quickChats = [
     {
-        label: t('chat.exampleQuestions.question1'),
+        label: t("chat.exampleQuestions.question1"),
         icon: "i-heroicons-question-mark-circle",
     },
     {
-        label: t('chat.exampleQuestions.question2'),
+        label: t("chat.exampleQuestions.question2"),
         icon: "i-heroicons-question-mark-circle",
     },
     {
-        label: t('chat.exampleQuestions.question3'),
+        label: t("chat.exampleQuestions.question3"),
         icon: "i-heroicons-question-mark-circle",
     },
 ];

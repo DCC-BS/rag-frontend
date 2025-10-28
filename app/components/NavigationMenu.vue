@@ -6,21 +6,23 @@ const { t } = useI18n();
 const { data, signOut } = useAuth();
 
 const userImage = computed(() => {
-  const base64 = data.value?.user?.image;
-  return base64 ? base64 : "/LucideCircleUserRound.png";
+    const base64 = data.value?.user?.image;
+    return base64 ? base64 : "/LucideCircleUserRound.png";
 });
 
 // Navigation menu items
-const items = computed<DropdownMenuItem[]>(() => [
-  {
-    label: t("navigation.signOut"),
-    icon: "i-lucide-sign-out",
-    onSelect: handleSignOut,
-  },
+const items = computed<DropdownMenuItem[][]>(() => [
+    [
+        {
+            label: t("navigation.signOut"),
+            icon: "i-lucide-sign-out",
+            onSelect: handleSignOut,
+        },
+    ],
 ]);
 
 async function handleSignOut(): Promise<void> {
-  await signOut();
+    await signOut();
 }
 </script>
 

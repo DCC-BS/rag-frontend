@@ -27,26 +27,35 @@ function truncateText(text: string, max: number): string {
  */
 async function fetchChatsWithTitles(): Promise<ChatWithTitle[]> {
     const chats = await db.chats.orderBy("createdAt").reverse().toArray();
+    const chatIds = chats.map((c) => c.id);
 
-    // Resolve first user message for each chat to build titles
-    const withTitles = await Promise.all(
-        chats.map(async (chat) => {
-            // Earliest user message in this chat
-            const firstMessages = await db.messages
-                .where("chatId")
-                .equals(chat.id)
-                .sortBy("createdAt");
+    if (chatIds.length === 0) {
+        return [];
+    }
 
-            const firstUser = firstMessages.find(
-                (m: Message) => m.role === "user",
-            );
-            const base = firstUser?.content ?? t("chat.untitled");
-            const title = truncateText(base, MAX_TITLE_LENGTH);
-            return { ...chat, title };
-        }),
-    );
+    // Fetch all user messages for these chats in one query to avoid N+1
+    const allUserMessages = await db.messages
+        .where("chatId")
+        .anyOf(chatIds)
+        .and((m) => m.role === "user")
+        .toArray();
 
-    return withTitles;
+    // Group by chatId and keep the earliest user message per chat
+    const firstMessageMap = new Map<string, Message>();
+    for (const msg of allUserMessages) {
+        const existing = firstMessageMap.get(msg.chatId);
+        if (!existing || msg.createdAt < existing.createdAt) {
+            firstMessageMap.set(msg.chatId, msg);
+        }
+    }
+
+    // Build titles from earliest user message (fallback to i18n key)
+    return chats.map((chat) => {
+        const firstUserMessage = firstMessageMap.get(chat.id);
+        const base = firstUserMessage?.content ?? t("chat.untitled");
+        const title = truncateText(base, MAX_TITLE_LENGTH);
+        return { ...chat, title };
+    });
 }
 
 // Subscribe to chats via Dexie liveQuery

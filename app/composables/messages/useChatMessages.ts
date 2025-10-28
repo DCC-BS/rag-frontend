@@ -158,13 +158,7 @@ export const useChatMessages = (
         await db.statusParts.add({
             id: uuidv4(),
             messageId: messageId,
-            text: statusPart.text as string,
-            highlight: statusPart.highlight as
-                | "success"
-                | "error"
-                | "warning"
-                | null,
-            sender: statusPart.sender as string,
+            ...statusPart,
             createdAt: new Date(Date.now()),
         });
     }
@@ -201,7 +195,10 @@ export const useChatMessages = (
                 break;
         }
 
-        const statusPart: Record<string, unknown> = {
+        const statusPart: Pick<
+            import("~/services/db").StatusPart,
+            "text" | "highlight" | "sender"
+        > = {
             text,
             sender: chunk.sender,
             highlight,
@@ -252,7 +249,7 @@ export const useChatMessages = (
         if (!content.trim() || status.value === "streaming") {
             return chatId ?? undefined;
         }
-        let chatIdToUse = chatId;
+        let chatIdToUse: string = chatId ?? "";
         if (!chatIdToUse) {
             chatIdToUse = await db.chats.add({
                 id: uuidv4(),
@@ -267,10 +264,6 @@ export const useChatMessages = (
 
         // Add AI message placeholder
         const aiMessageIndex = await addAiMessagePlaceholder(chatIdToUse);
-        if (!aiMessageIndex) {
-            status.value = "ready";
-            return chatIdToUse;
-        }
 
         // Start streaming in the background (don't await)
         // This allows immediate redirect while response streams in

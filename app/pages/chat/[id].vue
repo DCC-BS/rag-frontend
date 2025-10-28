@@ -48,7 +48,8 @@ watchEffect(() => {
         messagesSubscription.value = undefined;
     }
 
-    const chatId = typeof route.params.id === "string" ? route.params.id : undefined;
+    const chatId =
+        typeof route.params.id === "string" ? route.params.id : undefined;
 
     // Create new liveQuery subscription for the current chat id
     messagesSubscription.value = liveQuery(async () => {
@@ -57,24 +58,49 @@ watchEffect(() => {
             .equals(chatId ?? "")
             .sortBy("createdAt");
 
-        // Load status parts and documents for each message
-        const messagesWithParts = await Promise.all(
-            msgs.map(async (msg) => {
-                const statusParts = await db.statusParts
-                    .where("messageId")
-                    .equals(msg.id)
-                    .sortBy("createdAt");
+        const messageIds = msgs.map((m) => m.id);
+        if (messageIds.length === 0) {
+            return [];
+        }
 
-                const documents = await db.documents
-                    .where("messageId")
-                    .equals(msg.id)
-                    .sortBy("createdAt");
+        const [allStatusParts, allDocuments] = await Promise.all([
+            db.statusParts.where("messageId").anyOf(messageIds).toArray(),
+            db.documents.where("messageId").anyOf(messageIds).toArray(),
+        ]);
 
-                return { ...msg, statusParts, documents };
-            }),
+        const statusPartsByMsgId = allStatusParts.reduce(
+            (acc, part) => {
+                const list = acc[part.messageId] ?? [];
+                list.push(part);
+                acc[part.messageId] = list;
+                return acc;
+            },
+            {} as Record<string, StatusPart[]>,
         );
 
-        return messagesWithParts;
+        const documentsByMsgId = allDocuments.reduce(
+            (acc, doc) => {
+                const list = acc[doc.messageId] ?? [];
+                list.push(doc);
+                acc[doc.messageId] = list;
+                return acc;
+            },
+            {} as Record<string, ChatDocument[]>,
+        );
+
+        // Sort related items by creation date for stable UI rendering
+        Object.values(statusPartsByMsgId).forEach((parts) => {
+            parts.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+        });
+        Object.values(documentsByMsgId).forEach((docs) => {
+            docs.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+        });
+
+        return msgs.map((msg) => ({
+            ...msg,
+            statusParts: statusPartsByMsgId[msg.id] ?? [],
+            documents: documentsByMsgId[msg.id] ?? [],
+        }));
     }).subscribe((result) => {
         messages.value = result;
     });
@@ -172,7 +198,10 @@ async function handleSubmit(e: Event): Promise<void> {
 
     try {
         // Pass the current chatId so message is added to existing chat
-        await sendChatMessage(content, typeof route.params.id === "string" ? route.params.id : "");
+        await sendChatMessage(
+            content,
+            typeof route.params.id === "string" ? route.params.id : "",
+        );
         input.value = "";
     } catch (error) {
         toast.add({
