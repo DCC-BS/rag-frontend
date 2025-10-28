@@ -25,16 +25,9 @@
         "today": "Today",
         "yesterday": "Yesterday",
         "exampleQuestions": {
-            "title": "Try asking:",
-            "clickToAsk": "Click to ask",
-            "additionalHelp": "I answer all questions based on the documents provided.",
-            "description": "Click on one of the following questions to start, or enter your own question.",
             "question1": "What can be reimbursed as rent and ancillary costs for homeowners?",
-            "category1": "Ancillary costs",
             "question2": "What do I need to consider following an inheritance?",
-            "category2": "Inheritance",
-            "question3": "Does the salary from the month before support count as income?",
-            "category3": "Income"
+            "question3": "Does the salary from the month before support count as income?"
         },
         "selectDocuments": "Select Documents",
         "selectDocumentsDescription": "Choose up to {max} documents to chat with",

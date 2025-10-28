@@ -25,16 +25,9 @@
             "exampleQuestion": "Beispielfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
         },
         "exampleQuestions": {
-            "title": "Fragen Sie zum Beispiel:",
-            "clickToAsk": "Klicken Sie, um zu fragen",
-            "additionalHelp": "Ich beantworte alle Fragen basierend auf den hinterlegten Dokumenten.",
-            "description": "Klicken Sie auf eine der folgenden Fragen, um zu beginnen, oder geben Sie Ihre eigene Frage ein.",
             "question1": "Was kann bei Hausbesitzer:innen alles als Miete und Nebenkosten erstattet werden?",
-            "category1": "Nebenkosten",
             "question2": "Was muss ich in Folge einer Erbschaft beachten?",
-            "category2": "Erbrecht",
-            "question3": "Zählt der Lohn aus dem Monat vor Unterstütztung als Einnahme?",
-            "category3": "Einkommen"
+            "question3": "Zählt der Lohn aus dem Monat vor Unterstütztung als Einnahme?"
         },
         "selectDocuments": "Dokumente auswählen",
         "selectDocumentsDescription": "Wählen Sie bis zu {max} Dokumente für den Chat aus",

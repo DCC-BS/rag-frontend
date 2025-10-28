@@ -86,24 +86,16 @@ async function sendChat(inputText: string): Promise<void> {
 
 const quickChats = [
     {
-        label: "Why use Nuxt UI?",
-        icon: "i-logos-nuxt-icon",
+        label: t('chat.exampleQuestions.question1'),
+        icon: "i-heroicons-question-mark-circle",
     },
     {
-        label: "Help me create a Vue composable",
-        icon: "i-logos-vue",
+        label: t('chat.exampleQuestions.question2'),
+        icon: "i-heroicons-question-mark-circle",
     },
     {
-        label: "Tell me more about UnJS",
-        icon: "i-logos-unjs",
-    },
-    {
-        label: "Why should I consider VueUse?",
-        icon: "i-logos-vueuse",
-    },
-    {
-        label: "Tailwind CSS best practices",
-        icon: "i-logos-tailwindcss-icon",
+        label: t('chat.exampleQuestions.question3'),
+        icon: "i-heroicons-question-mark-circle",
     },
 ];
 </script>
