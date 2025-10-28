@@ -1,10 +1,12 @@
 {
     "chat": {
-        "title": "Bebbi-Bot",
+        "title": "Bebbi Bot",
         "new": "New Chat",
+        "introduction": "How can I help you today?",
         "send": "Send",
         "message": "Message",
         "pressEnterToSend": "Press Enter to send",
+        "placeholder": "Question to Bebbi Bot",
         "sources": "Sources",
         "document": "Document",
         "page": "Page {page} of {num_pages}",
@@ -17,17 +19,15 @@
             "newChat": "Could not start a new chat. Please try again.",
             "exampleQuestion": "Could not send the example question. Please try again"
         },
+        "history": "Previous Chats",
+        "showOlder": "Show older",
+        "untitled": "Untitled",
+        "today": "Today",
+        "yesterday": "Yesterday",
         "exampleQuestions": {
-            "title": "Try asking:",
-            "clickToAsk": "Click to ask",
-            "additionalHelp": "I answer all questions based on the documents provided.",
-            "description": "Click on one of the following questions to start, or enter your own question.",
             "question1": "What can be reimbursed as rent and ancillary costs for homeowners?",
-            "category1": "Ancillary costs",
             "question2": "What do I need to consider following an inheritance?",
-            "category2": "Inheritance",
-            "question3": "Does the salary from the month before support count as income?",
-            "category3": "Income"
+            "question3": "Does the salary from the month before support count as income?"
         },
         "selectDocuments": "Select Documents",
         "selectDocumentsDescription": "Choose up to {max} documents to chat with",
@@ -55,6 +55,7 @@
         }
     },
     "common": {
+        "reference": "Reference",
         "close": "Close",
         "cancel": "Cancel",
         "delete": "Delete",
@@ -65,6 +66,7 @@
         "previous": "Previous",
         "selected": "Selected",
         "page": "page",
+        "page_abbreviation": "p.",
         "pageCount": "{count} page | {count} pages",
         "file": "File",
         "yes": "Yes",
@@ -88,9 +90,9 @@
         "generic": "An unexpected error occurred."
     },
     "navigation": {
-        "title": "Bebbi-Bot",
+        "app": "Bebbi Bot",
+        "chat": "New Chat",
         "documents": "Documents",
-        "languages": "Languages",
         "signOut": "Sign Out"
     },
     "documents": {
@@ -169,6 +171,7 @@
         "onlyPdfSupported": "Only PDF files are supported.",
         "load": "load",
         "download": "download",
+        "open": "open",
         "validationError": "Validation Error",
         "validationErrorDescription": "Please select a file and access role before uploading.",
         "authError": "Authentication Error",
@@ -245,5 +248,9 @@
         "title": "No Access",
         "description": "You do not have access to this page.",
         "contact": "If you need access, please contact us at:"
+    },
+    "date": {
+        "today": "Today",
+        "yesterday": "Yesterday"
     }
 }

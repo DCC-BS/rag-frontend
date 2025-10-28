@@ -1,11 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: "2024-11-01",
-    title: "Bebbi-Bot",
+    title: "Bebbi Bot",
     // Define app head configuration
     app: {
         head: {
-            title: "Bebbi-Bot",
+            title: "Bebbi Bot",
             htmlAttrs: {
                 lang: "de",
             },
@@ -13,14 +13,8 @@ export default defineNuxtConfig({
                 {
                     rel: "icon",
                     type: "image/png",
-                    href: "/favicon-192x192.png",
-                    sizes: "192x192",
-                },
-                {
-                    rel: "icon",
-                    type: "image/png",
-                    href: "/favicon-512x512.png",
-                    sizes: "512x512",
+                    href: "/favicon-16x16.png",
+                    sizes: "16x16",
                 },
                 {
                     rel: "icon",
@@ -54,13 +48,22 @@ export default defineNuxtConfig({
         colorMode: false,
     },
     modules: [
-        "@dcc-bs/authentication.bs.js",
         "@nuxt/ui",
         "@nuxtjs/i18n",
-        "@nuxtjs/mdc",
+        "@dcc-bs/common-ui.bs.js",
+        "@dcc-bs/authentication.bs.js",
         "@dcc-bs/logger.bs.js",
         "@dcc-bs/feedback-control.bs.js",
+        "@nuxtjs/mdc",
     ],
+    mdc: {
+        components: {
+            prose: true,
+            map: {
+                ref: "ProseRef",
+            },
+        },
+    },
     devtools: { enabled: true },
     css: ["~/assets/css/main.css"],
     // // Configure components to scan nested directories
@@ -69,12 +72,20 @@ export default defineNuxtConfig({
             path: "~/components",
             pathPrefix: false,
         },
+        {
+            path: "~/components/prose",
+            global: true,
+            pathPrefix: false,
+        },
     ],
     "feedback-control.bs.js": {
         repo: "Feedback",
         owner: "DCC-BS",
         project: "RAG-Frontend",
         githubToken: process.env.GITHUB_TOKEN,
+    },
+    "authentication.bs.js": {
+        useDummy: false,
     },
     runtimeConfig: {
         githubToken: process.env.GITHUB_TOKEN,
@@ -124,5 +135,20 @@ export default defineNuxtConfig({
             tablet: "md",
         },
         fallbackBreakpoint: "lg",
+    },
+    vite: {
+        build: {
+            // Reduce memory usage during build
+            rollupOptions: {
+                maxParallelFileOps: 2,
+            },
+            // Optimize chunk size
+            chunkSizeWarningLimit: 1000,
+        },
+        resolve: {
+            alias: {
+                dexie: "dexie/dist/dexie.mjs",
+            },
+        },
     },
 });

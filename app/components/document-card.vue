@@ -42,7 +42,7 @@
 
 <script lang="ts" setup>
 import type { UserDocument } from "@/models/document";
-import type { Document } from "@/models/message";
+import type { Document } from "~/services/db";
 
 const { t } = useI18n();
 const toast = useToast();
@@ -77,18 +77,16 @@ const getDocumentTitle = (): string => {
 // Helper function to get page information
 const getPageInfo = (): string => {
     const metadata = props.document.metadata;
-    console.log(metadata);
     if (
         metadata?.page &&
         metadata.num_pages &&
         typeof metadata.page === "number" &&
         typeof metadata.num_pages === "number"
-    ) {
+    )
         return t("chat.page", {
             page: metadata.page,
             num_pages: metadata.num_pages,
         });
-    }
 
     return "";
 };
@@ -96,7 +94,6 @@ const getPageInfo = (): string => {
 // Helper function to get the document page number
 const getDocumentPage = (): number => {
     const metadata = props.document.metadata;
-    console.log(metadata);
     if (metadata?.page && typeof metadata.page === "number") {
         return metadata.page;
     }
@@ -205,7 +202,7 @@ async function handleDocumentClick(): Promise<void> {
     }
 }
 
-const formatMetadata = (metadata: Record<string, unknown>): string => {
+const formatMetadata = (metadata: Record<string, string | number>): string => {
     const metadata_strings = [];
     if (metadata?.mime_type && typeof metadata.mime_type === "string") {
         const mime_type = metadata.mime_type.split("/")[1];

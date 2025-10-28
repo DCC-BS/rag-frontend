@@ -11,13 +11,10 @@
         dcc@bs.ch
       </a>
     </div>
-    <DataBsBanner />
   </div>
 
 </template>
 
 <script lang="ts" setup>
-import { DataBsBanner } from "@dcc-bs/common-ui.bs.js";
-
 const { t } = useI18n();
 </script>

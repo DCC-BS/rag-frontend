@@ -1,20 +1,6 @@
 <template>
-    <UModal :open="isOpen" @update:open="$emit('update:isOpen', $event)" :prevent-close="isLoading">
-        <template #header>
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
-                    <UIcon name="i-heroicons-arrow-up-tray" class="w-6 h-6 text-primary-600 dark:text-primary-400" />
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ t('documents.uploadTitle') }}
-                    </h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {{ t('documents.uploadDescription') }}
-                    </p>
-                </div>
-            </div>
-        </template>
+    <UModal :open="isOpen" :title="t('documents.uploadTitle')" :description="t('documents.uploadDescription')"
+        @update:open="$emit('update:isOpen', $event)" :prevent-close="isLoading">
 
         <template #body>
             <UAlert :description="t('documents.uploadDurationAlert')" color="warning" variant="subtle"
@@ -22,64 +8,45 @@
             <!-- Form -->
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <!-- File Selection -->
-                <div>
-                    <label for="file-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        {{ t('documents.selectFile') }}
-                    </label>
-                    <UInput id="file-input" ref="fileInputRef" type="file" @change="handleFileChange"
-                        accept=".pdf,.zip,.docx,.pptx,.html" multiple :disabled="isLoading" class="w-full" />
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {{ getFileUploadDescription() }}
-                    </p>
+                <UFileUpload v-model="selectedFiles" :multiple="true" accept=".pdf,.zip,.docx,.pptx,.html"
+                    :label="t('documents.selectFile')" :description="getFileUploadDescription()" :disabled="isLoading"
+                    icon="i-heroicons-arrow-up-tray" layout="list"
+                    @update:model-value="(files) => selectedFiles = Array.isArray(files) ? files : (files ? [files] : [])" />
 
-                    <!-- Additional file info for selected files -->
-                    <div v-if="selectedFiles.length > 0" class="mt-3 space-y-2">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="font-medium text-gray-700 dark:text-gray-300">
-                                {{ t('documents.selectedFiles') }}: {{ selectedFiles.length }}
-                                <span v-if="isZipFile && selectedFiles.length === 1"
-                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 ml-2">
-                                    ZIP Archive
-                                </span>
+                <div v-if="selectedFiles.length > 0" class="space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="font-medium">
+                            {{ t('documents.selectedFiles') }}: {{ selectedFiles.length }}
+                            <span v-if="isZipFile && selectedFiles.length === 1" class="ml-2 text-xs">
+                                ZIP
                             </span>
-                            <span class="text-gray-500 dark:text-gray-400">
-                                {{ formatTotalFileSize() }}
-                            </span>
-                        </div>
-
-                        <!-- File list -->
-                        <div class="max-h-32 overflow-y-auto space-y-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                            <div v-for="(file, index) in selectedFiles" :key="index"
-                                class="flex items-center justify-between text-xs">
-                                <span class="truncate flex-1 pr-2">{{ file.name }}</span>
-                                <span class="text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                    {{ formatFileSize(file.size) }}
-                                </span>
-                            </div>
-                        </div>
+                        </span>
+                        <span class="text-gray-500">
+                            {{ formatTotalFileSize() }}
+                        </span>
                     </div>
                 </div>
 
                 <!-- Folder Selection -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-sm font-medium mb-2">
                         {{ t('documents.selectFolder') }}
                     </label>
                     <USelect v-model="selectedFolder" :items="folderItems"
                         :placeholder="t('documents.selectFolderPlaceholder')" :disabled="isLoading" />
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p class="mt-1 text-xs text-gray-500">
                         {{ t('documents.folderSelectionHint') }}
                     </p>
                 </div>
 
                 <!-- Access Role Selection -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-sm font-medium mb-2">
                         {{ t('documents.accessRole') }}
                     </label>
                     <USelect v-model="selectedAccessRole" :items="roleItems"
                         :placeholder="t('documents.selectAccessRole')" :disabled="isLoading" />
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p class="mt-1 text-xs text-gray-500">
                         {{ (roleItems.length || 0) > 0
                             ? t('documents.availableRoles')
                             : t('documents.noRoles') }}
@@ -89,10 +56,10 @@
                 <!-- Progress Indicator -->
                 <div v-if="isLoading && progress.total > 0" class="space-y-3">
                     <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-700 dark:text-gray-300">
+                        <span>
                             {{ getProgressText() }}
                         </span>
-                        <span class="text-gray-500 dark:text-gray-400">
+                        <span class="text-gray-500">
                             {{ progress.current }} / {{ progress.total }} files
                         </span>
                     </div>

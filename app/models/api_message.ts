@@ -1,16 +1,4 @@
-export interface Message {
-    id: string;
-    isUser: boolean;
-    avatar: string;
-    content: string;
-    status?: string;
-    statusParts?: StatusPart[];
-    streaming?: boolean;
-    documents?: Document[] | null;
-    timestamp?: Date;
-}
-
-export interface ChatMessage {
+export interface ApiChatMessage {
     message: string;
     thread_id: string;
     document_ids: number[] | null;
@@ -42,7 +30,7 @@ export interface DocumentsStreamChunk extends BaseStreamChunk {
     type: "documents";
     sender: "retrieve_action";
     metadata: {
-        documents: Document[];
+        documents: ApiDocument[];
     };
 }
 
@@ -72,13 +60,17 @@ export type StreamChunk =
     | AnswerStreamChunk
     | DecisionStreamChunk;
 
-export interface Document {
-    page_content: string;
-    metadata: Record<string, unknown>;
+export interface ApiDocument {
+    metadata: ApiMetadata;
 }
 
-export interface StatusPart {
-    text: string;
-    highlight?: "error" | "warning" | "success" | null;
-    sender?: string;
+export interface ApiMetadata {
+    id: number;
+    file_name: string;
+    document_path: string;
+    mime_type: string;
+    num_pages: number | null;
+    page: number | null;
+    created_at: string;
+    access_roles: string[];
 }

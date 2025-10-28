@@ -1,16 +1,23 @@
 {
     "chat": {
-        "title": "Bebbi-Bot",
+        "title": "Bebbi Bot",
+        "introduction": "Wie kann ich Ihnen heute helfen?",
         "new": "Neuer Chat",
         "send": "Senden",
         "message": "Nachricht",
         "pressEnterToSend": "Drücken Sie Enter, um die Nachricht zu senden",
+        "placeholder": "Frage an Bebbi Bot",
         "sources": "Quellen",
         "document": "Dokument",
         "page": "Seite {page} von {num_pages}",
         "created_at": "Erstellt am",
         "mime_type": "Dateityp",
         "sourcesCount": "{count} Dokument | {count} Dokumente",
+        "history": "Vergangene Chats",
+        "showOlder": "Ältere anzeigen",
+        "untitled": "Unbenannt",
+        "today": "Heute",
+        "yesterday": "Gestern",
         "error": {
             "title": "Nachricht konnte nicht gesendet werden",
             "sendMessage": "Bitte melden Sie sich erneut an und versuchen Sie es erneut.",
@@ -18,16 +25,9 @@
             "exampleQuestion": "Beispielfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
         },
         "exampleQuestions": {
-            "title": "Fragen Sie zum Beispiel:",
-            "clickToAsk": "Klicken Sie, um zu fragen",
-            "additionalHelp": "Ich beantworte alle Fragen basierend auf den hinterlegten Dokumenten.",
-            "description": "Klicken Sie auf eine der folgenden Fragen, um zu beginnen, oder geben Sie Ihre eigene Frage ein.",
             "question1": "Was kann bei Hausbesitzer:innen alles als Miete und Nebenkosten erstattet werden?",
-            "category1": "Nebenkosten",
             "question2": "Was muss ich in Folge einer Erbschaft beachten?",
-            "category2": "Erbrecht",
-            "question3": "Zählt der Lohn aus dem Monat vor Unterstütztung als Einnahme?",
-            "category3": "Einkommen"
+            "question3": "Zählt der Lohn aus dem Monat vor Unterstütztung als Einnahme?"
         },
         "selectDocuments": "Dokumente auswählen",
         "selectDocumentsDescription": "Wählen Sie bis zu {max} Dokumente für den Chat aus",
@@ -55,6 +55,7 @@
         }
     },
     "common": {
+        "reference": "Referenz",
         "close": "Schliessen",
         "cancel": "Abbrechen",
         "delete": "Löschen",
@@ -65,6 +66,7 @@
         "previous": "Zurück",
         "selected": "Ausgewählt",
         "page": "Seite",
+        "page_abbreviation": "S.",
         "pageCount": "{count} Seite | {count} Seiten",
         "file": "Datei",
         "yes": "Ja",
@@ -88,9 +90,9 @@
         "generic": "Ein unerwarteter Fehler ist aufgetreten."
     },
     "navigation": {
-        "title": "Bebbi-Bot",
+        "app": "Bebbi Bot",
+        "chat": "Neuer Chat",
         "documents": "Dokumente",
-        "languages": "Sprachen",
         "signOut": "Abmelden"
     },
     "documents": {
@@ -166,6 +168,7 @@
         "failedToDownload": "Der Download von \"{fileName}\" ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
         "operationFailed": "Operation fehlgeschlagen",
         "failedTo": "Konnte \"{fileName}\" nicht {operation}. Bitte versuchen Sie es erneut.",
+        "open": "Öffnen",
         "onlyPdfSupported": "Nur PDF-Dateien werden unterstützt.",
         "load": "laden",
         "download": "herunterladen",
@@ -244,5 +247,9 @@
         "title": "Kein Zugriff",
         "description": "Sie haben keinen Zugriff auf diese Seite.",
         "contact": "Wenn Sie Zugriff benötigen, kontaktieren Sie uns unter:"
+    },
+    "date": {
+        "today": "Heute",
+        "yesterday": "Gestern"
     }
 }
