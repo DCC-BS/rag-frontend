@@ -24,13 +24,17 @@ RUN bun x nuxi build
 FROM node:24-alpine
 
 # Set the working directory
-WORKDIR /app
+RUN mkdir -p /home/node/app && chown -R node:node /home/node
+WORKDIR /home/node/app
 
 # Copy the built application from the build stage
-COPY --from=build /app/.output ./
+COPY --from=build --chown=node:node /app/.output/ ./
 
 # Expose the port the app runs on
 EXPOSE 3000
+
+# Run as non-root user for security
+USER node
 
 # Start the application
 ENTRYPOINT ["node", "./server/index.mjs"]
