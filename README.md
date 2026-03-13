@@ -1,3 +1,7 @@
+# Archived
+
+We no longer work on this project. This project is not ready for production. We do not recommend to use this RAG implementation.
+
 # rag-frontend
 
 [![Build & Test](https://github.com/DCC-BS/rag-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/DCC-BS/rag-frontend/actions/workflows/ci.yml)
